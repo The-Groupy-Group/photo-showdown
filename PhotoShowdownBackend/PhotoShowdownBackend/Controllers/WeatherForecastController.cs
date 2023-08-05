@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using PhotoShowdownBackend.Models;
 
 namespace PhotoShowdownBackend.Controllers
 {

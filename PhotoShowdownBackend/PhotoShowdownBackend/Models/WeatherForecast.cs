@@ -1,4 +1,4 @@
-namespace PhotoShowdownBackend
+namespace PhotoShowdownBackend.Models
 {
     public class WeatherForecast
     {
