@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using PhotoShowdownBackend.Models;
 
 namespace PhotoShowdownBackend.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]/[action]")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
@@ -12,13 +13,15 @@ namespace PhotoShowdownBackend.Controllers
     };
 
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly PhotoShowdownDbContext _db;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, PhotoShowdownDbContext db)
         {
             _logger = logger;
+            this._db = db;
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
+        [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
@@ -28,6 +31,13 @@ namespace PhotoShowdownBackend.Controllers
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             })
             .ToArray();
+        }
+        [HttpGet]
+        public async Task<IEnumerable<User>> GetUsers()
+        {
+            _db.Users.Add(new User { Username = "Donfil", Password = "Donfil", Email = "" });
+            _db.SaveChanges();
+            return await _db.Users.ToListAsync();
         }
     }
 }
