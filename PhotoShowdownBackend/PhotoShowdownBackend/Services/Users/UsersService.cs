@@ -1,4 +1,4 @@
-﻿
+﻿using BCrypt.Net;
 
 namespace PhotoShowdownBackend.Services.Users;
 
@@ -23,7 +23,7 @@ public class UsersService : IUsersService
             Email = registerationRequest.Email,
             FirstName = registerationRequest.FirstName,
             LastName = registerationRequest.LastName,
-            Password = registerationRequest.Password
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerationRequest.Password)
         };
 
         var createdUser = await _usersRepository.CreateAsync(user);
