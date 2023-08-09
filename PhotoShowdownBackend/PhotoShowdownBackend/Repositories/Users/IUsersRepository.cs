@@ -1,4 +1,7 @@
-﻿namespace PhotoShowdownBackend.Repositories.Users;
+﻿using PhotoShowdownBackend.Models;
+using PhotoShowdownBackend.Repositories.Repository;
+
+namespace PhotoShowdownBackend.Repositories.Users;
 
 public interface IUsersRepository: IRepository<User>
 {

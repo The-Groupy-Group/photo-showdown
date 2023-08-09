@@ -1,11 +1,9 @@
 ﻿namespace PhotoShowdownBackend.Exceptions.Users;
 
-public class UsersServiceException : Exception
+public class UsersServiceException : AbstractException
 {
-    public UsersServiceException() { }
+    public UsersServiceException(string? message = null) : base(message)
+    {
 
-    public UsersServiceException(string message) : base(message) { }
-
-    public UsersServiceException(string message, Exception innerException)
-        : base(message, innerException) { }
+    }
 }

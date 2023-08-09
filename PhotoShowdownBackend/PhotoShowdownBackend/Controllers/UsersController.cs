@@ -1,6 +1,10 @@
 ﻿using Azure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PhotoShowdownBackend.Dtos.Users;
+using PhotoShowdownBackend.Exceptions.Users;
+using PhotoShowdownBackend.Models;
+using PhotoShowdownBackend.Services.Users;
 using System.Net;
 
 namespace PhotoShowdownBackend.Controllers;
@@ -18,12 +22,14 @@ public class UsersController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(typeof(APIResponse<RegisterationResponseDTO>), StatusCodes.Status201Created)]
-    public async Task<IActionResult> Register([FromBody] RegisterationRequestDTO userRegistrationDTO)
+    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Register([FromBody] RegisterationRequestDTO registrationRequest)
     {
         APIResponse<RegisterationResponseDTO> response = new();
         try
         {
-            var newUser =  await _usersService.RegisterUser(userRegistrationDTO);
+            var newUser =  await _usersService.RegisterUser(registrationRequest);
 
             response.Data = newUser;
 
@@ -37,6 +43,33 @@ public class UsersController : ControllerBase
         {
             // TODO: Log exception
             return StatusCode(StatusCodes.Status500InternalServerError, APIResponse<RegisterationResponseDTO>.ToServerError());
+        }
+    }
+
+
+    [HttpPost]
+    [ProducesResponseType(typeof(APIResponse<LoginResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequest)
+    {
+        APIResponse<LoginResponseDTO> response = new();
+        try
+        {
+            var loginResult = await _usersService.Login(loginRequest);
+
+            response.Data = loginResult;
+
+            return Ok(response);
+        }
+        catch (InvalidLoginException ex)
+        {
+            return BadRequest(response.ToErrorResponse(ex.Message));
+        }
+        catch
+        {
+            // TODO: Log exception
+            return StatusCode(StatusCodes.Status500InternalServerError, EmptyAPIResponse.ToServerError());
         }
     }
 
