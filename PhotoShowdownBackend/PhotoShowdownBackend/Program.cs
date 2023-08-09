@@ -1,5 +1,6 @@
 global using PhotoShowdownBackend.Models;
 global using PhotoShowdownBackend.Data;
+global using PhotoShowdownBackend.Repositories.Repository;
 global using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
