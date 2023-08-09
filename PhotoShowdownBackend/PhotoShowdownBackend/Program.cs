@@ -1,7 +1,11 @@
 global using PhotoShowdownBackend.Models;
 global using PhotoShowdownBackend.Data;
+global using PhotoShowdownBackend.Services.Users;
 global using PhotoShowdownBackend.Repositories.Repository;
+global using PhotoShowdownBackend.Dtos.Users;
+global using PhotoShowdownBackend.Exceptions.Users;
 global using Microsoft.EntityFrameworkCore;
+using PhotoShowdownBackend.Repositories.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +20,10 @@ builder.Services.AddDbContext<PhotoShowdownDbContext>(options =>
 );
 
 builder.Services.AddControllers();
+
+// Add repositories
+builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
