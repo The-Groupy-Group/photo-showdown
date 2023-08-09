@@ -18,8 +18,8 @@ public class UsersController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(typeof(APIResponse<RegisterationResponseDTO>), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Register([FromBody] RegisterationRequestDTO registrationRequest)
     {
         APIResponse<RegisterationResponseDTO> response = new();
@@ -45,8 +45,8 @@ public class UsersController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(typeof(APIResponse<LoginResponseDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequest)
     {
         APIResponse<LoginResponseDTO> response = new();
@@ -56,16 +56,16 @@ public class UsersController : ControllerBase
 
             response.Data = loginResult;
 
-            return Ok(loginResult);
+            return Ok(response);
         }
-        catch (UsersServiceException ex)
+        catch (InvalidLoginException ex)
         {
             return BadRequest(response.ToErrorResponse(ex.Message));
         }
         catch
         {
             // TODO: Log exception
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse<RegisterationResponseDTO>.ToServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, EmptyAPIResponse.ToServerError());
         }
     }
 
