@@ -16,19 +16,34 @@ public class UsersController : ControllerBase
         _usersService = usersService;
     }
 
-    [HttpPost("register")]
+    [HttpPost]
+    [ProducesResponseType(typeof(APIResponse<RegisterationResponseDTO>), StatusCodes.Status201Created)]
     public async Task<IActionResult> Register([FromBody] RegisterationRequestDTO userRegistrationDTO)
     {
+        APIResponse<RegisterationResponseDTO> response = new();
         try
         {
             var newUser =  await _usersService.RegisterUser(userRegistrationDTO);
 
-            // TODO: Change action to nameof(GetUser)
-            return CreatedAtAction("", new { id = newUser.Id }, newUser);
+            response.Data = newUser;
+
+            return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, response);
         }
-        catch (UserRegistrationException ex)
+        catch (UsersServiceException ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(response.ToErrorResponse(ex.Message));
         }
+        catch
+        {
+            // TODO: Log exception
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse<RegisterationResponseDTO>.ToServerError());
+        }
+    }
+
+    [HttpGet("{id:int}")]
+    [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status201Created)]
+    public async Task<IActionResult> GetUser(int id)
+    {
+        throw new NotImplementedException();
     }
 }

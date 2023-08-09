@@ -8,7 +8,7 @@ public class UsersRepository: Repository<User>, IUsersRepository
 
     public async Task<bool> IsUniqueUser(string username, string email)
     {
-        return await _dbSet.AllAsync(u => u.UserName != username && u.Email != email);
+        return await _dbSet.AllAsync(u => u.Username != username && u.Email != email);
     }
 }
 

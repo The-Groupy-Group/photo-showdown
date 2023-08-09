@@ -1,4 +1,4 @@
-﻿using PhotoShowdownBackend.Repositories.Users;
+﻿
 
 namespace PhotoShowdownBackend.Services.Users;
 
@@ -12,6 +12,27 @@ public class UsersService : IUsersService
     }
     public async Task<RegisterationResponseDTO> RegisterUser(RegisterationRequestDTO registerationRequest)
     {
-        throw new NotImplementedException();
+        var isUniqueUser = await _usersRepository.IsUniqueUser(registerationRequest.Username, registerationRequest.Email);
+        if(!isUniqueUser)
+        {
+            throw new UsersServiceException("Username or Email already exists");
+        }
+        var user = new User
+        {
+            Username = registerationRequest.Username,
+            Email = registerationRequest.Email,
+            FirstName = registerationRequest.FirstName,
+            LastName = registerationRequest.LastName,
+            Password = registerationRequest.Password
+        };
+
+        var createdUser = await _usersRepository.CreateAsync(user);
+
+        var response = new RegisterationResponseDTO
+        {
+            Id = createdUser.Id
+        };
+
+        return response;
     }
 }

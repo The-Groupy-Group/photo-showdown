@@ -50,19 +50,22 @@ public abstract class Repository<T> : IRepository<T> where T : class
 
         return await query.ToListAsync();
     }
-    public async Task CreateAsync(T entity)
+    public async Task<T> CreateAsync(T entity)
     {
         await _dbSet.AddAsync(entity);
         await _db.SaveChangesAsync();
+        return entity;
     }
-    public async Task UpdateAsync(T entity)
+    public async Task<T> UpdateAsync(T entity)
     {
         _dbSet.Entry(entity).State = EntityState.Modified;
         await _db.SaveChangesAsync();
+        return entity;
     }
-    public async Task DeleteAsync(T entity)
+    public async Task<T> DeleteAsync(T entity)
     {
         _dbSet.Remove(entity);
         await _db.SaveChangesAsync();
+        return entity;
     }
 }
