@@ -66,8 +66,8 @@ public class UsersService : IUsersService
         {
             new Claim(UserClaims.Id, user.Id.ToString()),
             new Claim(UserClaims.Username, user.Username),
-            new Claim(UserClaims.Roles,"User"),
-            new Claim(UserClaims.Roles,"Donfil"),
+            new Claim(UserClaims.Roles,Roles.User),
+            new Claim(UserClaims.Roles,Roles.Donfil),
         };
 
         // TODO: define a actual key
