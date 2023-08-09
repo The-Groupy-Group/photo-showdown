@@ -1,6 +1,10 @@
 ﻿using Azure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PhotoShowdownBackend.Dtos.Users;
+using PhotoShowdownBackend.Exceptions.Users;
+using PhotoShowdownBackend.Models;
+using PhotoShowdownBackend.Services.Users;
 using System.Net;
 
 namespace PhotoShowdownBackend.Controllers;

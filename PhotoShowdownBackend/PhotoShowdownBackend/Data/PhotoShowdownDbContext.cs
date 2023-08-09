@@ -1,4 +1,7 @@
-﻿namespace PhotoShowdownBackend.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using PhotoShowdownBackend.Models;
+
+namespace PhotoShowdownBackend.Data;
 
 public class PhotoShowdownDbContext: DbContext
 {

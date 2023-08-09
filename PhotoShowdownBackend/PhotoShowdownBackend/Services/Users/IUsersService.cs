@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PhotoShowdownBackend.Dtos.Users;
 
 namespace PhotoShowdownBackend.Services.Users;
 

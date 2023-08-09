@@ -1,6 +1,10 @@
 ﻿using BCrypt.Net;
 using Microsoft.IdentityModel.Tokens;
 using PhotoShowdownBackend.Consts;
+using PhotoShowdownBackend.Dtos.Users;
+using PhotoShowdownBackend.Exceptions.Users;
+using PhotoShowdownBackend.Models;
+using PhotoShowdownBackend.Repositories.Users;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
