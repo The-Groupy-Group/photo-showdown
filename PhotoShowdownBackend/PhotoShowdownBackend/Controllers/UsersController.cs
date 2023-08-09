@@ -18,16 +18,45 @@ public class UsersController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(typeof(APIResponse<RegisterationResponseDTO>), StatusCodes.Status201Created)]
-    public async Task<IActionResult> Register([FromBody] RegisterationRequestDTO userRegistrationDTO)
+    [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Register([FromBody] RegisterationRequestDTO registrationRequest)
     {
         APIResponse<RegisterationResponseDTO> response = new();
         try
         {
-            var newUser =  await _usersService.RegisterUser(userRegistrationDTO);
+            var newUser =  await _usersService.RegisterUser(registrationRequest);
 
             response.Data = newUser;
 
             return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, response);
+        }
+        catch (UsersServiceException ex)
+        {
+            return BadRequest(response.ToErrorResponse(ex.Message));
+        }
+        catch
+        {
+            // TODO: Log exception
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse<RegisterationResponseDTO>.ToServerError());
+        }
+    }
+
+
+    [HttpPost]
+    [ProducesResponseType(typeof(APIResponse<LoginResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequest)
+    {
+        APIResponse<LoginResponseDTO> response = new();
+        try
+        {
+            var loginResult = await _usersService.Login(loginRequest);
+
+            response.Data = loginResult;
+
+            return Ok(loginResult);
         }
         catch (UsersServiceException ex)
         {

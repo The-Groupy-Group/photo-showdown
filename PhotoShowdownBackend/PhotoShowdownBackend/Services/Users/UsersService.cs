@@ -35,4 +35,17 @@ public class UsersService : IUsersService
 
         return response;
     }
+    public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequest)
+    {
+        var user = await _usersRepository.GetAsync(u=>u.Username == loginRequest.Username);
+        if(user == null)
+        {
+            throw new InvalidLoginException();
+        }
+        if (!BCrypt.Net.BCrypt.Verify(loginRequest.Password, user.PasswordHash))
+        {
+            throw new InvalidLoginException();
+        }
+        return new();
+    }
 }
