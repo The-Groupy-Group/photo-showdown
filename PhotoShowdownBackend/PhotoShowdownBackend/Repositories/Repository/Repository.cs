@@ -31,7 +31,7 @@ public abstract class Repository<T> : IRepository<T> where T : class
         return await query.Where(filter).FirstOrDefaultAsync();
     }
 
-    /// </inheritdoc>
+    /// <inheritdoc></inheritdoc>
     public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null)
     {
         IQueryable<T> query = _dbSet;

@@ -99,7 +99,7 @@ public class UsersController : ControllerBase
     /// <returns>User DTO</returns>
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetUser(int id)
     {
@@ -111,7 +111,7 @@ public class UsersController : ControllerBase
     /// </summary>
     /// <returns>All users in the system</returns>
     [HttpGet, Authorize(Roles = Roles.Admin)]
-    [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(APIResponse<IEnumerable<int>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAllUser()
     {
