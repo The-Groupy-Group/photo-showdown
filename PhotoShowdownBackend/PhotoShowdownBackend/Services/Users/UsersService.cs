@@ -74,9 +74,9 @@ public class UsersService : IUsersService
             new Claim(UserClaims.Username, user.Username),
             new Claim(UserClaims.Roles,Roles.User),
             new Claim(UserClaims.Roles,Roles.Donfil),
+            new Claim(UserClaims.Roles,Roles.Admin),
         };
 
-        // TODO: define a actual key
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value!));
 
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

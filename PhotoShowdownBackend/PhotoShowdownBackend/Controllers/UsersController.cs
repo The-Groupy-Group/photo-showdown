@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions.Users;
 using PhotoShowdownBackend.Models;
@@ -94,6 +95,18 @@ public class UsersController : ControllerBase
     [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetUser(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Get all users (admin only)
+    /// </summary>
+    /// <returns>All users in the system</returns>
+    [HttpGet, Authorize(Roles = Roles.Admin)]
+    [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetAllUser()
     {
         throw new NotImplementedException();
     }
