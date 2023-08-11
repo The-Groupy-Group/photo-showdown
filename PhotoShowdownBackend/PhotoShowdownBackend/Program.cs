@@ -9,8 +9,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Filters;
 using Serilog;
-
-
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +50,13 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options=>
 {
+    options.SwaggerDoc("v1",
+            new OpenApiInfo
+            {
+                Title = "Donfil API",
+                Version = "v1"
+            });
+
     // Add JWT support for swagger
     options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
     {
@@ -61,6 +67,12 @@ builder.Services.AddSwaggerGen(options=>
     });
 
     options.OperationFilter<SecurityRequirementsOperationFilter>();
+
+
+    // Include the XML comments in Swagger documentation
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath);
 });
 
 // Add authentication
