@@ -2,7 +2,6 @@
 using BCrypt.Net;
 using Microsoft.IdentityModel.Tokens;
 using PhotoShowdownBackend.Consts;
-using PhotoShowdownBackend.Controllers;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions.Users;
 using PhotoShowdownBackend.Models;
@@ -21,11 +20,11 @@ public class UsersService : IUsersService
     private readonly IUsersRepository _usersRepository;
     private readonly IConfiguration _configuration;
     private readonly IMapper _mapper;
-    private readonly ILogger<UsersController> _logger;
+    private readonly ILogger<UsersService> _logger;
 
     private const int TOKEN_EXPIRATION_HOURS = 5;
 
-    public UsersService(IUsersRepository usersRepository, IConfiguration configuration, IMapper mapper, ILogger<UsersController> logger)
+    public UsersService(IUsersRepository usersRepository, IConfiguration configuration, IMapper mapper, ILogger<UsersService> logger)
     {
         _usersRepository = usersRepository;
         _configuration = configuration;
