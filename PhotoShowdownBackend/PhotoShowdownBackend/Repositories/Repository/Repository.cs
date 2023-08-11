@@ -31,7 +31,8 @@ public abstract class Repository<T> : IRepository<T> where T : class
         return await query.Where(filter).FirstOrDefaultAsync();
     }
 
-    public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, int pageSize = 0, int pageNumber = 1)
+    /// </inheritdoc>
+    public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null)
     {
         IQueryable<T> query = _dbSet;
 
@@ -43,14 +44,14 @@ public abstract class Repository<T> : IRepository<T> where T : class
         {
             query = query.AsNoTracking();
         }
-        if (pageSize > 0)
+        if (pageSize.HasValue && pageNumber.HasValue)
         {
             if (pageSize > MAX_PAGE_SIZE)
             {
                 pageSize = MAX_PAGE_SIZE;
             }
 
-            query = query.Skip(pageSize * (pageNumber - 1)).Take(pageSize);
+            query = query.Skip(pageSize.Value * (pageNumber.Value - 1)).Take(pageSize.Value);
         }
 
         return await query.ToListAsync();
