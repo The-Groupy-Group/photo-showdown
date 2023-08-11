@@ -50,7 +50,7 @@ public class UsersController : ControllerBase
         catch
         {
             // TODO: Log exception
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse<RegisterationResponseDTO>.ToServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, EmptyAPIResponse.ToServerError());
         }
     }
 
@@ -96,7 +96,7 @@ public class UsersController : ControllerBase
     [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetUser(int id)
     {
-        throw new NotImplementedException();
+        return StatusCode(StatusCodes.Status501NotImplemented, EmptyAPIResponse.ToServerError());
     }
 
     /// <summary>
@@ -108,6 +108,6 @@ public class UsersController : ControllerBase
     [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAllUser()
     {
-        throw new NotImplementedException();
+        return StatusCode(StatusCodes.Status501NotImplemented, EmptyAPIResponse.ToServerError());
     }
 }
