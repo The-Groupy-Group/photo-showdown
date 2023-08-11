@@ -46,8 +46,18 @@ builder.Services.AddAutoMapper(typeof(MappingConfig).Assembly);
 // Adding HttpContextAccessor as injectable so services can access HttpContext
 builder.Services.AddHttpContextAccessor();
 
+// Add Cors
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", build =>
+    {
+        build.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+    });
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(options=>
 {
     options.SwaggerDoc("v1",
@@ -98,6 +108,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Use Cors
+app.UseCors("CorsPolicy");
 
 app.UseHttpsRedirection();
 
