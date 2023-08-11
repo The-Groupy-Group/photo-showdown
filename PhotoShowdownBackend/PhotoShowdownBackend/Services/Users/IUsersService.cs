@@ -3,6 +3,9 @@ using PhotoShowdownBackend.Dtos.Users;
 
 namespace PhotoShowdownBackend.Services.Users;
 
+/// <summary>
+/// A business logic service interface for our Users
+/// </summary>
 public interface IUsersService
 {
     Task<RegisterationResponseDTO> RegisterUser(RegisterationRequestDTO registerationRequest);

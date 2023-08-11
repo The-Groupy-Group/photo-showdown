@@ -5,6 +5,10 @@ using PhotoShowdownBackend.Data;
 
 namespace PhotoShowdownBackend.Repositories.Repository;
 
+/// <summary>
+/// A generic abstract Data Access Layer (DAL) repository implementation for our database
+/// </summary>
+/// <typeparam name="T">A model representing a Db table</typeparam>
 public abstract class Repository<T> : IRepository<T> where T : class
 {
     private readonly PhotoShowdownDbContext _db;

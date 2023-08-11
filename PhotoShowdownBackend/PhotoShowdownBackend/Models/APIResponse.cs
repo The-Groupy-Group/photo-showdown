@@ -6,6 +6,7 @@ public class APIResponse<T> : EmptyAPIResponse
 
 }
 
+
 public class EmptyAPIResponse
 {
     public bool IsSuccess { get; set; } = true;
