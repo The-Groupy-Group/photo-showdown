@@ -2,6 +2,7 @@
 using BCrypt.Net;
 using Microsoft.IdentityModel.Tokens;
 using PhotoShowdownBackend.Consts;
+using PhotoShowdownBackend.Controllers;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions.Users;
 using PhotoShowdownBackend.Models;
@@ -20,14 +21,16 @@ public class UsersService : IUsersService
     private readonly IUsersRepository _usersRepository;
     private readonly IConfiguration _configuration;
     private readonly IMapper _mapper;
+    private readonly ILogger<UsersController> _logger;
 
     private const int TOKEN_EXPIRATION_HOURS = 5;
 
-    public UsersService(IUsersRepository usersRepository, IConfiguration configuration, IMapper mapper)
+    public UsersService(IUsersRepository usersRepository, IConfiguration configuration, IMapper mapper, ILogger<UsersController> logger)
     {
         _usersRepository = usersRepository;
         _configuration = configuration;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<RegisterationResponseDTO> RegisterUser(RegisterationRequestDTO registerationRequest)
@@ -59,7 +62,7 @@ public class UsersService : IUsersService
     {
         // Get the user by username
         var user = await _usersRepository.GetAsync(u => u.Username == loginRequest.Username);
-
+        
         // Verify the user exists
         if (user == null)
         {
