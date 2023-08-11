@@ -6,6 +6,7 @@ using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions.Users;
 using PhotoShowdownBackend.Models;
+using PhotoShowdownBackend.Services.Session;
 using PhotoShowdownBackend.Services.Users;
 using System.Net;
 
@@ -17,11 +18,13 @@ namespace PhotoShowdownBackend.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IUsersService _usersService;
+    private readonly ISessionService _sessionService;
     private readonly ILogger<UsersController> _logger;
 
-    public UsersController(IUsersService usersService, ILogger<UsersController> logger)
+    public UsersController(IUsersService usersService, ISessionService sessionService, ILogger<UsersController> logger)
     {
         _usersService = usersService;
+        _sessionService = sessionService;
         _logger = logger;
     }
 
@@ -70,7 +73,6 @@ public class UsersController : ControllerBase
         APIResponse<LoginResponseDTO> response = new();
         try
         {
-            _logger.LogDebug("Donfil");
             _logger.LogInformation($"User {loginRequest.Username} logging in request");
             var loginResult = await _usersService.Login(loginRequest);
 
@@ -101,7 +103,7 @@ public class UsersController : ControllerBase
     [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetUser(int id)
     {
-        return StatusCode(StatusCodes.Status501NotImplemented, EmptyAPIResponse.ToServerError());
+        return StatusCode(StatusCodes.Status501NotImplemented);
     }
 
     /// <summary>
@@ -113,6 +115,6 @@ public class UsersController : ControllerBase
     [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAllUser()
     {
-        return StatusCode(StatusCodes.Status501NotImplemented, EmptyAPIResponse.ToServerError());
+        return StatusCode(StatusCodes.Status501NotImplemented);
     }
 }

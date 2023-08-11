@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Filters;
 using Serilog;
 using System.Reflection;
+using PhotoShowdownBackend.Services.Session;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,7 @@ builder.Services.AddControllers();
 
 // Add services
 builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<ISessionService, SessionService>();
 
 // Add repositories
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
