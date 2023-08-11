@@ -2,6 +2,10 @@
 
 namespace PhotoShowdownBackend.Repositories.Repository;
 
+/// <summary>
+/// A generic Data Access Layer (DAL) repository interface for our database
+/// </summary>
+/// <typeparam name="T">A model representing a Db table</typeparam>
 public interface IRepository<T> where T : class
 {
     Task<T?> GetAsync(Expression<Func<T, bool>> filter, bool tracked = true);

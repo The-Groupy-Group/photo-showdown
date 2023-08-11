@@ -37,11 +37,11 @@ public class UsersController : ControllerBase
         APIResponse<RegisterationResponseDTO> response = new();
         try
         {
-            var newUser =  await _usersService.RegisterUser(registrationRequest);
+            var newUserDetails =  await _usersService.RegisterUser(registrationRequest);
 
-            response.Data = newUser;
+            response.Data = newUserDetails;
 
-            return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, response);
+            return CreatedAtAction(nameof(GetUser), new { id = newUserDetails.Id }, response);
         }
         catch (UsersServiceException ex)
         {
