@@ -17,10 +17,12 @@ namespace PhotoShowdownBackend.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IUsersService _usersService;
+    private readonly ILogger<UsersController> _logger;
 
-    public UsersController(IUsersService usersService)
+    public UsersController(IUsersService usersService, ILogger<UsersController> logger)
     {
         _usersService = usersService;
+        _logger = logger;
     }
 
     /// <summary>
@@ -47,9 +49,9 @@ public class UsersController : ControllerBase
         {
             return BadRequest(response.ToErrorResponse(ex.Message));
         }
-        catch
+        catch (Exception ex)
         {
-            // TODO: Log exception
+            _logger.LogError(ex, $"{nameof(Register)} Error");
             return StatusCode(StatusCodes.Status500InternalServerError, EmptyAPIResponse.ToServerError());
         }
     }
@@ -68,19 +70,22 @@ public class UsersController : ControllerBase
         APIResponse<LoginResponseDTO> response = new();
         try
         {
+            _logger.LogDebug("Donfil");
+            _logger.LogInformation($"User {loginRequest.Username} logging in request");
             var loginResult = await _usersService.Login(loginRequest);
 
             response.Data = loginResult;
 
+            _logger.LogInformation($"User {loginRequest.Username} logged in");
             return Ok(response);
         }
         catch (InvalidLoginException ex)
         {
             return BadRequest(response.ToErrorResponse(ex.Message));
         }
-        catch
+        catch (Exception ex)
         {
-            // TODO: Log exception
+            _logger.LogError(ex, $"{nameof(Login)} Error");
             return StatusCode(StatusCodes.Status500InternalServerError, EmptyAPIResponse.ToServerError());
         }
     }

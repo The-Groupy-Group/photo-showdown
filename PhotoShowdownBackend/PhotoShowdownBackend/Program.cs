@@ -1,15 +1,27 @@
+using System.Text;
 using PhotoShowdownBackend.Data;
 using PhotoShowdownBackend.Services.Users;
 using PhotoShowdownBackend.Repositories.Users;
+using PhotoShowdownBackend.Consts;
+using PhotoShowdownBackend.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Filters;
-using System.Text;
-using PhotoShowdownBackend.Consts;
-using PhotoShowdownBackend.Utils;
+using Serilog;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add Serilog
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Debug)
+    .WriteTo.File("Logs\\log.txt", rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddDbContext<PhotoShowdownDbContext>(options =>
