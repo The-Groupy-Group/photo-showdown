@@ -4,10 +4,10 @@ using PhotoShowdownBackend.Repositories.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
 using PhotoShowdownBackend.Consts;
+using PhotoShowdownBackend.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +28,12 @@ builder.Services.AddScoped<IUsersService, UsersService>();
 
 // Add repositories
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+
+// Add AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingConfig).Assembly);
+
+// Adding HttpContextAccessor as injectable so services can access HttpContext
+builder.Services.AddHttpContextAccessor();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
