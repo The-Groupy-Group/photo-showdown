@@ -1,4 +1,5 @@
-﻿using BCrypt.Net;
+﻿using AutoMapper;
+using BCrypt.Net;
 using Microsoft.IdentityModel.Tokens;
 using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.Users;
@@ -18,13 +19,15 @@ public class UsersService : IUsersService
 {
     private readonly IUsersRepository _usersRepository;
     private readonly IConfiguration _configuration;
+    private readonly IMapper _mapper;
 
     private const int TOKEN_EXPIRATION_HOURS = 5;
 
-    public UsersService(IUsersRepository usersRepository, IConfiguration configuration)
+    public UsersService(IUsersRepository usersRepository, IConfiguration configuration, IMapper mapper)
     {
         _usersRepository = usersRepository;
         _configuration = configuration;
+        _mapper = mapper;
     }
 
     public async Task<RegisterationResponseDTO> RegisterUser(RegisterationRequestDTO registerationRequest)
@@ -37,14 +40,8 @@ public class UsersService : IUsersService
         }
 
         // Map the request to a User object
-        var user = new User
-        {
-            Username = registerationRequest.Username,
-            Email = registerationRequest.Email,
-            FirstName = registerationRequest.FirstName,
-            LastName = registerationRequest.LastName,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerationRequest.Password)
-        };
+        var user = _mapper.Map<User>(registerationRequest);
+        user.PasswordHash = HashPassword(registerationRequest.Password);
 
         // Create the user
         var createdUser = await _usersRepository.CreateAsync(user);
@@ -86,6 +83,7 @@ public class UsersService : IUsersService
         return response;
     }
 
+    // Helpers
     private string CreateToken(User user)
     {
         // Create the claims that will be inserted into the token
@@ -115,5 +113,9 @@ public class UsersService : IUsersService
         var jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
         return jwt;
+    }
+    private static string HashPassword(string password)
+    {
+        return BCrypt.Net.BCrypt.HashPassword(password);
     }
 }
