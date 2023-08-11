@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PhotoShowdownBackend.Dtos.Users;
@@ -11,6 +12,7 @@ namespace PhotoShowdownBackend.Controllers;
 
 [Route("api/[controller]/[action]")]
 [ApiController]
+[Authorize]
 public class UsersController : ControllerBase
 {
     private readonly IUsersService _usersService;
@@ -20,7 +22,12 @@ public class UsersController : ControllerBase
         _usersService = usersService;
     }
 
-    [HttpPost]
+    /// <summary>
+    /// Create a user
+    /// </summary>
+    /// <param name="registrationRequest">Details of created user</param>
+    /// <returns>Id of created user</returns>
+    [HttpPost, AllowAnonymous]
     [ProducesResponseType(typeof(APIResponse<RegisterationResponseDTO>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
@@ -46,8 +53,12 @@ public class UsersController : ControllerBase
         }
     }
 
-
-    [HttpPost]
+    /// <summary>
+    /// Logs in a user
+    /// </summary>
+    /// <param name="loginRequest">Username and passowrd</param>
+    /// <returns>JWT token for user</returns>
+    [HttpPost, AllowAnonymous]
     [ProducesResponseType(typeof(APIResponse<LoginResponseDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
@@ -73,8 +84,15 @@ public class UsersController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Returns a user by id
+    /// </summary>
+    /// <param name="id">Id of user</param>
+    /// <returns>User DTO</returns>
     [HttpGet("{id:int}")]
-    [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetUser(int id)
     {
         throw new NotImplementedException();

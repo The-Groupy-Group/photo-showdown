@@ -14,12 +14,14 @@ namespace PhotoShowdownBackend.Services.Users;
 public class UsersService : IUsersService
 {
     private readonly IUsersRepository _usersRepository;
+    private readonly IConfiguration _configuration;
 
     private const int TOKEN_EXPIRATION_HOURS = 5;
 
-    public UsersService(IUsersRepository usersRepository)
+    public UsersService(IUsersRepository usersRepository, IConfiguration configuration)
     {
         _usersRepository = usersRepository;
+        _configuration = configuration;
     }
     public async Task<RegisterationResponseDTO> RegisterUser(RegisterationRequestDTO registerationRequest)
     {
@@ -64,7 +66,7 @@ public class UsersService : IUsersService
         return response;
     }
 
-    private static string CreateToken(User user)
+    private string CreateToken(User user)
     {
         List<Claim> claims = new List<Claim>
         {
@@ -75,7 +77,7 @@ public class UsersService : IUsersService
         };
 
         // TODO: define a actual key
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("All Of the sudden donfil met"));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value!));
 
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
