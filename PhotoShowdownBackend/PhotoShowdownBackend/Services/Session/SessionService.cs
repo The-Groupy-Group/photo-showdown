@@ -33,7 +33,6 @@ public class SessionService : ISessionService
         }
         return id.Value;
     }
-
     public IEnumerable<string> GetCurrentUserRoles()
     {
         return _httpContextAccessor.HttpContext!.User.Claims.Where(c => c.Type == UserClaims.Roles).Select(c => c.Value);

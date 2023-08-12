@@ -95,7 +95,6 @@ public class UsersService : IUsersService
             new Claim(UserClaims.Username, user.Username),
             new Claim(UserClaims.Roles,Roles.User),
             new Claim(UserClaims.Roles,Roles.Donfil),
-            new Claim(UserClaims.Roles,Roles.Admin),
         };
 
         // Get the secret signing key from the configuration
@@ -116,6 +115,7 @@ public class UsersService : IUsersService
 
         return jwt;
     }
+
     private static string HashPassword(string password)
     {
         return BCrypt.Net.BCrypt.HashPassword(password);
