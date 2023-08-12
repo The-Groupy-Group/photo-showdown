@@ -21,7 +21,7 @@ public class RepositoryTests
     public async Task CreateAsync_Returns_A_Created_User()
     {
         // Arrange
-        var _db = new PhotoShowdownDbContext(new DbContextOptionsBuilder<PhotoShowdownDbContext>().UseInMemoryDatabase("PhotoShowdown").Options);
+        var _db = TestUtils.GetInMemoryContext();
 
         var repo = new Repository<User>(_db);
         // Act
@@ -41,7 +41,7 @@ public class RepositoryTests
     public async Task UpdateAsync_Returns_The_Updated_User()
     {
         // Arrange
-        var _db = new PhotoShowdownDbContext(new DbContextOptionsBuilder<PhotoShowdownDbContext>().UseInMemoryDatabase("PhotoShowdown").Options);
+        var _db = TestUtils.GetInMemoryContext();
 
         var newUser = new User
         {
@@ -71,8 +71,7 @@ public class RepositoryTests
     public async Task UpdateAsync_Untracked_Throws_Already_Tracked()
     {
         // Arrange
-        var _db = new PhotoShowdownDbContext(new DbContextOptionsBuilder<PhotoShowdownDbContext>().UseInMemoryDatabase("PhotoShowdown").Options);
-
+        var _db = TestUtils.GetInMemoryContext();
         var newUser = new User
         {
             Username = "test",
@@ -98,7 +97,7 @@ public class RepositoryTests
     public async Task DeleteAsync_Returns_The_Deleted_User()
     {
         // Arrange
-        var _db = new PhotoShowdownDbContext(new DbContextOptionsBuilder<PhotoShowdownDbContext>().UseInMemoryDatabase("PhotoShowdown").Options);
+        var _db = TestUtils.GetInMemoryContext();
 
         var newUser = new User
         {
@@ -122,7 +121,7 @@ public class RepositoryTests
     public async Task GetAsync_Returns_The_User()
     {
         // Arrange
-        var _db = new PhotoShowdownDbContext(new DbContextOptionsBuilder<PhotoShowdownDbContext>().UseInMemoryDatabase("PhotoShowdown").Options);
+        var _db = TestUtils.GetInMemoryContext();
 
         var newUser = new User
         {
@@ -147,7 +146,7 @@ public class RepositoryTests
     public async Task GetAllAsync_Returns_The_Users()
     {
         // Arrange
-        var _db = new PhotoShowdownDbContext(new DbContextOptionsBuilder<PhotoShowdownDbContext>().UseInMemoryDatabase("PhotoShowdown").Options);
+        var _db = TestUtils.GetInMemoryContext();
 
         var newUser = new User
         {

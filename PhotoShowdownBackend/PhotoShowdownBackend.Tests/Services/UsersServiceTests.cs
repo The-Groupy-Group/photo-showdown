@@ -21,7 +21,7 @@ public class UsersRepositoryTests
         var userRepo = A.Fake<IUsersRepository>();
         var config = A.Fake<IConfiguration>();
         var configSec = A.Fake<IConfigurationSection>();
-        var mapper = new MapperConfiguration(cfg => cfg.AddMaps(typeof(MappingConfig).Assembly)).CreateMapper();
+        var mapper = TestUtils.GetMapper();
         var logger = A.Fake<ILogger<UsersService>>();
 
         A.CallTo(() => configSec.Value).Returns("h74h346wh6sybserbyre34q");
@@ -56,7 +56,7 @@ public class UsersRepositoryTests
         var userRepo = A.Fake<IUsersRepository>();
         var config = A.Fake<IConfiguration>();
         var configSec = A.Fake<IConfigurationSection>();
-        var mapper = new MapperConfiguration(cfg => cfg.AddMaps(typeof(MappingConfig).Assembly)).CreateMapper();
+        var mapper = TestUtils.GetMapper();
         var logger = A.Fake<ILogger<UsersService>>();
 
         A.CallTo(() => userRepo.IsUniqueUser(A<string>.Ignored, A<string>.Ignored)).Returns(true);
