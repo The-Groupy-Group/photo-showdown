@@ -11,7 +11,7 @@ using System.Linq.Expressions;
 
 namespace PhotoShowdownBackend.Tests.Services;
 
-public class UsersServiceTests
+public class UsersRepositoryTests
 {
     // ------------------- Login ------------------- //
     [Fact]

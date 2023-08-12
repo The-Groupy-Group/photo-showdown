@@ -35,8 +35,8 @@ public class UsersController : ControllerBase
     /// <returns>Id of created user</returns>
     [HttpPost, AllowAnonymous]
     [ProducesResponseType(typeof(APIResponse<RegisterationResponseDTO>), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Register([FromBody] RegisterationRequestDTO registrationRequest)
     {
         APIResponse<RegisterationResponseDTO> response = new();
@@ -55,7 +55,7 @@ public class UsersController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(Register)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, EmptyAPIResponse.ToServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
         }
     }
 
@@ -66,8 +66,8 @@ public class UsersController : ControllerBase
     /// <returns>JWT token for user</returns>
     [HttpPost, AllowAnonymous]
     [ProducesResponseType(typeof(APIResponse<LoginResponseDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequest)
     {
         APIResponse<LoginResponseDTO> response = new();
@@ -88,7 +88,7 @@ public class UsersController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(Login)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, EmptyAPIResponse.ToServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
         }
     }
 
@@ -99,8 +99,8 @@ public class UsersController : ControllerBase
     /// <returns>User DTO</returns>
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetUser(int id)
     {
         return StatusCode(StatusCodes.Status501NotImplemented);
@@ -112,7 +112,7 @@ public class UsersController : ControllerBase
     /// <returns>All users in the system</returns>
     [HttpGet, Authorize(Roles = Roles.Admin)]
     [ProducesResponseType(typeof(APIResponse<IEnumerable<int>>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(EmptyAPIResponse), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAllUser()
     {
         return StatusCode(StatusCodes.Status501NotImplemented);

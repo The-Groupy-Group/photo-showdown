@@ -1,25 +1,25 @@
 ﻿namespace PhotoShowdownBackend.Models;
 
-public class APIResponse<T> : EmptyAPIResponse
+public class APIResponse<T> : APIResponse
 {
     public T? Data { get; set; }
 
 }
 
 
-public class EmptyAPIResponse
+public class APIResponse
 {
     public bool IsSuccess { get; set; } = true;
     public string Message { get; set; } = "";
-    public EmptyAPIResponse ToErrorResponse(string message)
+    public APIResponse ToErrorResponse(string message)
     {
         this.IsSuccess = false;
         this.Message = message;
         return this;
     }
-    public static EmptyAPIResponse ToServerError()
+    public static APIResponse ToServerError()
     {
-        var response = new EmptyAPIResponse
+        var response = new APIResponse
         {
             IsSuccess = false,
             Message = "Server error :("
