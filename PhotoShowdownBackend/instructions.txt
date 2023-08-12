@@ -1,0 +1,5 @@
+1. Open SSMS
+2. Connect (Top Left) -> Connect to Database Engine
+3. Server Name: . Authentication: Windows Authentication
+4. Click Connect
+5. Run your query in order

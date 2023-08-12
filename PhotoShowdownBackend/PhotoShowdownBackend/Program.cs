@@ -26,10 +26,10 @@ builder.Host.UseSerilog();
 // Add services to the container.
 builder.Services.AddDbContext<PhotoShowdownDbContext>(options =>
     {
-        options.UseInMemoryDatabase("PhotoShowdownDB");
+        //options.UseInMemoryDatabase("PhotoShowdownDB");
 
         // In due time amen
-        //options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     }
 );
 
