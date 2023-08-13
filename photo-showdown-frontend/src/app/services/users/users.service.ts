@@ -9,7 +9,8 @@ import { LoginResponse } from 'src/app/models/users/login-response.model';
   providedIn: 'root'
 })
 export class UsersService {
-  apiURL = 'https://localhost:7222/api/Users';
+  readonly apiURL = 'http://localhost:5299/api/Users';
+  //readonly apiURL = 'https://localhost:7222/api/Users';
   constructor(private http:HttpClient){}
   httpOptions = {
     headers: new HttpHeaders({
