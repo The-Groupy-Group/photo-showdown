@@ -1,0 +1,25 @@
+<mat-card>
+<form class="form" (submit)="onSubmit(userForm)" #userForm="ngForm">
+
+  <mat-form-field>
+    <input  matInput type="text"  minlength="3" name="username" id="username" #username="ngModel" ngModel required placeholder="Enter your username">
+    <mat-error *ngIf="username.invalid">*Please enter longer username</mat-error>
+  </mat-form-field>
+  <mat-form-field>
+    <input type="password" matInput name="password"  #password="ngModel" ngModel required placeholder="Enter your password">
+    <mat-error *ngIf="password.invalid">*Please enter longer username</mat-error>
+  </mat-form-field>
+  <mat-form-field>
+    <input  type="email" matInput name="email"  #email="ngModel" ngModel required placeholder="Enter your email">
+  </mat-form-field>
+  <mat-form-field>
+    <input type="text" matInput name="firstName"  #firstName="ngModel" ngModel required placeholder="Enter your first name">
+  </mat-form-field>
+  <mat-form-field>
+    <input type="text" matInput name="lastName" #lastName="ngModel" ngModel required placeholder="Enter your last name">
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" type="submit">submit</button>
+  </form>
+</mat-card>
+
