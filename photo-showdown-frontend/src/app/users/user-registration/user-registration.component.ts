@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 
-import { User } from 'src/models/user.model';
+import { User } from 'src/app/models/user.model';
 
 @Component({
   selector: 'app-user-registration',
   templateUrl: './user-registration.component.html',
   styleUrls: ['./user-registration.component.css']
-  
+
 })
 export class UserRegistrationComponent
 {
