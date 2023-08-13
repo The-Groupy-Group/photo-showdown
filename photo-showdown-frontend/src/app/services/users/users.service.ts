@@ -9,7 +9,7 @@ import { LoginResponse } from 'src/app/models/users/login-response.model';
   providedIn: 'root'
 })
 export class UsersService {
-  apiURL = 'http://localhost:7222/api/Users';
+  apiURL = 'https://localhost:7222/api/Users';
   constructor(private http:HttpClient){}
   httpOptions = {
     headers: new HttpHeaders({
@@ -33,5 +33,5 @@ export class UsersService {
         {username,password},
         this.httpOptions)
   }
-  
+
 }
