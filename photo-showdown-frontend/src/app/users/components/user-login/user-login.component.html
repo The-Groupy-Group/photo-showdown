@@ -1,0 +1,14 @@
+<mat-card>
+  <form class="form" (submit)="onSubmit(userForm)" #userForm="ngForm">
+    <mat-form-field>
+      <input  matInput type="text"  name="username" #username="ngModel" ngModel required placeholder="Enter your username">
+      
+    </mat-form-field>
+    <mat-form-field>
+      <input type="password" matInput name="password"  #password="ngModel" ngModel required placeholder="Enter your password">
+
+    </mat-form-field>
+    <mat-error *ngIf="errorMessage">{{errorMessage}}</mat-error>
+    <button mat-raised-button color="primary" type="submit">submit</button>
+    </form>
+  </mat-card>
