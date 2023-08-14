@@ -1,8 +1,10 @@
 
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import {UsersService } from '../../services/users/users.service'
-import { User } from 'src/app/models/user.model';
+
+import {UsersService } from '../../services/users.service'
+import { User } from 'src/app/users/models/user.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-user-registration',
@@ -25,21 +27,21 @@ export class UserRegistrationComponent
         lastName:form.value.lastName,
         password:form.value.password
       }
-      console.log(JSON.stringify(user))
+
+      console.log(JSON.stringify(user));
+
       this.usersService.createUser(user).subscribe({
-        next:(response)=>{
+        next:(response)=>
+        {
           this.user=response.data;
           this.errorMessage=undefined;
           console.log(user);
         },
-        error:((error)=>
+        error:((error:HttpErrorResponse)=>
         {
           this.errorMessage=error.error.message;
         })
 
       });
   }
-
-//(response)=>{this.user=response.data;
-//console.log(user)}
 }
