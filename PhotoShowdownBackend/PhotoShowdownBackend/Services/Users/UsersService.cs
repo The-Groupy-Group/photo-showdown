@@ -3,6 +3,7 @@ using BCrypt.Net;
 using Microsoft.IdentityModel.Tokens;
 using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.Users;
+using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.Users;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.Users;
@@ -83,6 +84,16 @@ public class UsersService : IUsersService
         };
 
         return response;
+    }
+
+    public async Task<UserDTO> GetUser(int id)
+    {
+        var user = await _usersRepository.GetAsync(u=>u.Id == id);
+        if (user == null)
+        {
+            throw new NotFoundException();
+        }
+        return _mapper.Map<UserDTO>(user);
     }
 
     // Helpers

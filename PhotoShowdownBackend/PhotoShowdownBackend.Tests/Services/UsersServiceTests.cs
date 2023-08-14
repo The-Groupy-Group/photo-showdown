@@ -8,6 +8,7 @@ using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Utils;
 using PhotoShowdownBackend.Models;
 using System.Linq.Expressions;
+using PhotoShowdownBackend.Exceptions;
 
 namespace PhotoShowdownBackend.Tests.Services;
 
@@ -81,4 +82,50 @@ public class UsersRepositoryTests
         // Assert
         Assert.True(res.Id == 1);
     }
+    // ------------------- GetUser ------------------- //
+    [Fact]
+    public async Task GetUser_Returns_A_User()
+    {
+        // Arrange
+        var userRepo = A.Fake<IUsersRepository>();
+        var config = A.Fake<IConfiguration>();
+        var configSec = A.Fake<IConfigurationSection>();
+        var mapper = TestUtils.GetMapper();
+        var logger = A.Fake<ILogger<UsersService>>();
+
+        A.CallTo(() => userRepo.GetAsync(A<Expression<Func<User, bool>>>.Ignored, true)).Returns(Task.FromResult(new User
+        {
+            Id = 1,
+            Username = "test",
+            Email = "",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("test")
+        }) as Task<User?>);
+
+        var service = new UsersService(userRepo, config, mapper, logger);
+
+        // Act
+        var res = await service.GetUser(1);
+
+        // Assert
+        Assert.True(res.Id == 1);
+        Assert.True(res.Username == "test");
+    }
+    [Fact]
+    public async Task GetUser_Throws_NotFoundException()
+    {
+        // Arrange
+        var userRepo = A.Fake<IUsersRepository>();
+        var config = A.Fake<IConfiguration>();
+        var configSec = A.Fake<IConfigurationSection>();
+        var mapper = TestUtils.GetMapper();
+        var logger = A.Fake<ILogger<UsersService>>();
+
+        A.CallTo(() => userRepo.GetAsync(A<Expression<Func<User, bool>>>.Ignored, true)).Returns(Task.FromResult<User?>(null));
+
+        var service = new UsersService(userRepo, config, mapper, logger);
+
+        // Act + Assert
+        await Assert.ThrowsAsync<NotFoundException>(() => service.GetUser(1));
+    }
+
 }

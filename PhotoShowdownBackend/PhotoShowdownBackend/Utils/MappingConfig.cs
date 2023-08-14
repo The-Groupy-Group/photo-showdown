@@ -13,5 +13,6 @@ public class MappingConfig: Profile
     public MappingConfig()
     {
         CreateMap<RegisterationRequestDTO, User>();
+        CreateMap<UserDTO, User>().ReverseMap();
     }
 }

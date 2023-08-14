@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.Users;
+using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.Users;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.Session;
@@ -103,7 +104,31 @@ public class UsersController : ControllerBase
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetUser(int id)
     {
-        return StatusCode(StatusCodes.Status501NotImplemented);
+        APIResponse<UserDTO> response = new();
+        try
+        {
+            if (id != _sessionService.GetCurrentUserId() && !_sessionService.IsCurrentUserInRole(Roles.Admin))
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, response.ToErrorResponse("Can't get user if client is not the user or a admin"));
+            }
+            var user = await _usersService.GetUser(id);
+            if (user == null)
+            {
+                return NotFound(response.ToErrorResponse("User not found"));
+            }
+
+            response.Data = user!;
+            return Ok(response);
+        }
+        catch( NotFoundException ex)
+        {
+            return NotFound(response.ToErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(GetUser)} Error");
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+        }
     }
 
     /// <summary>
