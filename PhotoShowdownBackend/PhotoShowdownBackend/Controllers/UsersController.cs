@@ -107,7 +107,7 @@ public class UsersController : ControllerBase
         APIResponse<UserDTO> response = new();
         try
         {
-            if (id != _sessionService.GetCurrentUserId() || _sessionService.IsCurrentUserInRole(Roles.Admin))
+            if (id != _sessionService.GetCurrentUserId() && !_sessionService.IsCurrentUserInRole(Roles.Admin))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, response.ToErrorResponse("Can't get user if client is not the user or a admin"));
             }
