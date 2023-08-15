@@ -2,7 +2,7 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 
-import {UsersService } from '../../services/users.service'
+import {UsersService } from '../../services/users/users.service'
 import { User } from 'src/app/users/models/user.model';
 import { HttpErrorResponse } from '@angular/common/http';
 

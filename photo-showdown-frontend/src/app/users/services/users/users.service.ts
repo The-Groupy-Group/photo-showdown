@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { User } from '../models/user.model';
+import { User } from '../../models/user.model';
 import { APIResponse } from 'src/app/shared/models/api-response.model';
 import { LoginResponse } from 'src/app/users/models/login-response.model';
 
@@ -10,8 +10,7 @@ import { LoginResponse } from 'src/app/users/models/login-response.model';
   providedIn: 'root',
 })
 export class UsersService {
-  readonly apiURL = 'http://localhost:5299/api/Users';
-  //readonly apiURL = 'https://localhost:7222/api/Users';
+  readonly apiURL = 'https://localhost:7222/api/Users';
   constructor(private http: HttpClient) {}
   httpOptions = {
     headers: new HttpHeaders({
@@ -19,7 +18,7 @@ export class UsersService {
     }),
   };
 
-  createUser(user: User): Observable<APIResponse<User>> 
+  createUser(user: User): Observable<APIResponse<User>>
   {
     return this.http.post<APIResponse<User>>(
       this.apiURL + '/Register',
@@ -28,12 +27,5 @@ export class UsersService {
     );
   }
 
-  login(username: string,password: string): Observable<APIResponse<LoginResponse>> 
-  {
-    return this.http.post<APIResponse<LoginResponse>>(
-      this.apiURL + '/Login',
-      { username, password },
-      this.httpOptions
-    );
-  }
+  
 }
