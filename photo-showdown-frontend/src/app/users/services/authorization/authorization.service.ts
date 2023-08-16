@@ -38,7 +38,7 @@ export class AuthorizationService {
   }
   public isLoggedIn():boolean
   {
-      return localStorage.getItem("id_token")!==undefined;
+      return localStorage.getItem("id_token")!=undefined;
   }
   public isLoggedOut():boolean
   {

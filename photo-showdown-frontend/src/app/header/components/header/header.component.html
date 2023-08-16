@@ -7,7 +7,6 @@
     </ul>
     <ul *ngIf="isLoggedIn"class="menu-container"><!--logged in bar-->
       <li><a href="/" mat-button>Home</a></li>
-      <li><a href="/logout" mat-button>Logout</a></li>
+      <li><button mat-button (click)="logout()">Logout</button></li>
     </ul>
-
 </mat-toolbar>

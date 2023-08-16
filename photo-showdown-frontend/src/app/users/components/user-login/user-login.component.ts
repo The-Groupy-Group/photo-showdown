@@ -3,6 +3,7 @@ import { NgForm } from '@angular/forms';
 import {UsersService } from '../../services/users/users.service'
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthorizationService } from '../../services/authorization/authorization.service';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-user-login',
   templateUrl: './user-login.component.html',
@@ -13,7 +14,7 @@ export class UserLoginComponent
   username:string='';
   password:string='';
   errorMessage?:string;
-  constructor(private readonly authorizationService: AuthorizationService) {}
+  constructor(private readonly authorizationService: AuthorizationService,private readonly router:Router) {}
    onSubmit(form:NgForm)
   {
       this.username=form.value.username;
@@ -26,7 +27,7 @@ export class UserLoginComponent
         {
           this.errorMessage=undefined;
           console.log(response);
-          window.location.reload();
+        this.router.navigate(['/']).then(()=>{window.location.reload();})
         },
         error:((error:HttpErrorResponse)=>
         {
