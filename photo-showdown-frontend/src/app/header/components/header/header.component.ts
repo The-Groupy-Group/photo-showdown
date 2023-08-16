@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-
+import {AuthorizationService} from '../../../users/services/authorization/authorization.service'
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -7,12 +7,16 @@ import { Component } from '@angular/core';
 })
 export class HeaderComponent
 {
-  state:string='logged-out';
+   isLoggedIn:boolean=false;
+  constructor(private readonly authorizationService:AuthorizationService){}
   ngOnInit():void
   {
-    if(localStorage.getItem('id_token'))
-      this.state='logged-in';
-    else
-      this.state='logged-out';
+    this.setStatus();
+  }
+
+  setStatus():void
+  {
+    this.isLoggedIn=this.authorizationService.isLoggedIn();
   }
 }
+

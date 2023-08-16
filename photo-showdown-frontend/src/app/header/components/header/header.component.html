@@ -1,13 +1,13 @@
 <mat-toolbar color="primary">
   Photo Showdown
-  <div [ngSwitch]="state">
-    <ul *ngSwitchCase="'logged-out'" class="menu-container"><!--logged out bar-->
+
+    <ul *ngIf="!isLoggedIn" class="menu-container"><!--logged out bar-->
       <li><a href="/" mat-button>Home</a></li>
       <li><a href="/login" mat-button>Login</a></li>
     </ul>
-    <ul *ngSwitchCase="'logged-in'"class="menu-container"><!--logged in bar-->
+    <ul *ngIf="isLoggedIn"class="menu-container"><!--logged in bar-->
       <li><a href="/" mat-button>Home</a></li>
       <li><a href="/logout" mat-button>Logout</a></li>
     </ul>
-  </div>
+
 </mat-toolbar>
