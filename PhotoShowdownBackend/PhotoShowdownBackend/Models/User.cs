@@ -28,4 +28,7 @@ public class User
 
     [MaxLength(50)] // Maximum length (adjust as needed)
     public string? LastName { get; set; }
+    public bool IsActive { get; set; } = true;
+
+    public bool IsAdmin { get; set; } = false;
 }
