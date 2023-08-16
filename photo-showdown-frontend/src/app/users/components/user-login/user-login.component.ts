@@ -26,6 +26,7 @@ export class UserLoginComponent
         {
           this.errorMessage=undefined;
           console.log(response);
+          window.location.reload();
         },
         error:((error:HttpErrorResponse)=>
         {

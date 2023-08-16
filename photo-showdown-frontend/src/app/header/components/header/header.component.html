@@ -1,0 +1,13 @@
+<mat-toolbar color="primary">
+  Photo Showdown
+
+    <ul *ngIf="!isLoggedIn" class="menu-container"><!--logged out bar-->
+      <li><a href="/" mat-button>Home</a></li>
+      <li><a href="/login" mat-button>Login</a></li>
+    </ul>
+    <ul *ngIf="isLoggedIn"class="menu-container"><!--logged in bar-->
+      <li><a href="/" mat-button>Home</a></li>
+      <li><a href="/logout" mat-button>Logout</a></li>
+    </ul>
+
+</mat-toolbar>
