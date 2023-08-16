@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {AuthorizationService} from '../../../users/services/authorization/authorization.service'
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -7,8 +8,14 @@ import {AuthorizationService} from '../../../users/services/authorization/author
 })
 export class HeaderComponent
 {
+logout()
+{
+  this.authorizationService.logout();
+  this.setStatus();
+  this.router.navigate(['/login']);
+}
    isLoggedIn:boolean=false;
-  constructor(private readonly authorizationService:AuthorizationService){}
+  constructor(private readonly authorizationService:AuthorizationService,private readonly router:Router){}
   ngOnInit():void
   {
     this.setStatus();

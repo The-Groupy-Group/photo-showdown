@@ -4,6 +4,7 @@ import { UserLoginComponent } from './users/components/user-login/user-login.com
 import { UserRegistrationComponent } from './users/components/user-registration/user-registration.component';
 
 const routes: Routes = [
+  
   {
     component:UserLoginComponent,
     path:'login'
