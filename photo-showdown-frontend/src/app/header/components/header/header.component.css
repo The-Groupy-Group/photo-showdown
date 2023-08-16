@@ -1,0 +1,27 @@
+mat-toolbar
+{
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.menu-container
+{
+  list-style-type: none;
+  display: flex; 
+  align-items: center;
+}
+
+.menu-container li
+{
+  display: inline-block;
+  padding: 10px;
+
+}
+
+li a
+{
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+}
