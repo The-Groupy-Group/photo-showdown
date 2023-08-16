@@ -15,6 +15,7 @@ import { UserRegistrationComponent } from './users/components/user-registration/
 import { UserLoginComponent } from './users/components/user-login/user-login.component';
 import { TokenInterceptor } from './shared/token-interceptor/token.interceptor';
 import { HeaderComponent } from './header/components/header/header.component';
+import { HomepageComponent } from './homepage/homepage/homepage.component';
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import { HeaderComponent } from './header/components/header/header.component';
     AppComponent,
     UserRegistrationComponent,
     UserLoginComponent,
-    HeaderComponent
+    HeaderComponent,
+    HomepageComponent
   ],
   imports: [
     BrowserModule,

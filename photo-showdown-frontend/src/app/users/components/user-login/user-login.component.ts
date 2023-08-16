@@ -2,13 +2,14 @@ import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import {UsersService } from '../../services/users/users.service'
 import { HttpErrorResponse } from '@angular/common/http';
-import { AuthorizationService } from '../../services/authorization/authorization.service';
+import { AuthorizationService } from '../../../shared/authorization/authorization.service';
 import { Router } from '@angular/router';
 @Component({
   selector: 'app-user-login',
   templateUrl: './user-login.component.html',
   styleUrls: ['./user-login.component.css']
 })
+
 export class UserLoginComponent
 {
   username:string='';
