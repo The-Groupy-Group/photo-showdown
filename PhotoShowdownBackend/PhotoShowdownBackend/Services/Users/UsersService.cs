@@ -45,6 +45,8 @@ public class UsersService : IUsersService
         // Map the request to a User object
         var user = _mapper.Map<User>(registerationRequest);
         user.PasswordHash = HashPassword(registerationRequest.Password);
+        user.IsActive = true;
+        user.IsAdmin = false;
 
         // Create the user
         var createdUser = await _usersRepository.CreateAsync(user);
@@ -100,13 +102,17 @@ public class UsersService : IUsersService
     private string CreateToken(User user)
     {
         // Create the claims that will be inserted into the token
-        List<Claim> claims = new List<Claim>
+        List<Claim> claims = new()
         {
             new Claim(UserClaims.Id, user.Id.ToString()),
             new Claim(UserClaims.Username, user.Username),
             new Claim(UserClaims.Roles,Roles.User),
             new Claim(UserClaims.Roles,Roles.Donfil),
         };
+        if (user.IsAdmin)
+        {
+            claims.Add(new Claim(UserClaims.Roles, Roles.Admin));
+        }
 
         // Get the secret signing key from the configuration
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value!));
