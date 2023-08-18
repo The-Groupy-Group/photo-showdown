@@ -99,7 +99,7 @@ public class UsersController : ControllerBase
     /// <param name="id">Id of user</param>
     /// <returns>User DTO</returns>
     [HttpGet("{id:int}")]
-    [ProducesResponseType(typeof(APIResponse<>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetUser(int id)

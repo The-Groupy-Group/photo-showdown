@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using PhotoShowdownBackend.Repositories.Pictures;
 using PhotoShowdownBackend.Repositories.Users;
 using PhotoShowdownBackend.Services.Users;
 
@@ -8,13 +9,12 @@ public class PicturesService: IPicturesService
 {
     private readonly IPicturesRepository _picturesRepo;
     private readonly IMapper _mapper;
-    private readonly ILogger<UsersService> _logger;
+    private readonly ILogger<PicturesService> _logger;
 
-    private const int TOKEN_EXPIRATION_HOURS = 5;
 
-    public PicturesService(IUsersRepository picturesRepo, IConfiguration configuration, IMapper mapper, ILogger<UsersService> logger)
+    public PicturesService(IPicturesRepository picturesRepo, IConfiguration configuration, IMapper mapper, ILogger<PicturesService> logger)
     {
-        _picturesRepo = _picturesRepo;
+        _picturesRepo = picturesRepo;
         _mapper = mapper;
         _logger = logger;
     }
