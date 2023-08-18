@@ -11,6 +11,8 @@ using Swashbuckle.AspNetCore.Filters;
 using Serilog;
 using System.Reflection;
 using PhotoShowdownBackend.Services.Session;
+using PhotoShowdownBackend.Services.Pictures;
+using PhotoShowdownBackend.Repositories.Pictures;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,10 +39,12 @@ builder.Services.AddControllers();
 
 // Add services
 builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IPicturesService, PicturesService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 
 // Add repositories
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+builder.Services.AddScoped<IPicturesRepository, PicturesRepository>();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingConfig).Assembly);

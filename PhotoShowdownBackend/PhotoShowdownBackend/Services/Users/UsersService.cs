@@ -18,7 +18,7 @@ namespace PhotoShowdownBackend.Services.Users;
 /// </summary>
 public class UsersService : IUsersService
 {
-    private readonly IUsersRepository _usersRepository;
+    private readonly IUsersRepository _usersRepo;
     private readonly IConfiguration _configuration;
     private readonly IMapper _mapper;
     private readonly ILogger<UsersService> _logger;
@@ -27,7 +27,7 @@ public class UsersService : IUsersService
 
     public UsersService(IUsersRepository usersRepository, IConfiguration configuration, IMapper mapper, ILogger<UsersService> logger)
     {
-        _usersRepository = usersRepository;
+        _usersRepo = usersRepository;
         _configuration = configuration;
         _mapper = mapper;
         _logger = logger;
@@ -36,7 +36,7 @@ public class UsersService : IUsersService
     public async Task<RegisterationResponseDTO> RegisterUser(RegisterationRequestDTO registerationRequest)
     {
         // Verify that the username and email are unique
-        var isUniqueUser = await _usersRepository.IsUniqueUser(registerationRequest.Username, registerationRequest.Email);
+        var isUniqueUser = await _usersRepo.IsUniqueUser(registerationRequest.Username, registerationRequest.Email);
         if (!isUniqueUser)
         {
             throw new UsersServiceException("Username or Email already exists");
@@ -49,7 +49,7 @@ public class UsersService : IUsersService
         user.IsAdmin = false;
 
         // Create the user
-        var createdUser = await _usersRepository.CreateAsync(user);
+        var createdUser = await _usersRepo.CreateAsync(user);
 
         // Create the response
         var response = new RegisterationResponseDTO
@@ -63,7 +63,7 @@ public class UsersService : IUsersService
     public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequest)
     {
         // Get the user by username
-        var user = await _usersRepository.GetAsync(u => u.Username == loginRequest.Username);
+        var user = await _usersRepo.GetAsync(u => u.Username == loginRequest.Username);
         
         // Verify the user exists
         if (user == null)
@@ -90,7 +90,7 @@ public class UsersService : IUsersService
 
     public async Task<UserDTO> GetUser(int id)
     {
-        var user = await _usersRepository.GetAsync(u=>u.Id == id);
+        var user = await _usersRepo.GetAsync(u=>u.Id == id);
         if (user == null)
         {
             throw new NotFoundException();
