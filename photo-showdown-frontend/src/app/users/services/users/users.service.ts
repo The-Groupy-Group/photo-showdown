@@ -18,14 +18,11 @@ export class UsersService {
     }),
   };
 
-  createUser(user: User): Observable<APIResponse<User>>
-  {
+  createUser(user: User): Observable<APIResponse<User>> {
     return this.http.post<APIResponse<User>>(
       this.apiURL + '/Register',
       user,
       this.httpOptions
     );
   }
-
-  
 }

@@ -12,7 +12,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 /**
  * this service handles authentication.
  */
-export class AuthorizationService {
+export class AuthService {
 
   constructor(private http: HttpClient) {}
   readonly apiURL = 'https://localhost:7222/api/Users';
