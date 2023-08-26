@@ -13,5 +13,6 @@ public class PhotoShowdownDbContext: DbContext
     }
 
     public DbSet<User> Users { get; set; } = null!;
+    public DbSet<Picture> Pictures { get; set; } = null!;
 
 }
