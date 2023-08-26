@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {AuthorizationService} from '../../../shared/authorization/authorization.service'
+import {AuthService} from '../../../shared/auth-service/auth.service'
 import { Router } from '@angular/router';
 @Component({
   selector: 'app-header',
@@ -15,7 +15,7 @@ logout()
   this.router.navigate(['/login']);
 }
    isLoggedIn:boolean=false;
-  constructor(private readonly authorizationService:AuthorizationService,private readonly router:Router){}
+  constructor(private readonly authorizationService:AuthService,private readonly router:Router){}
   ngOnInit():void
   {
     this.setStatus();

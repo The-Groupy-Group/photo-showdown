@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import {UsersService } from '../../services/users/users.service'
 import { HttpErrorResponse } from '@angular/common/http';
-import { AuthorizationService } from '../../../shared/authorization/authorization.service';
+import { AuthService } from '../../../shared/auth-service/auth.service';
 import { Router } from '@angular/router';
 @Component({
   selector: 'app-user-login',
@@ -15,7 +15,7 @@ export class UserLoginComponent
   username:string='';
   password:string='';
   errorMessage?:string;
-  constructor(private readonly authorizationService: AuthorizationService,private readonly router:Router) {}
+  constructor(private readonly authorizationService: AuthService,private readonly router:Router) {}
    onSubmit(form:NgForm)
   {
       this.username=form.value.username;
