@@ -5,4 +5,5 @@ namespace PhotoShowdownBackend.Repositories.Pictures;
 
 public interface IPicturesRepository: IRepository<Picture>
 {
+
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Win32;
 using PhotoShowdownBackend.Dtos.PicturesDto;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Models;
@@ -34,12 +35,19 @@ public class PicturesController : ControllerBase
     public async Task<IActionResult> UploadPicture(IFormFile pictureFile)
     {
         var response = new APIResponse<PictureDTO>();
-        response.Data = new()
+        try
         {
-            Id = 1,
-            Url = "https://i.pinimg.com/1200x/72/19/1c/72191ce7873172bb0082e390ace5beef.jpg"
-        };
-        return Ok(response.ToErrorResponse("This function is not yet implemented"));
+            var currentUserId = _sessionService.GetCurrentUserId();
+            var picture = await _picturesService.UploadPicture(pictureFile, currentUserId);
+
+            response.Data = picture;
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(UploadPicture)} Error");
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+        }
     }
 
     [HttpGet]
@@ -54,27 +62,27 @@ public class PicturesController : ControllerBase
             new()
             {
                 Id = 1,
-                Url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQak2UlOk7R-S2LGp_5kRqUFhnMXGjW49FJsJk2_LjXCQe1rFap1sRYgrLcQr8_d45-0oE&usqp=CAU"
+                PicturePath = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQak2UlOk7R-S2LGp_5kRqUFhnMXGjW49FJsJk2_LjXCQe1rFap1sRYgrLcQr8_d45-0oE&usqp=CAU"
             },
             new()
             {
                 Id = 2,
-                Url ="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ85_JuOTzO3sdaFjvyRh2qUJ6sLJaUO0wO8mTeFJW0vMpPaLU7qEYWjW19FIHeco_Bqes&usqp=CAU"
+                PicturePath ="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ85_JuOTzO3sdaFjvyRh2qUJ6sLJaUO0wO8mTeFJW0vMpPaLU7qEYWjW19FIHeco_Bqes&usqp=CAU"
             },
             new()
             {
                 Id = 3,
-                Url ="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5jfpIDgyFTP5lINIuuSIN4jNDDTt0dawTKz4EatXqGJ6--ZvAblZ-83vKm4uwa_HrQCk&usqp=CAU"
+                PicturePath ="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5jfpIDgyFTP5lINIuuSIN4jNDDTt0dawTKz4EatXqGJ6--ZvAblZ-83vKm4uwa_HrQCk&usqp=CAU"
             },
             new()
             {
                 Id = 4,
-                Url ="https://i.pinimg.com/1200x/72/19/1c/72191ce7873172bb0082e390ace5beef.jpg"
+                PicturePath ="https://i.pinimg.com/1200x/72/19/1c/72191ce7873172bb0082e390ace5beef.jpg"
             },
             new()
             {
                 Id = 5,
-                Url ="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRe0f31Vn6kriHg_-SLX4PAnIqegB5OtaeTD_CNQLxiU2kHqFmdKuqXhZjdtvYUOUz12dU&usqp=CAU"
+                PicturePath ="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRe0f31Vn6kriHg_-SLX4PAnIqegB5OtaeTD_CNQLxiU2kHqFmdKuqXhZjdtvYUOUz12dU&usqp=CAU"
             }
         };
 

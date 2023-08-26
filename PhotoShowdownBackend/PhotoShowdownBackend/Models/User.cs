@@ -31,4 +31,6 @@ public class User
     public bool IsActive { get; set; } = true;
 
     public bool IsAdmin { get; set; } = false;
+
+    public ICollection<Picture> Pictures { get; set; } = new List<Picture>();
 }

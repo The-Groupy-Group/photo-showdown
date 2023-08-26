@@ -16,7 +16,11 @@ public class Picture
     public int UserId { get; set; }
 
     [Required]
+    [MaxLength(128)]
     public string PicturePath { get; set; } = string.Empty;
 
     public User User { get; set; } = null!;
+
+    [NotMapped]
+    public IFormFile PictureFile { get; set; }
 }

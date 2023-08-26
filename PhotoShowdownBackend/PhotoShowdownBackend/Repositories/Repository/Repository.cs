@@ -20,7 +20,7 @@ public class Repository<T> : IRepository<T> where T : class
         _db = db;
         _dbSet = _db.Set<T>();
     }
-    public async Task<T?> GetAsync(Expression<Func<T, bool>> filter, bool tracked = true)
+    virtual public async Task<T?> GetAsync(Expression<Func<T, bool>> filter, bool tracked = true)
     {
         IQueryable<T> query = _dbSet;
         if (!tracked)
@@ -32,7 +32,7 @@ public class Repository<T> : IRepository<T> where T : class
     }
 
     /// <inheritdoc></inheritdoc>
-    public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null)
+    virtual public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null)
     {
         IQueryable<T> query = _dbSet;
 
@@ -56,19 +56,19 @@ public class Repository<T> : IRepository<T> where T : class
 
         return await query.ToListAsync();
     }
-    public async Task<T> CreateAsync(T entity)
+    virtual public async Task<T> CreateAsync(T entity)
     {
         await _dbSet.AddAsync(entity);
         await _db.SaveChangesAsync();
         return entity;
     }
-    public async Task<T> UpdateAsync(T entity)
+    virtual public async Task<T> UpdateAsync(T entity)
     {
         _dbSet.Entry(entity).State = EntityState.Modified;
         await _db.SaveChangesAsync();
         return entity;
     }
-    public async Task<T> DeleteAsync(T entity)
+    virtual public async Task<T> DeleteAsync(T entity)
     {
         _dbSet.Remove(entity);
         await _db.SaveChangesAsync();
