@@ -32,5 +32,10 @@ public class User
 
     public bool IsAdmin { get; set; } = false;
 
+    [ForeignKey("Match")]
+    public int? MatchId { get; set; }
+    
     public virtual ICollection<Picture> Pictures { get; set; } = new List<Picture>();
+
+    public Match? Match { get; set; }
 }
