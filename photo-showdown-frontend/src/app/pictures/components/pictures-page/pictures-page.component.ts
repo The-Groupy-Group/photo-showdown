@@ -17,17 +17,25 @@ export class PicturesPageComponent {
   ) {}
 
 
-  file:any
+  file?:File;
   errorMessage?: string;
 
-  getFile(event:any){
-  this.file=event.target.files[0]
+  getFile(event:Event)
+  {
+    const inputElement = event.target as HTMLInputElement;
+    if (inputElement.files && inputElement.files.length > 0)
+      this.file = inputElement.files[0];
   }
   onSubmit(form: NgForm)
   {
 
     let formData=new FormData();
     console.log(this.file);
+    if(this.file==undefined)
+      {
+        this.errorMessage='Please choose a photo.'
+        return;
+      }
     formData.append("pictureFile",this.file);
     this.picturesService.uploadPicture(formData).subscribe({
       next: (response) => {
