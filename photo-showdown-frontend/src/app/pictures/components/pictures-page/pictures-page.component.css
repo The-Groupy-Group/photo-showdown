@@ -1,17 +1,33 @@
 .form {
   min-width: 250px;
   max-width: 250px;
-  width: 100%;
+  min-height: 50px;
   height: 100%;
 }
 
 mat-card{
   margin: auto;
   width: 50%;
-  height: 50%;
-  margin-top: 10%;
+  margin-top: 5%;
+
+}
+.uploaded-picture
+{
+  max-width: 500px;
+  max-height: 500px;
+  margin: auto;
 }
 .file-button
 {
   padding-bottom: 10px
+}
+.container
+{
+  padding-top: 20px;
+  margin: auto;
+  width: 50%;
+  height: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

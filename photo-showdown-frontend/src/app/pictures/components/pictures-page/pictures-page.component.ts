@@ -16,10 +16,15 @@ export class PicturesPageComponent {
     private readonly router: Router
   ) {}
 
-
   file?:File;
   errorMessage?: string;
+  imageSrc?:string;
 
+  showUpload(imagePath:string)
+  {
+    this.imageSrc=imagePath;
+    this.file=undefined;
+  }
   getFile(event:Event)
   {
     const inputElement = event.target as HTMLInputElement;
@@ -30,7 +35,6 @@ export class PicturesPageComponent {
   {
 
     let formData=new FormData();
-    console.log(this.file);
     if(this.file==undefined)
       {
         this.errorMessage='Please choose a photo.'
@@ -40,11 +44,14 @@ export class PicturesPageComponent {
     this.picturesService.uploadPicture(formData).subscribe({
       next: (response) => {
         this.errorMessage = undefined;
-        console.log(response);
-        //TODO let user view the image once uploaded
+        this.showUpload(response.data.picturePath);
+        form.resetForm();
+
+
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = error.message;
+
       },
     });
   }
