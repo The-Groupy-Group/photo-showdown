@@ -34,25 +34,8 @@ public class Repository<T> : IRepository<T> where T : class
     /// <inheritdoc></inheritdoc>
     virtual public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null)
     {
-        IQueryable<T> query = _dbSet;
-
-        if (filter != null)
-        {
-            query = query.Where(filter);
-        }
-        if (!tracked)
-        {
-            query = query.AsNoTracking();
-        }
-        if (pageSize.HasValue && pageNumber.HasValue)
-        {
-            if (pageSize > MAX_PAGE_SIZE)
-            {
-                pageSize = MAX_PAGE_SIZE;
-            }
-
-            query = query.Skip(pageSize.Value * (pageNumber.Value - 1)).Take(pageSize.Value);
-        }
+        
+        var query = GetAllQuery(filter, tracked, pageNumber, pageSize); 
 
         return await query.ToListAsync();
     }
@@ -74,4 +57,34 @@ public class Repository<T> : IRepository<T> where T : class
         await _db.SaveChangesAsync();
         return entity;
     }
+
+    virtual public IQueryable<T> GetAllQuery(Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null)
+    {
+        IQueryable<T> query = _dbSet;
+
+        if (filter != null)
+        {
+            query = query.Where(filter);
+        }
+        if (!tracked)
+        {
+            query = query.AsNoTracking();
+        }
+        if (pageSize.HasValue && pageNumber.HasValue)
+        {
+            if (pageSize > MAX_PAGE_SIZE)
+            {
+                pageSize = MAX_PAGE_SIZE;
+            }
+
+            query = query.Skip(pageSize.Value * (pageNumber.Value - 1)).Take(pageSize.Value);
+        }
+
+
+
+        return query;
+    }
+
 }
+
+

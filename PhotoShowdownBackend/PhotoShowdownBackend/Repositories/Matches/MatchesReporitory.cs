@@ -2,6 +2,7 @@
 using PhotoShowdownBackend.Data;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.Repository;
+using System.Linq.Expressions;
 
 namespace PhotoShowdownBackend.Repositories.Users;
 
@@ -14,5 +15,19 @@ public class MatchesReporitory: Repository<Match>, IMatchesReporitory
     {
     }
 
+    virtual public async Task<List<Match>> GetAllWithUsersAsync(Expression<Func<Match, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null)
+    {
+        var query = base.GetAllQuery(filter,tracked,pageNumber,pageSize);
+        query.Include(match => match.Users);
+
+        return await query.ToListAsync();
+
+    }
+
+    public async Task<bool> DoesMatchExists(int matchId)
+    {
+        return !(await GetAsync(match => match.Id == matchId) == null);
+        
+    }
 }
 
