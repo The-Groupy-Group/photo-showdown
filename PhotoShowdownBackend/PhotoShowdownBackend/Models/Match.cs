@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PhotoShowdownBackend.Models;
 
-[Table("Match")]
+[Table("Matches")]
 public class Match
 {
     [Key] // Primary Key
@@ -11,15 +11,12 @@ public class Match
     public int Id { get; set; }
 
     [Required] // Not nullable
-    [ForeignKey("Owner")]
     public int OwnerId { get; set; }
 
     public DateTime? StartDate { get; set; }
 
     public DateTime? EndDate { get; set; }
-
-    public User Owner { get; set; } = null!;
-
+  
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 
 }
