@@ -16,6 +16,9 @@ import { UserLoginComponent } from './users/components/user-login/user-login.com
 import { TokenInterceptor } from './shared/token-interceptor/token.interceptor';
 import { HeaderComponent } from './header/components/header/header.component';
 import { HomepageComponent } from './homepage/homepage/homepage.component';
+import { PicturesPageComponent } from './pictures/components/pictures-page/pictures-page.component';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+
 
 
 @NgModule({
@@ -24,7 +27,8 @@ import { HomepageComponent } from './homepage/homepage/homepage.component';
     UserRegistrationComponent,
     UserLoginComponent,
     HeaderComponent,
-    HomepageComponent
+    HomepageComponent,
+    PicturesPageComponent
   ],
   imports: [
     BrowserModule,
@@ -36,7 +40,8 @@ import { HomepageComponent } from './homepage/homepage/homepage.component';
     MatCardModule,
     MatButtonModule,
     HttpClientModule,
-    MatToolbarModule
+    MatToolbarModule,
+    MatProgressBarModule
   ],
   providers: [
     {
