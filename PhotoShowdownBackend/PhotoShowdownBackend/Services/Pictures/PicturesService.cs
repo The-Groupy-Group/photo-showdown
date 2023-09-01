@@ -43,4 +43,11 @@ public class PicturesService : IPicturesService
 
         return pictureDto;
     }
+
+
+    public async Task<List<PictureDTO>> GetUserPicture(int userId)
+    {
+        var pictures = await _picturesRepo.GetAllAsync(p => p.UserId == userId, tracked:false);
+        return pictures.Select(p => _mapper.Map<PictureDTO>(p)).ToList();
+    }
 }
