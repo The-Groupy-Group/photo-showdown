@@ -118,6 +118,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Allow static files
+Directory.CreateDirectory(Path.Combine(builder.Environment.ContentRootPath,"wwwroot", "pictures"));
+app.UseStaticFiles();
+
 // Use Cors
 app.UseCors("CorsPolicy");
 
