@@ -9,12 +9,15 @@ import { Picture } from '../models/picture.model';
 })
 export class PicturesService {
 
-  readonly apiURL = 'https://localhost:7222/api/Users';
+  readonly apiURL = 'https://localhost:7222/api/Pictures';
   constructor(private http: HttpClient) {}
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
     }),
+  };
+  httpUploadOptions= {
+    headers: new HttpHeaders(),
   };
 /**
  *
@@ -49,7 +52,7 @@ export class PicturesService {
     return this.http.post<APIResponse<Picture>>(
       this.apiURL + '/UploadPicture',
       formData,
-      this.httpOptions
+      this.httpUploadOptions
     );
 
   }

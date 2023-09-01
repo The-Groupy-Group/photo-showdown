@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { UsersService } from '../../services/users/users.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../shared/auth-service/auth.service';
 import { Router } from '@angular/router';
