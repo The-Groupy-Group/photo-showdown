@@ -32,5 +32,5 @@ public class User
 
     public bool IsAdmin { get; set; } = false;
 
-    public ICollection<Picture> Pictures { get; set; } = new List<Picture>();
+    public virtual ICollection<Picture> Pictures { get; set; } = new List<Picture>();
 }

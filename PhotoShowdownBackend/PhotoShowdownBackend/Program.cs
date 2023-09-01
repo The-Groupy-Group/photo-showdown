@@ -116,7 +116,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // Allow static files
-Directory.CreateDirectory(Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "pictures"));
+Directory.CreateDirectory(Path.Combine(builder.Environment.ContentRootPath,"wwwroot", "pictures"));
 app.UseStaticFiles();
 
 // Use Cors

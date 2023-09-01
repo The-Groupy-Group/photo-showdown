@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PhotoShowdownBackend.Models;
 
+
 public class Picture
 {
 
@@ -19,8 +20,8 @@ public class Picture
     [MaxLength(128)]
     public string PicturePath { get; set; } = string.Empty;
 
-    public User User { get; set; } = null!;
+    public virtual User User { get; set; } = null!;
 
     [NotMapped]
-    public IFormFile PictureFile { get; set; }
+    public IFormFile PictureFile { get; set; } = null!;
 }

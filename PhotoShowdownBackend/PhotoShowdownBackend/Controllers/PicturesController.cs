@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using PhotoShowdownBackend.Dtos.PicturesDto;
 using PhotoShowdownBackend.Dtos.Users;
@@ -28,6 +29,11 @@ public class PicturesController : ControllerBase
         _logger = logger;
     }
 
+    /// <summary>
+    /// Upload a picture. Pictures can be retrived by accessing the path /pictures/{picturePath}
+    /// </summary>
+    /// <param name="pictureFile">File containing the picture</param>
+    /// <returns></returns>
     [HttpPost]
     [ProducesResponseType(typeof(APIResponse<PictureDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
@@ -39,6 +45,9 @@ public class PicturesController : ControllerBase
         {
             var currentUserId = _sessionService.GetCurrentUserId();
             var picture = await _picturesService.UploadPicture(pictureFile, currentUserId);
+
+            // Append base path to picture path
+            picture.PicturePath = GetPictureBaseBath() + picture.PicturePath;
 
             response.Data = picture;
             return Ok(response);
@@ -98,5 +107,11 @@ public class PicturesController : ControllerBase
     {
         var response = new APIResponse();
         return Ok(response.ToErrorResponse("This function is not yet implemented"));
+    }
+
+    [NonAction]
+    private string GetPictureBaseBath()
+    {
+        return $"{Request.Scheme}://{Request.Host}/pictures/";
     }
 }
