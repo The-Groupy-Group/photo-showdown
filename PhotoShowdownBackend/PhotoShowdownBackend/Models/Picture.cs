@@ -19,4 +19,5 @@ public class Picture
     public string PicturePath { get; set; } = string.Empty;
 
     public User User { get; set; } = null!;
+
 }

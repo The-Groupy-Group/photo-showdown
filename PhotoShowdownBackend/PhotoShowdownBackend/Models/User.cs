@@ -31,4 +31,9 @@ public class User
     public bool IsActive { get; set; } = true;
 
     public bool IsAdmin { get; set; } = false;
+
+    [ForeignKey("Match")]
+    public int? MatchId { get; set; }
+
+    public Match? Match { get; set; }
 }
