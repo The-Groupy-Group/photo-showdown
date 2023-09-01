@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using PhotoShowdownBackend.Dtos.PicturesDto;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Models;
 
@@ -12,7 +13,11 @@ public class MappingConfig: Profile
 {
     public MappingConfig()
     {
+        // Users
         CreateMap<RegisterationRequestDTO, User>();
         CreateMap<UserDTO, User>().ReverseMap();
+
+        // Pictures
+        CreateMap<Picture, PictureDTO>();
     }
 }
