@@ -1,7 +1,7 @@
 ﻿USE PhotoShowdownDB;
 GO
 
--- Create the User table
+-- Create the Pictures table
 CREATE TABLE Pictures (
     Id INT PRIMARY KEY IDENTITY,
     UserId INT NOT NULL,
