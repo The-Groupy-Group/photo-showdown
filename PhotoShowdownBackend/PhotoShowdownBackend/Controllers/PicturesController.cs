@@ -35,7 +35,7 @@ public class PicturesController : ControllerBase
     /// <param name="pictureFile">File containing the picture</param>
     /// <returns></returns>
     [HttpPost]
-    [ProducesResponseType(typeof(APIResponse<PictureDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(APIResponse<PictureDTO>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UploadPicture(IFormFile pictureFile)
@@ -50,7 +50,7 @@ public class PicturesController : ControllerBase
             picture.PicturePath = GetPictureBaseBath() + picture.PicturePath;
 
             response.Data = picture;
-            return Ok(response);
+            return StatusCode(StatusCodes.Status201Created, response);
         }
         catch (Exception ex)
         {
@@ -59,45 +59,37 @@ public class PicturesController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Returns all pictures uploaded by the current user
+    /// </summary>
+    /// <returns>A Array of all pictures uploaded by the current user</returns>
     [HttpGet]
     [ProducesResponseType(typeof(APIResponse<IEnumerable<PictureDTO>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetMyPictures()
     {
-        var response = new APIResponse<List<PictureDTO>>();
+        var response = new APIResponse<IEnumerable<PictureDTO>>();
+        try
+        {
+            var currentUserId = _sessionService.GetCurrentUserId();
+            var pictures = await _picturesService.GetUserPicture( currentUserId);
 
-        List<PictureDTO> pictures = new() {
-            new()
+            // Append base path to picture path
+            var basePath = GetPictureBaseBath();
+            foreach(var pic in pictures)
             {
-                Id = 1,
-                PicturePath = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQak2UlOk7R-S2LGp_5kRqUFhnMXGjW49FJsJk2_LjXCQe1rFap1sRYgrLcQr8_d45-0oE&usqp=CAU"
-            },
-            new()
-            {
-                Id = 2,
-                PicturePath ="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ85_JuOTzO3sdaFjvyRh2qUJ6sLJaUO0wO8mTeFJW0vMpPaLU7qEYWjW19FIHeco_Bqes&usqp=CAU"
-            },
-            new()
-            {
-                Id = 3,
-                PicturePath ="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5jfpIDgyFTP5lINIuuSIN4jNDDTt0dawTKz4EatXqGJ6--ZvAblZ-83vKm4uwa_HrQCk&usqp=CAU"
-            },
-            new()
-            {
-                Id = 4,
-                PicturePath ="https://i.pinimg.com/1200x/72/19/1c/72191ce7873172bb0082e390ace5beef.jpg"
-            },
-            new()
-            {
-                Id = 5,
-                PicturePath ="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRe0f31Vn6kriHg_-SLX4PAnIqegB5OtaeTD_CNQLxiU2kHqFmdKuqXhZjdtvYUOUz12dU&usqp=CAU"
+                pic.PicturePath = basePath + pic.PicturePath;
             }
-        };
 
-        response.Data = pictures;
-
-        return Ok(response.ToErrorResponse("This function is not yet implemented"));
+            response.Data = pictures;
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(UploadPicture)} Error");
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+        }
     }
     [HttpPost("{id:int}")]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status200OK)]
