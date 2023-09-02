@@ -19,7 +19,6 @@ public class MatchesService : IMatchesService
     private readonly IMapper _mapper;
     private readonly ILogger<MatchesService> _logger;
 
-    private const int TOKEN_EXPIRATION_HOURS = 5;
 
     public MatchesService(IMatchesReporitory matchesRepository, IUsersRepository usersRepository, IMatchConnectionsService matchConnectionsService, IMapper mapper, ILogger<MatchesService> logger)
     {
