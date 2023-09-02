@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Win32;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Users;
+using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.Matches;
 using PhotoShowdownBackend.Services.Session;
@@ -29,6 +30,7 @@ public class MatchesController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(typeof(APIResponse<MatchCreationResponseDTO>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateNewMatch()
     {
         APIResponse<MatchCreationResponseDTO> response = new();
@@ -39,6 +41,10 @@ public class MatchesController : ControllerBase
             response.Data = newMatchDetails;
             return StatusCode(StatusCodes.Status201Created, response);
             //return CreatedAtAction(nameof(GetUser), new { id = newUserDetails.Id }, response);
+        }
+        catch(UserAlreadyConnectedException ex)
+        {
+            return BadRequest(response.ToErrorResponse(ex.Message));
         }
         catch (Exception ex)
         {

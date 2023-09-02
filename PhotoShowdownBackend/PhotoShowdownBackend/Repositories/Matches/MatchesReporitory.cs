@@ -24,7 +24,7 @@ public class MatchesReporitory: Repository<Match>, IMatchesReporitory
 
     }
 
-    public async Task<bool> DoesMatchExists(int matchId)
+    virtual public async Task<bool> MatchExists(int matchId)
     {
         return !(await GetAsync(match => match.Id == matchId) == null);
         

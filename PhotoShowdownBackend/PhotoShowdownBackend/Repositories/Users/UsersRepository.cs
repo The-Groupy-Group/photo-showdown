@@ -23,7 +23,5 @@ public class UsersRepository: Repository<User>, IUsersRepository
     {
         return await _dbSet.AnyAsync(u => u.Id == userId && u.ConnectionId.HasValue);
     }
-
-
 }
 

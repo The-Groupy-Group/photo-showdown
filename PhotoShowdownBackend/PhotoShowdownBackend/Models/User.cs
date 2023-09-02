@@ -39,5 +39,5 @@ public class User
     public virtual ICollection<Picture> Pictures { get; set; } = new List<Picture>();
 
     [ForeignKey("ConnectionId")]
-    public virtual MatchConnection MatchConnection { get; set; } = null!;
+    public virtual MatchConnection? MatchConnection { get; set; }
 }

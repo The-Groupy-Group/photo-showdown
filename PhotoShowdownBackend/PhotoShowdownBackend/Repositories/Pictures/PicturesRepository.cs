@@ -17,7 +17,7 @@ public class PicturesRepository : Repository<Picture>, IPicturesRepository
         _picturesFolderPath = Path.Combine(_environment.WebRootPath, _picturesFolderName);
     }
 
-    override public Task<Picture> CreateAsync(Picture picture)
+    public async override Task<Picture> CreateAsync(Picture picture)
     {
         if (picture.PictureFile == null)
         {
@@ -25,11 +25,21 @@ public class PicturesRepository : Repository<Picture>, IPicturesRepository
         }
 
         // Save picture file to disk
-        var pictureAbsolutePath = GetPicturePath(picture.PicturePath);
-        SavePictureFile(picture.PictureFile, pictureAbsolutePath);
+        var pictureAbsolutePath = GetAbsolutePicturePath(picture.PicturePath);
+
+        await SavePictureFileAsync(picture.PictureFile, pictureAbsolutePath);
 
         // Save picture to database
-        return base.CreateAsync(picture);
+        return await base.CreateAsync(picture);
+    }
+
+    public override Task<Picture> DeleteAsync(Picture entity)
+    {
+        var pictureAbsolutePath = GetAbsolutePicturePath(entity.PicturePath);
+
+        DeletePictureFile(pictureAbsolutePath);
+
+        return base.DeleteAsync(entity);
     }
 
     /// <summary>
@@ -37,13 +47,25 @@ public class PicturesRepository : Repository<Picture>, IPicturesRepository
     /// </summary>
     /// <param name="pictureFile"></param>
     /// <param name="absolutePath"></param>
-    private static async void SavePictureFile(IFormFile pictureFile, string absolutePath)
+    private static async Task SavePictureFileAsync(IFormFile pictureFile, string absolutePath)
     {
         using var fileStream = new FileStream(absolutePath, FileMode.Create);
         await pictureFile.CopyToAsync(fileStream);
     }
 
-    private string GetPicturePath(string pictureName)
+    private static void DeletePictureFile(string absolutePath)
+    {
+        try
+        {
+            if(File.Exists(absolutePath))
+            {
+                File.Delete(absolutePath);
+            }
+        }
+        catch { }
+    }
+
+    private string GetAbsolutePicturePath(string pictureName)
     {
         return Path.Combine(_picturesFolderPath, pictureName);
     }

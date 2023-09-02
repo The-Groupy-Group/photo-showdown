@@ -1,8 +1,6 @@
-﻿namespace PhotoShowdownBackend.Services.MatchConnections
-{
-    public interface IMatchConnectionsService
-    {
+﻿namespace PhotoShowdownBackend.Services.MatchConnections;
 
-        public Task CreateMatchConnection(int userId, int matchId);
-    }
+public interface IMatchConnectionsService
+{
+    public Task CreateMatchConnection(int userId, int matchId);
 }

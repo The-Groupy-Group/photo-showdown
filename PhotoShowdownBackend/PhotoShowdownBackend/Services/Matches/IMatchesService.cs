@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using PhotoShowdownBackend.Dtos.Matches;
-using PhotoShowdownBackend.Dtos.Users;
+﻿using PhotoShowdownBackend.Dtos.Matches;
 
 namespace PhotoShowdownBackend.Services.Matches;
 

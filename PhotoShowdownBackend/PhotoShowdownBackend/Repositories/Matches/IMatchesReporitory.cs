@@ -11,5 +11,5 @@ public interface IMatchesReporitory : IRepository<Match>
 {
     Task<List<Match>> GetAllWithUsersAsync(Expression<Func<Match, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null);
 
-    Task<bool> DoesMatchExists(int matchId);
+    Task<bool> MatchExists(int matchId);
 }
