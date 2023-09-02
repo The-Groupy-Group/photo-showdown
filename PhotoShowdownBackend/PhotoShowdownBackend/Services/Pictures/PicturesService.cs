@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using PhotoShowdownBackend.Dtos.PicturesDto;
+using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.Pictures;
 using PhotoShowdownBackend.Repositories.Users;
@@ -49,5 +50,25 @@ public class PicturesService : IPicturesService
     {
         var pictures = await _picturesRepo.GetAllAsync(p => p.UserId == userId, tracked:false);
         return pictures.Select(p => _mapper.Map<PictureDTO>(p)).ToList();
+    }
+
+    public async Task<PictureDTO> GetPicture(int pictureId)
+    {
+        var picture = await _picturesRepo.GetAsync(p=>p.Id == pictureId);
+        return _mapper.Map<PictureDTO>(picture);
+    }
+
+    public async Task DeletePicture(int pictureId)
+    {
+        var picture = await _picturesRepo.GetAsync(p => p.Id == pictureId);
+        if (picture == null) throw new NotFoundException("Picture not found");
+        await _picturesRepo.DeleteAsync(picture);
+    }
+
+    public async Task<bool> PictureBelongsToUser(int pictureId, int userId)
+    {
+        var picture = await _picturesRepo.GetAsync(p => p.Id == pictureId);
+        if (picture == null) throw new NotFoundException("Picture not found");
+        return picture.UserId == userId;
     }
 }

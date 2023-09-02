@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
+using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.PicturesDto;
 using PhotoShowdownBackend.Dtos.Users;
+using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.Pictures;
 using PhotoShowdownBackend.Services.Session;
@@ -52,6 +54,7 @@ public class PicturesController : ControllerBase
             picture.PicturePath = GetPictureBaseBath() + picture.PicturePath;
 
             response.Data = picture;
+
             return StatusCode(StatusCodes.Status201Created, response);
         }
         catch (Exception ex)
@@ -93,16 +96,42 @@ public class PicturesController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
         }
     }
-    [HttpPost("{id:int}")]
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="pictureId"></param>
+    /// <returns></returns>
+    [HttpDelete("{pictureId:int}")]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeletePicture(int id)
+    public async Task<IActionResult> DeletePicture(int pictureId)
     {
-        var response = new APIResponse();
-        return Ok(response.ToErrorResponse("This function is not yet implemented"));
+        APIResponse response = new();
+        try
+        {
+            if (! await _picturesService.PictureBelongsToUser(pictureId, _sessionService.GetCurrentUserId()))
+            {
+                return Unauthorized(response.ToErrorResponse("You don't have permission to delete this image"));
+            }
+            
+            await _picturesService.DeletePicture(pictureId);
+
+            return Ok(response);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ToErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(DeletePicture)} Error");
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+        }
     }
 
+    // ------------------ Helper Functions ------------------
     [NonAction]
     private string GetPictureBaseBath()
     {
