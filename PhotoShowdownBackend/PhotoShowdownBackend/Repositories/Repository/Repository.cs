@@ -34,10 +34,10 @@ public class Repository<T> : IRepository<T> where T : class
     /// <inheritdoc></inheritdoc>
     virtual public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null)
     {
-        
-        var query = GetAllQuery(filter, tracked, pageNumber, pageSize); 
+        var query = _dbSet;
 
-        return await query.ToListAsync();
+        return await GetAllFromQueryAsync(query,filter, tracked, pageNumber, pageSize); 
+
     }
     virtual public async Task<T> CreateAsync(T entity)
     {
@@ -58,9 +58,8 @@ public class Repository<T> : IRepository<T> where T : class
         return entity;
     }
 
-    virtual public IQueryable<T> GetAllQuery(Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null)
-    {
-        IQueryable<T> query = _dbSet;
+    virtual public async Task<List<T>> GetAllFromQueryAsync(IQueryable<T> query, Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null)
+    { 
 
         if (filter != null)
         {
@@ -80,9 +79,7 @@ public class Repository<T> : IRepository<T> where T : class
             query = query.Skip(pageSize.Value * (pageNumber.Value - 1)).Take(pageSize.Value);
         }
 
-
-
-        return query;
+        return await query.ToListAsync();
     }
 
 }

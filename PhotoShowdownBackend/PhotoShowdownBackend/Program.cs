@@ -14,6 +14,9 @@ using PhotoShowdownBackend.Services.Session;
 using PhotoShowdownBackend.Services.Pictures;
 using PhotoShowdownBackend.Repositories.Pictures;
 using PhotoShowdownBackend.Services.Matches;
+using PhotoShowdownBackend.Models;
+using PhotoShowdownBackend.Services.MatchConnections;
+using PhotoShowdownBackend.Repositories.MatchConnections;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,12 +45,15 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IPicturesService, PicturesService>();
 builder.Services.AddScoped<IMatchesService, MatchesService>();
+builder.Services.AddScoped<IMatchConnectionsService, MatchConnectionsService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 
 // Add repositories
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<IPicturesRepository, PicturesRepository>();
 builder.Services.AddScoped<IMatchesReporitory, MatchesReporitory>();
+builder.Services.AddScoped<IMatchConnectionsRepository, MatchConnectionsRepository>();
+
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingConfig).Assembly);

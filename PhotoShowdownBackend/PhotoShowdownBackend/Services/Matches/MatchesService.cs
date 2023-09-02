@@ -7,7 +7,9 @@ using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.Users;
 using PhotoShowdownBackend.Models;
+using PhotoShowdownBackend.Repositories.MatchConnections;
 using PhotoShowdownBackend.Repositories.Users;
+using PhotoShowdownBackend.Services.MatchConnections;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -21,16 +23,18 @@ public class MatchesService : IMatchesService
 {
     private readonly IMatchesReporitory _matchesRepo;
     private readonly IUsersRepository _usersRepo;
+    private readonly IMatchConnectionsService _matchConnectionsService;
     private readonly IConfiguration _configuration;
     private readonly IMapper _mapper;
     private readonly ILogger<MatchesService> _logger;
 
     private const int TOKEN_EXPIRATION_HOURS = 5;
 
-    public MatchesService(IMatchesReporitory matchesRepository, IUsersRepository usersRepo, IConfiguration configuration, IMapper mapper, ILogger<MatchesService> logger)
+    public MatchesService(IMatchesReporitory matchesRepository, IMatchConnectionsService matchConnectionsService, IUsersRepository usersRepo, IConfiguration configuration, IMapper mapper, ILogger<MatchesService> logger)
     {
         _matchesRepo = matchesRepository;
         _usersRepo = usersRepo;
+        _matchConnectionsService = matchConnectionsService;
         _configuration = configuration;
         _mapper = mapper;
         _logger = logger;
@@ -54,7 +58,7 @@ public class MatchesService : IMatchesService
             MatchId = match.Id
         };
 
-        await JoinUserToMatch(userId, match.Id);
+        await _matchConnectionsService.CreateMatchConnection(userId, match.Id);
 
         return response;
 
@@ -62,12 +66,12 @@ public class MatchesService : IMatchesService
 
     public async Task<AllMatchesResponseDTO> GetAllOpenMatches()
     {
-        List<Match> allMatches = await _matchesRepo.GetAllWithUsersAsync(match => match.StartDate == null,tracked:false);
+        List<Match> allMatches = await _matchesRepo.GetAllWithMatchConnectionsAsync(match => match.StartDate == null,tracked:false);
 
         List<MatchDTO> matchesDTO = allMatches.Select(match => { 
             var dto =  _mapper.Map<MatchDTO>(match);
-            dto.OwnerName = match.Users.Where(user => user.Id == match.OwnerId).First().Username;
-            dto.UsersNames = match.Users.Select(user => user.Username).ToList();
+            dto.OwnerName = match.Owner.Username;
+            dto.UsersNames = match.MatchConnections.Select(mc => mc.User.Username).ToList();
             return dto;
         }).ToList();
 
@@ -80,26 +84,6 @@ public class MatchesService : IMatchesService
 
     }
 
-    public async Task JoinUserToMatch(int userId,int matchId)
-    {
-        var match = await _matchesRepo.GetAsync(match => match.Id == matchId);
-
-        if (!await _matchesRepo.DoesMatchExists(matchId))
-        {
-            throw new NotFoundException(/*"Match not found"*/);
-        }
-
-        var user = await _usersRepo.GetAsync(user => user.Id == userId);
-
-        if (user == null)
-        {
-            throw new NotFoundException(/*"User not found"*/);
-        }
-
-        user.MatchId = matchId;
-        await _usersRepo.UpdateAsync(user);
-
-
-    }
+   
 
 }

@@ -18,5 +18,12 @@ public class UsersRepository: Repository<User>, IUsersRepository
     {
         return await _dbSet.AllAsync(u => u.Username != username && u.Email != email);
     }
+
+    public async Task<bool> IsConnected(int userId)
+    {
+        return await _dbSet.AnyAsync(u => u.Id == userId && u.ConnectionId.HasValue);
+    }
+
+
 }
 
