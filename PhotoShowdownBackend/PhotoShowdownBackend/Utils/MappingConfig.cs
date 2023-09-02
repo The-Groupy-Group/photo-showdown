@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.PicturesDto;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Models;
@@ -19,5 +20,8 @@ public class MappingConfig: Profile
 
         // Pictures
         CreateMap<Picture, PictureDTO>();
+
+        // Matches
+        CreateMap<Match, MatchDTO>();
     }
 }

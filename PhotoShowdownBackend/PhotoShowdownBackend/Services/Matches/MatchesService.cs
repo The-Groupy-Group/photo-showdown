@@ -7,7 +7,9 @@ using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.Users;
 using PhotoShowdownBackend.Models;
+using PhotoShowdownBackend.Repositories.MatchConnections;
 using PhotoShowdownBackend.Repositories.Users;
+using PhotoShowdownBackend.Services.MatchConnections;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -20,15 +22,19 @@ namespace PhotoShowdownBackend.Services.Matches;
 public class MatchesService : IMatchesService
 {
     private readonly IMatchesReporitory _matchesRepo;
+    private readonly IUsersRepository _usersRepo;
+    private readonly IMatchConnectionsService _matchConnectionsService;
     private readonly IConfiguration _configuration;
     private readonly IMapper _mapper;
     private readonly ILogger<MatchesService> _logger;
 
     private const int TOKEN_EXPIRATION_HOURS = 5;
 
-    public MatchesService(IMatchesReporitory matchesRepository, IConfiguration configuration, IMapper mapper, ILogger<MatchesService> logger)
+    public MatchesService(IMatchesReporitory matchesRepository, IMatchConnectionsService matchConnectionsService, IUsersRepository usersRepo, IConfiguration configuration, IMapper mapper, ILogger<MatchesService> logger)
     {
         _matchesRepo = matchesRepository;
+        _usersRepo = usersRepo;
+        _matchConnectionsService = matchConnectionsService;
         _configuration = configuration;
         _mapper = mapper;
         _logger = logger;
@@ -52,9 +58,27 @@ public class MatchesService : IMatchesService
             MatchId = match.Id
         };
 
+        await _matchConnectionsService.CreateMatchConnection(userId, match.Id);
+
         return response;
 
     }
+    //
+    public async Task<List<MatchDTO>> GetAllOpenMatches()
+    {
+        List<Match> allMatches = await _matchesRepo.GetAllWithUsersAsync(match => match.StartDate == null,tracked:false);
 
+        List<MatchDTO> matches = allMatches.Select(match => { 
+            var dto =  _mapper.Map<MatchDTO>(match);
+            dto.OwnerName = match.Owner.Username;
+            dto.UsersNames = match.MatchConnections.Select(mc => mc.User.Username).ToList();
+            return dto;
+        }).ToList();
+
+
+        return matches;
+    }
+
+   
 
 }

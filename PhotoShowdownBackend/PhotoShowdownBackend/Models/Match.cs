@@ -16,7 +16,9 @@ public class Match
     public DateTime? StartDate { get; set; }
 
     public DateTime? EndDate { get; set; }
-  
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
 
+    [InverseProperty("Match")]
+    public virtual ICollection<MatchConnection> MatchConnections { get; set; } = new List<MatchConnection>();
+
+    public virtual User Owner { get; set; } = null!;
 }

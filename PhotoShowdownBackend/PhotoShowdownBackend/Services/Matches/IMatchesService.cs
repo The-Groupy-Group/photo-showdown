@@ -10,4 +10,6 @@ namespace PhotoShowdownBackend.Services.Matches;
 public interface IMatchesService
 {
     Task<MatchCreationResponseDTO> CreateNewMatch(int userId);
+    Task<List<MatchDTO>> GetAllOpenMatches();
+
 }

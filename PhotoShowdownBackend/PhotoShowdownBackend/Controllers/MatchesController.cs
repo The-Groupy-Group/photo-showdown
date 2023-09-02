@@ -37,7 +37,7 @@ public class MatchesController : ControllerBase
             int userId = _sessionService.GetCurrentUserId();
             var newMatchDetails = await _matchesService.CreateNewMatch(userId);
             response.Data = newMatchDetails;
-            return StatusCode(StatusCodes.Status201Created,response);
+            return StatusCode(StatusCodes.Status201Created, response);
             //return CreatedAtAction(nameof(GetUser), new { id = newUserDetails.Id }, response);
         }
         catch (Exception ex)
@@ -45,6 +45,31 @@ public class MatchesController : ControllerBase
             _logger.LogError(ex, $"{nameof(CreateNewMatch)} Error");
             return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
         }
+    }
+
+
+    /// <summary>
+    /// Gets all open matches
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    [ProducesResponseType(typeof(APIResponse<List<MatchDTO>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAllOpenMatches()
+    {
+        APIResponse<List<MatchDTO>> response = new();
+        try
+        {
+            var allMatches = await _matchesService.GetAllOpenMatches();
+            response.Data = allMatches;
+            return Ok(response);
+            //return CreatedAtAction(nameof(GetUser), new { id = newUserDetails.Id }, response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(GetAllOpenMatches)} Error");
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+        }
+
     }
 
 }

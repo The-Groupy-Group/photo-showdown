@@ -8,7 +8,7 @@ namespace PhotoShowdownBackend.Repositories.Repository;
 /// <typeparam name="T">A model representing a Db table</typeparam>
 public interface IRepository<T> where T : class
 {
-    Task<T?> GetAsync(Expression<Func<T, bool>> filter, bool tracked = true);
+    public Task<T?> GetAsync(Expression<Func<T, bool>> filter, bool tracked = true);
     /// <summary>
     /// 
     /// </summary>
@@ -17,8 +17,8 @@ public interface IRepository<T> where T : class
     /// <param name="pageNumber">Starting from 1</param>
     /// <param name="pageSize"></param>
     /// <returns></returns>
-    Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null);
-    Task<T> CreateAsync(T entity);
-    Task<T> UpdateAsync(T entity);
-    Task<T> DeleteAsync(T entity);
+    public Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null);
+    public Task<T> CreateAsync(T entity);
+    public Task<T> UpdateAsync(T entity);
+    public Task<T> DeleteAsync(T entity);
 }
