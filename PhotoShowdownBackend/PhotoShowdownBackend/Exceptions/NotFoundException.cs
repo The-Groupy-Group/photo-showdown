@@ -2,7 +2,7 @@
 
 public class NotFoundException: AbstractException
 {
-    public NotFoundException(): base("Not Found")
+    public NotFoundException(string? message = "Not Found") : base(message)
     {
         
     }
