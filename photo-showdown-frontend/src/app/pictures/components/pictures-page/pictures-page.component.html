@@ -6,8 +6,16 @@
       <mat-error *ngIf="errorMessage">{{errorMessage}}</mat-error>
   </form>
   </mat-card>
-  <div class="container">
+  <div class="upload-container" *ngIf="imageSrc!=null">
     <img mat-card-image name="uploaded-picture" class="uploaded-picture" #uploadedPicture [src]="imageSrc">
+  </div>
+  <div class="pictures-container" *ngIf="pictures.length > 0">
+    <app-picture class="picture-item" *ngFor="let picture of this.pictures" [picture]="picture"
+      [allowDelete]="isDeletable"
+      (onDeletePicture)="removePicture($event)">
+
+    </app-picture>
+
   </div>
 
 

@@ -1,6 +1,7 @@
+import { Picture } from './../../models/picture.model';
 
 import { NgForm } from '@angular/forms';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PicturesService } from '../../services/pictures.service';
@@ -10,16 +11,23 @@ import { PicturesService } from '../../services/pictures.service';
   templateUrl: './pictures-page.component.html',
   styleUrls: ['./pictures-page.component.css']
 })
-export class PicturesPageComponent {
+export class PicturesPageComponent implements OnInit{
   constructor(
     private readonly picturesService: PicturesService,
     private readonly router: Router
   ) {}
 
+  pictures:Picture[]=[]
   file?:File;
   errorMessage?: string;
   imageSrc?:string;
+  isDeletable:boolean=true;
 
+  removePicture(id:number)
+  {
+    this.pictures.find(picture=>picture.id===id)
+    this.pictures = [...this.pictures.filter((picture) => id !== picture.id)];
+  }
   showUpload(imagePath:string)
   {
     this.imageSrc=imagePath;
@@ -48,11 +56,31 @@ export class PicturesPageComponent {
         form.resetForm();
 
 
+
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = error.message;
 
       },
     });
+  }
+
+  loadList()
+  {
+    this.pictures=[];
+    this.picturesService.getMyPicutres().subscribe({
+
+      next:(response)=>{
+      console.log(response);
+      response.data.forEach(picture=>{
+        this.pictures.push({...picture});
+      })
+    }
+  })
+}
+
+  ngOnInit(): void
+  {
+    this.loadList();
   }
 }

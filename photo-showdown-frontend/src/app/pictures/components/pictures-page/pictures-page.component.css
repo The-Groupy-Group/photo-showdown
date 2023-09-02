@@ -21,7 +21,7 @@ mat-card{
 {
   padding-bottom: 10px
 }
-.container
+.upload-container
 {
   padding-top: 20px;
   margin: auto;
@@ -31,3 +31,4 @@ mat-card{
   justify-content: center;
   align-items: center;
 }
+

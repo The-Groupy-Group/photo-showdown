@@ -38,7 +38,7 @@ export class PicturesService {
  */
   deletePicture(id:number):Observable<EmptyAPIResponse>
   {
-    return this.http.post<APIResponse<Picture[]>>(
+    return this.http.delete<APIResponse<Picture[]>>(
       this.apiURL + '/DeletePicture/'+id,
       this.httpOptions
     );

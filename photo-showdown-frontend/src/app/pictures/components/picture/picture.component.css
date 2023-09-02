@@ -1,0 +1,21 @@
+
+.picture-container
+{
+  display: inline-block;
+  position: relative;
+}
+.overlay {
+  position: absolute;
+  top: 0;
+  right: 0; /* Move "X" icon to the top right corner */
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay background for the "X" icon */
+  padding: 5px; /* Add some padding around the "X" icon */
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  border-radius: 0 0 0 10px; /* Add rounded corners to the top right corner */
+}
+
+.close-icon {
+  font-weight: bold;
+}

@@ -18,6 +18,7 @@ import { HeaderComponent } from './header/components/header/header.component';
 import { HomepageComponent } from './homepage/homepage/homepage.component';
 import { PicturesPageComponent } from './pictures/components/pictures-page/pictures-page.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { PictureComponent } from './pictures/components/picture/picture.component';
 
 
 
@@ -28,7 +29,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     UserLoginComponent,
     HeaderComponent,
     HomepageComponent,
-    PicturesPageComponent
+    PicturesPageComponent,
+    PictureComponent
   ],
   imports: [
     BrowserModule,
