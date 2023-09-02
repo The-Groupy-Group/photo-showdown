@@ -1,7 +1,7 @@
 ﻿USE PhotoShowdownDB;
 GO
 
--- Create the Matches table
+-- Create the MatchConnections table
 CREATE TABLE MatchConnections (
     Id INT PRIMARY KEY IDENTITY,
     UserId INT NOT NULL,

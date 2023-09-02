@@ -9,21 +9,19 @@ namespace PhotoShowdownBackend.Services.MatchConnections;
 public class MatchConnectionsService : IMatchConnectionsService
 {
     private readonly IMatchConnectionsRepository _matchConnectionsRepo;
-    private readonly IUsersRepository _usersRepo;
     private readonly IMapper _mapper;
     private readonly ILogger<MatchConnectionsService> _logger;
 
-    public MatchConnectionsService(IMatchConnectionsRepository matchConnectionsRepo, IUsersRepository usersRepository, IMapper mapper, ILogger<MatchConnectionsService> logger)
+    public MatchConnectionsService(IMatchConnectionsRepository matchConnectionsRepo, IMapper mapper, ILogger<MatchConnectionsService> logger)
     {
         _matchConnectionsRepo = matchConnectionsRepo;
-        _usersRepo = usersRepository;
         _mapper = mapper;
         _logger = logger;
     }
 
     public async Task CreateMatchConnection(int userId, int matchId)
     {
-        if (await _usersRepo.IsConnected(userId))
+        if (await _matchConnectionsRepo.UserConnectedToMatch(userId))
         {
             throw new UserAlreadyConnectedException();
         }
@@ -37,4 +35,8 @@ public class MatchConnectionsService : IMatchConnectionsService
         await _matchConnectionsRepo.CreateAsync(matchConnection);
     }
 
+    public async Task<bool> UserConnectedToMatch(int userId)
+    {
+        return await _matchConnectionsRepo.UserConnectedToMatch(userId);
+    }
 }

@@ -33,11 +33,8 @@ public class User
     public bool IsAdmin { get; set; } = false;
 
 
-    public int? ConnectionId { get; set; }
-
     [InverseProperty("User")]
     public virtual ICollection<Picture> Pictures { get; set; } = new List<Picture>();
 
-    [ForeignKey("ConnectionId")]
     public virtual MatchConnection? MatchConnection { get; set; }
 }
