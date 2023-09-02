@@ -63,7 +63,7 @@ public class MatchesService : IMatchesService
         return response;
 
     }
-
+    //
     public async Task<AllMatchesResponseDTO> GetAllOpenMatches()
     {
         List<Match> allMatches = await _matchesRepo.GetAllWithMatchConnectionsAsync(match => match.StartDate == null,tracked:false);
