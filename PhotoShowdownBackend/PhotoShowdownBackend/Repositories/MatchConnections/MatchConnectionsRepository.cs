@@ -1,4 +1,5 @@
-﻿using PhotoShowdownBackend.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using PhotoShowdownBackend.Data;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.Repository;
 
@@ -8,5 +9,10 @@ public class MatchConnectionsRepository : Repository<MatchConnection>, IMatchCon
 {
     public MatchConnectionsRepository(PhotoShowdownDbContext _db) : base(_db)
     {
+    }
+
+    public async Task<bool> UserConnectedToMatch(int userId)
+    {
+        return await _dbSet.AnyAsync(mc => mc.UserId == userId);
     }
 }

@@ -5,4 +5,5 @@ namespace PhotoShowdownBackend.Repositories.MatchConnections;
 
 public interface IMatchConnectionsRepository : IRepository<MatchConnection>
 {
+    Task<bool> UserConnectedToMatch(int userId);
 }

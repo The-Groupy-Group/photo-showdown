@@ -2,6 +2,7 @@
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Models;
+using PhotoShowdownBackend.Repositories.MatchConnections;
 using PhotoShowdownBackend.Repositories.Users;
 using PhotoShowdownBackend.Services.MatchConnections;
 
@@ -14,16 +15,14 @@ namespace PhotoShowdownBackend.Services.Matches;
 public class MatchesService : IMatchesService
 {
     private readonly IMatchesReporitory _matchesRepo;
-    private readonly IUsersRepository _usersRepo;
     private readonly IMatchConnectionsService _matchConnectionsService;
     private readonly IMapper _mapper;
     private readonly ILogger<MatchesService> _logger;
 
 
-    public MatchesService(IMatchesReporitory matchesRepository, IUsersRepository usersRepository, IMatchConnectionsService matchConnectionsService, IMapper mapper, ILogger<MatchesService> logger)
+    public MatchesService(IMatchesReporitory matchesRepository, IMatchConnectionsService matchConnectionsService, IMapper mapper, ILogger<MatchesService> logger)
     {
         _matchesRepo = matchesRepository;
-        _usersRepo = usersRepository;
         _matchConnectionsService = matchConnectionsService;
         _mapper = mapper;
         _logger = logger;
@@ -31,7 +30,7 @@ public class MatchesService : IMatchesService
 
     public async Task<MatchCreationResponseDTO> CreateNewMatch(int userId)
     {
-        if (await _usersRepo.IsConnected(userId))
+        if (await _matchConnectionsService.UserConnectedToMatch(userId))
         {
             throw new UserAlreadyConnectedException();
         }
@@ -56,7 +55,7 @@ public class MatchesService : IMatchesService
         return response;
 
     }
-    //
+    
     public async Task<List<MatchDTO>> GetAllOpenMatches()
     {
         List<Match> allMatches = await _matchesRepo.GetAllWithUsersAsync(match => match.StartDate == null,tracked:false);
@@ -68,10 +67,6 @@ public class MatchesService : IMatchesService
             return dto;
         }).ToList();
 
-
         return matches;
     }
-
-   
-
 }

@@ -8,9 +8,7 @@ public class MatchConnection
 {
 
     [Key] // Primary Key
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Auto-increment
-    public int Id { get; set; }
-
+    [ForeignKey("User")]
     public int UserId { get; set; }
 
     public int MatchId { get; set; }
