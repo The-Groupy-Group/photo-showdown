@@ -9,7 +9,7 @@ namespace PhotoShowdownBackend.Repositories.Users;
 /// <summary>
 /// Data Access Layer (DAL) implementation for our Matches
 /// </summary>
-public class MatchesReporitory: Repository<Match>, IMatchesReporitory
+public class MatchesReporitory : Repository<Match>, IMatchesReporitory
 {
     public MatchesReporitory(PhotoShowdownDbContext _db) : base(_db)
     {
@@ -18,16 +18,14 @@ public class MatchesReporitory: Repository<Match>, IMatchesReporitory
     virtual public async Task<List<Match>> GetAllWithUsersAsync(Expression<Func<Match, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null)
     {
         IQueryable<Match> query = _dbSet;
-        query = query.Include(m=>m.Owner).Include(match => match.MatchConnections).ThenInclude(mc => mc.User);
+        query = query.Include(match => match.Owner).Include(match => match.MatchConnections).ThenInclude(mc => mc.User);
 
         return await GetAllFromQueryAsync(query, filter, tracked, pageNumber, pageSize);
-
     }
 
     virtual public async Task<bool> MatchExists(int matchId)
     {
         return !(await GetAsync(match => match.Id == matchId) == null);
-        
     }
 }
 
