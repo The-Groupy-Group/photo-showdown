@@ -53,10 +53,10 @@ public class MatchesController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    [ProducesResponseType(typeof(APIResponse<AllMatchesResponseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(APIResponse<List<MatchDTO>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllOpenMatches()
     {
-        APIResponse<AllMatchesResponseDTO> response = new();
+        APIResponse<List<MatchDTO>> response = new();
         try
         {
             var allMatches = await _matchesService.GetAllOpenMatches();

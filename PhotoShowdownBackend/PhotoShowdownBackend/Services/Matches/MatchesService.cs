@@ -64,24 +64,19 @@ public class MatchesService : IMatchesService
 
     }
     //
-    public async Task<AllMatchesResponseDTO> GetAllOpenMatches()
+    public async Task<List<MatchDTO>> GetAllOpenMatches()
     {
-        List<Match> allMatches = await _matchesRepo.GetAllWithMatchConnectionsAsync(match => match.StartDate == null,tracked:false);
+        List<Match> allMatches = await _matchesRepo.GetAllWithUsersAsync(match => match.StartDate == null,tracked:false);
 
-        List<MatchDTO> matchesDTO = allMatches.Select(match => { 
+        List<MatchDTO> matches = allMatches.Select(match => { 
             var dto =  _mapper.Map<MatchDTO>(match);
             dto.OwnerName = match.Owner.Username;
             dto.UsersNames = match.MatchConnections.Select(mc => mc.User.Username).ToList();
             return dto;
         }).ToList();
 
-        var response = new AllMatchesResponseDTO
-        {
-            Matches = allMatches
-        };
 
-        return response;
-
+        return matches;
     }
 
    

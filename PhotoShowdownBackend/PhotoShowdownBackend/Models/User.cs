@@ -32,10 +32,12 @@ public class User
 
     public bool IsAdmin { get; set; } = false;
 
-    [ForeignKey("MatchConnection")]
+
     public int? ConnectionId { get; set; }
-    
+
+    [InverseProperty("User")]
     public virtual ICollection<Picture> Pictures { get; set; } = new List<Picture>();
 
-    public MatchConnection? MatchConnection { get; set; }
+    [ForeignKey("ConnectionId")]
+    public virtual MatchConnection MatchConnection { get; set; } = null!;
 }

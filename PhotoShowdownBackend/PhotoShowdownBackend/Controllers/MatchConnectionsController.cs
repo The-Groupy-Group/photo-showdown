@@ -22,6 +22,4 @@ public class MatchConnectionsController : ControllerBase
         _sessionService = sessionService;
         _logger = logger;
     }
-
-
 }

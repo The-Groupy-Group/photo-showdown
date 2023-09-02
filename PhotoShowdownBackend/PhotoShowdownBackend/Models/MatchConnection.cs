@@ -11,18 +11,14 @@ public class MatchConnection
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Auto-increment
     public int Id { get; set; }
 
-
-    
     public int UserId { get; set; }
 
-
-    
     public int MatchId { get; set; }
 
     [ForeignKey("UserId")]
-    public User User { get; set; }
+    public virtual User User { get; set; } = null!;
 
     [ForeignKey("MatchId")]
-    public Match Match { get; set; } 
+    public virtual Match Match { get; set; } = null!;
 
 }

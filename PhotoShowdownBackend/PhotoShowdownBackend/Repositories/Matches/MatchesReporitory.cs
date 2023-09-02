@@ -15,10 +15,10 @@ public class MatchesReporitory: Repository<Match>, IMatchesReporitory
     {
     }
 
-    virtual public async Task<List<Match>> GetAllWithMatchConnectionsAsync(Expression<Func<Match, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null)
+    virtual public async Task<List<Match>> GetAllWithUsersAsync(Expression<Func<Match, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null)
     {
-        var query = _dbSet;
-        query.Include(match => match.MatchConnections).ThenInclude(mc => mc.User);
+        IQueryable<Match> query = _dbSet;
+        query = query.Include(m=>m.Owner).Include(match => match.MatchConnections).ThenInclude(mc => mc.User);
 
         return await GetAllFromQueryAsync(query, filter, tracked, pageNumber, pageSize);
 

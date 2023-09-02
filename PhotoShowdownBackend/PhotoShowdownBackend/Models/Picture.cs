@@ -13,7 +13,6 @@ public class Picture
     public int Id { get; set; }
 
     [Required] // Not nullable
-    [ForeignKey("User")]
     public int UserId { get; set; }
 
     [Required]
