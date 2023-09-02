@@ -1,5 +1,5 @@
 export interface Picture
 {
   id:number;
-  url:string;
+  picturePath:string;
 }
