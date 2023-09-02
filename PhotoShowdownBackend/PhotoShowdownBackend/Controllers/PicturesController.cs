@@ -43,6 +43,8 @@ public class PicturesController : ControllerBase
         var response = new APIResponse<PictureDTO>();
         try
         {
+            if (!pictureFile.ContentType.Contains("image")) return BadRequest(response.ToErrorResponse("Uploaded file is not a image"));
+
             var currentUserId = _sessionService.GetCurrentUserId();
             var picture = await _picturesService.UploadPicture(pictureFile, currentUserId);
 
@@ -73,11 +75,11 @@ public class PicturesController : ControllerBase
         try
         {
             var currentUserId = _sessionService.GetCurrentUserId();
-            var pictures = await _picturesService.GetUserPicture( currentUserId);
+            var pictures = await _picturesService.GetUserPicture(currentUserId);
 
             // Append base path to picture path
             var basePath = GetPictureBaseBath();
-            foreach(var pic in pictures)
+            foreach (var pic in pictures)
             {
                 pic.PicturePath = basePath + pic.PicturePath;
             }
@@ -104,6 +106,6 @@ public class PicturesController : ControllerBase
     [NonAction]
     private string GetPictureBaseBath()
     {
-        return $"{Request.Scheme}://{Request.Host}/pictures/";
+        return $"{Request.Scheme}://{Request.Host}{Request.PathBase}/pictures/";
     }
 }
