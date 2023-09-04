@@ -1,0 +1,19 @@
+.createMatchButton
+{
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.title
+{
+  margin: 0 auto;
+  text-decoration: underline;
+  text-align: center;
+  font-size: x-large;
+}
+.matches-container
+{
+  margin-left:  10%;
+  margin-right: 10%;
+  margin-top:2%;
+}
+

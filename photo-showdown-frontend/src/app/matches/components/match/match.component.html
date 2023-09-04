@@ -1,0 +1,10 @@
+<mat-card class="match-container">
+  <p>Match id: {{match.id}}</p>
+  <p>Match owner: {{match.ownerName}}</p>
+  <ul *ngIf="match.userNames!=null">
+    <li *ngFor="let userName of match.userNames">{{ match.userNames }}</li>
+  </ul>
+  <span >
+    <button class="enterMatchButton" color="primary" mat-raised-button>Enter</button>
+  </span>
+</mat-card>

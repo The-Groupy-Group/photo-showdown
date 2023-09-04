@@ -20,6 +20,8 @@ import { PicturesPageComponent } from './pictures/components/pictures-page/pictu
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { PictureComponent } from './pictures/components/picture/picture.component';
 import { MatchListComponent } from './matches/components/match-list/match-list.component';
+import { MatchComponent } from './matches/components/match/match.component';
+
 
 
 
@@ -32,7 +34,8 @@ import { MatchListComponent } from './matches/components/match-list/match-list.c
     HomepageComponent,
     PicturesPageComponent,
     PictureComponent,
-    MatchListComponent
+    MatchListComponent,
+    MatchComponent
   ],
   imports: [
     BrowserModule,

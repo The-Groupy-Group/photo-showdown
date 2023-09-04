@@ -1,6 +1,8 @@
-
-<mat-card class="matches-container" *ngIf="matches.length>0">
-<ul>
-
-</ul>
-</mat-card>
+ <button class="createMatchButton" color="primary" mat-raised-button (click)="createMatch()">Create a match</button>
+ <mat-error *ngIf="errorMessage">{{errorMessage}}</mat-error>
+<div class="matches-container" *ngIf="matches.length>0">
+  <mat-card-title class="title">Matches</mat-card-title>
+  <ul class="match-list">
+    <app-match class="match-list-item" *ngFor="let match of this.matches" [match]="match"></app-match>
+  </ul>
+</div>
