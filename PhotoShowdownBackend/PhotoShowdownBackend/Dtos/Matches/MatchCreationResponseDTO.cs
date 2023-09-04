@@ -2,5 +2,5 @@
 
 public class MatchCreationResponseDTO
 {
-    public int MatchId { get; set; }
+    public int Id { get; set; }
 }

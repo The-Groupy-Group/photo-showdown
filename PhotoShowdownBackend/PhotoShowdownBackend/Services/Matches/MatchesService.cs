@@ -45,15 +45,11 @@ public class MatchesService : IMatchesService
         await _matchesRepo.CreateAsync(match);
 
         // Create the response
-        var response = new MatchCreationResponseDTO
-        {
-            MatchId = match.Id
-        };
+        var response = _mapper.Map<MatchCreationResponseDTO>(match);
 
         await _matchConnectionsService.CreateMatchConnection(userId, match.Id);
 
         return response;
-
     }
     
     public async Task<List<MatchDTO>> GetAllOpenMatches()

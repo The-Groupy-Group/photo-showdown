@@ -23,5 +23,6 @@ public class MappingConfig: Profile
 
         // Matches
         CreateMap<Match, MatchDTO>();
+        CreateMap<Match, MatchCreationResponseDTO>();
     }
 }
