@@ -58,8 +58,11 @@ public class PicturesService : IPicturesService
         return _mapper.Map<PictureDTO>(picture);
     }
 
-    public async Task DeletePicture(int pictureId)
+    public async Task DeletePicture(int pictureId, int userId, bool isAdmin)
     {
+        if (!isAdmin && !await PictureBelongsToUser(pictureId, userId)) 
+            throw new UnauthorizedException("Picture does not belong to user");
+
         var picture = await _picturesRepo.GetAsync(p => p.Id == pictureId);
         if (picture == null) throw new NotFoundException("Picture not found");
         await _picturesRepo.DeleteAsync(picture);
