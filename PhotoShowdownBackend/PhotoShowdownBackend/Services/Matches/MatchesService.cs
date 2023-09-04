@@ -65,4 +65,9 @@ public class MatchesService : IMatchesService
 
         return matches;
     }
+
+    public async Task<bool> MatchExists(int matchId)
+    {
+        return await _matchesRepo.MatchExists(matchId);
+    }
 }

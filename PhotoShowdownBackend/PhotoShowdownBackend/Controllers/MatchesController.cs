@@ -31,6 +31,7 @@ public class MatchesController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(APIResponse<MatchCreationResponseDTO>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateNewMatch()
     {
         APIResponse<MatchCreationResponseDTO> response = new();
@@ -60,6 +61,7 @@ public class MatchesController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [ProducesResponseType(typeof(APIResponse<List<MatchDTO>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAllOpenMatches()
     {
         APIResponse<List<MatchDTO>> response = new();

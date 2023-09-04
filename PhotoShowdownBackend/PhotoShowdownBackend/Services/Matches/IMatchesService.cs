@@ -10,4 +10,5 @@ public interface IMatchesService
     Task<MatchCreationResponseDTO> CreateNewMatch(int userId);
     Task<List<MatchDTO>> GetAllOpenMatches();
 
+    Task<bool> MatchExists(int matchId);
 }

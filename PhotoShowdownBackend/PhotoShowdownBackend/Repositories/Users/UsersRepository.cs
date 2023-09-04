@@ -18,5 +18,10 @@ public class UsersRepository: Repository<User>, IUsersRepository
     {
         return await _dbSet.AllAsync(u => u.Username != username && u.Email != email);
     }
+
+    public async Task<bool> UserExists(int userId)
+    {
+        return !(await GetAsync(user => user.Id == userId) == null);
+    }
 }
 

@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PhotoShowdownBackend.Dtos.Matches;
+using PhotoShowdownBackend.Exceptions;
+using PhotoShowdownBackend.Exceptions.MatchConnections;
+using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Services.Pictures;
 using PhotoShowdownBackend.Services.Session;
@@ -22,4 +26,34 @@ public class MatchConnectionsController : ControllerBase
         _sessionService = sessionService;
         _logger = logger;
     }
+
+
+    [HttpPost]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> JoinMatch(int userId, int matchId)
+    {
+        APIResponse response = new();
+        try
+        {
+            await _matchConnectionsService.CreateMatchConnection(userId,matchId);
+            return Ok(response);
+        }
+        catch (UserAlreadyConnectedException ex)
+        {
+            return BadRequest(response.ToErrorResponse(ex.Message));
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ToErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(JoinMatch)} Error");
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+        }
+    }
+
 }
