@@ -1,8 +1,8 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { APIResponse } from 'src/app/shared/models/api-response.model';
-import { MyMatch } from '../models/my-match.model';
 import { Match } from '../models/match.model';
+import { MatchId } from '../models/match-id.model';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +24,7 @@ export class MatchesService {
  */
   createNewMatch()
   {
-    return this.http.post<APIResponse<MyMatch>>(
+    return this.http.post<APIResponse<MatchId>>(
       this.apiURL + '/CreateNewMatch',
       this.httpOptions
     );

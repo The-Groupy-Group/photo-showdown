@@ -24,13 +24,11 @@ export class MatchListComponent implements OnInit
     this.errorMessage=undefined;
     this.matchesService.createNewMatch().subscribe({
       next:(response)=>{
-        console.log(response)
         //TODO - redicrect to matchroom instead of reload matches
         this.loadMatches();
       },
       error:(response)=>
       {
-          console.log(response);
           this.errorMessage=response.error.message;
       }
     })
@@ -41,10 +39,8 @@ export class MatchListComponent implements OnInit
     this.matchesService.getAllOpenMatches().subscribe({
 
       next:(response)=>{
-      console.log(response);
-      response.data.forEach(match=>{
-        this.matches.push({...match});
-      })
+        console.log(response);
+       this.matches=response.data;
     }
   })
   }
