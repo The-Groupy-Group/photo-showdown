@@ -44,20 +44,6 @@ public class MatchConnectionsFacade : IMatchConnectionsFacade
 
     public async Task LeaveMatch(int userId, int matchId)
     {
-        if (!await _usersService.UserExists(userId))
-        {
-            throw new NotFoundException("Invalid user Id");
-        }
-
-        if (!await _matchesService.MatchExists(matchId))
-        {
-            throw new NotFoundException("Invalid match Id");
-        }
-
-        if (!await _matchConnectionsService.IsUserInThisMatch(userId, matchId))
-        {
-            throw new UserNotConnectedToMatchException();
-        }
 
         await _matchConnectionsService.CloseConnection(userId,matchId);
 
