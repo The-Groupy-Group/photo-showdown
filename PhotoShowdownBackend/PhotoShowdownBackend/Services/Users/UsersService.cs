@@ -98,6 +98,11 @@ public class UsersService : IUsersService
         return _mapper.Map<UserDTO>(user);
     }
 
+    public async Task<bool> UserExists(int userId)
+    {
+        return await _usersRepo.UserExists(userId);
+    }
+
     // Helpers
     private string CreateToken(User user)
     {
@@ -137,4 +142,6 @@ public class UsersService : IUsersService
     {
         return BCrypt.Net.BCrypt.HashPassword(password);
     }
+
+    
 }

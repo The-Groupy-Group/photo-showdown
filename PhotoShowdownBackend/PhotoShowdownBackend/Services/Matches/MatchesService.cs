@@ -15,26 +15,20 @@ namespace PhotoShowdownBackend.Services.Matches;
 public class MatchesService : IMatchesService
 {
     private readonly IMatchesReporitory _matchesRepo;
-    private readonly IMatchConnectionsService _matchConnectionsService;
     private readonly IMapper _mapper;
     private readonly ILogger<MatchesService> _logger;
 
 
-    public MatchesService(IMatchesReporitory matchesRepository, IMatchConnectionsService matchConnectionsService, IMapper mapper, ILogger<MatchesService> logger)
+    public MatchesService(IMatchesReporitory matchesRepository, IMapper mapper, ILogger<MatchesService> logger)
     {
         _matchesRepo = matchesRepository;
-        _matchConnectionsService = matchConnectionsService;
         _mapper = mapper;
         _logger = logger;
     }
 
     public async Task<MatchCreationResponseDTO> CreateNewMatch(int userId)
     {
-        if (await _matchConnectionsService.UserConnectedToMatch(userId))
-        {
-            throw new UserAlreadyConnectedException();
-        }
-
+        
         // Map the request to a Match object
         var match = new Match()
         {
@@ -46,8 +40,6 @@ public class MatchesService : IMatchesService
 
         // Create the response
         var response = _mapper.Map<MatchCreationResponseDTO>(match);
-
-        await _matchConnectionsService.CreateMatchConnection(userId, match.Id);
 
         return response;
     }
@@ -64,5 +56,10 @@ public class MatchesService : IMatchesService
         }).ToList();
 
         return matches;
+    }
+
+    public async Task<bool> MatchExists(int matchId)
+    {
+        return await _matchesRepo.MatchExists(matchId);
     }
 }

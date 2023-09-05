@@ -1,8 +1,12 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
+using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.MatchConnections;
 using PhotoShowdownBackend.Repositories.Users;
+using PhotoShowdownBackend.Services.Matches;
+using PhotoShowdownBackend.Services.Users;
 
 namespace PhotoShowdownBackend.Services.MatchConnections;
 
@@ -21,6 +25,7 @@ public class MatchConnectionsService : IMatchConnectionsService
 
     public async Task CreateMatchConnection(int userId, int matchId)
     {
+
         if (await _matchConnectionsRepo.UserConnectedToMatch(userId))
         {
             throw new UserAlreadyConnectedException();
