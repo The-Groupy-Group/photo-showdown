@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { APIResponse } from 'src/app/shared/models/api-response.model';
 import { Match } from '../models/match.model';
 import { MatchId } from '../models/match-id.model';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +23,7 @@ export class MatchesService {
  *
  * @returns the created match's id
  */
-  createNewMatch()
+  createNewMatch():Observable<APIResponse<MatchId>>
   {
     return this.http.post<APIResponse<MatchId>>(
       this.apiURL + '/CreateNewMatch',
@@ -33,7 +34,7 @@ export class MatchesService {
  *
  * @returns all open matches id's their owners and users
  */
-  getAllOpenMatches()
+  getAllOpenMatches():Observable<APIResponse<Match[]>>
   {
     return this.http.get<APIResponse<Match[]>>(
       this.apiURL + '/GetAllOpenMatches',

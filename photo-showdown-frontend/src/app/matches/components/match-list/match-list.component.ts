@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { MatchesService } from '../../services/matches.service';
 import { Match } from '../../models/match.model';
+import { MatchConnectionService } from '../../services/match-connections.service';
+import { Router } from '@angular/router';
+import { JwtService } from 'src/app/shared/jwt-service/jwt.service';
 
 
 @Component({
@@ -12,7 +15,8 @@ export class MatchListComponent implements OnInit
 {
   errorMessage?:string;
   matches:Match[]=[];
-  constructor(private readonly matchesService: MatchesService){}
+  constructor(private readonly matchesService: MatchesService,
+    private readonly router:Router){}
 
 
   ngOnInit(): void
@@ -24,9 +28,9 @@ export class MatchListComponent implements OnInit
     this.errorMessage=undefined;
     this.matchesService.createNewMatch().subscribe({
       next:(response)=>{
-        //TODO - redicrect to matchroom instead of reload matches
-        this.loadMatches();
-      },
+        {
+            this.router.navigate(['/lobby']);
+      }},
       error:(response)=>
       {
           this.errorMessage=response.error.message;

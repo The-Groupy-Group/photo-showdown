@@ -6,6 +6,7 @@ import { HomepageComponent } from './homepage/homepage/homepage.component';
 import { authGuard } from './shared/auth-guard/auth.guard';
 import { PicturesPageComponent } from './pictures/components/pictures-page/pictures-page.component';
 import { MatchListComponent } from './matches/components/match-list/match-list.component';
+import { PreGameLobbyComponent } from './matches/components/pre-game-lobby/pre-game-lobby.component';
 
 
 const routes: Routes = [
@@ -17,6 +18,11 @@ const routes: Routes = [
   {
     component:UserLoginComponent,
     path:'login'
+  },
+  {
+    component:PreGameLobbyComponent,
+    path:'lobby',
+    canActivate: [authGuard]
   },
   {
     component:MatchListComponent,
