@@ -15,9 +15,6 @@ public class PicturesService : IPicturesService
     private readonly ILogger<PicturesService> _logger;
 
 
-
-
-
     public PicturesService(IPicturesRepository picturesRepo, IMapper mapper, ILogger<PicturesService> logger)
     {
         _picturesRepo = picturesRepo;

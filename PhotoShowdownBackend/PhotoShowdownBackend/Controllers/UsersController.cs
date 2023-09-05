@@ -138,7 +138,7 @@ public class UsersController : ControllerBase
     [HttpGet, Authorize(Roles = Roles.Admin)]
     [ProducesResponseType(typeof(APIResponse<IEnumerable<int>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAllUser()
+    public async Task<IActionResult> GetAllUsers()
     {
         return StatusCode(StatusCodes.Status501NotImplemented);
     }

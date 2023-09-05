@@ -43,11 +43,15 @@ builder.Services.AddDbContext<PhotoShowdownDbContext>(options =>
 
 builder.Services.AddControllers();
 
+// Add facades
+builder.Services.AddScoped<IMatchesFacade, MatchesFacade>();
+builder.Services.AddScoped<IMatchConnectionsFacade, MatchConnectionsFacade>();
+
 // Add services
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IPicturesService, PicturesService>();
-builder.Services.AddScoped<IMatchesFacade, MatchesFacade>();
-builder.Services.AddScoped<IMatchConnectionsFacade, MatchConnectionsFacade>();
+builder.Services.AddScoped<IMatchesService, MatchesService>();
+builder.Services.AddScoped<IMatchConnectionsService, MatchConnectionsService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 
 // Add repositories
