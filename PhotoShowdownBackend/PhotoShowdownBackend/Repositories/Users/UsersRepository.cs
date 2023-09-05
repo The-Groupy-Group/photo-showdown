@@ -21,7 +21,7 @@ public class UsersRepository: Repository<User>, IUsersRepository
 
     public async Task<bool> UserExists(int userId)
     {
-        return !(await GetAsync(user => user.Id == userId) == null);
+        return await _dbSet.AnyAsync(u => u.Id == userId);
     }
 }
 

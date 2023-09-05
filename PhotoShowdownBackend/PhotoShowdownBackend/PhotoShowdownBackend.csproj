@@ -29,7 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Facades\NewFolder\" />
     <Folder Include="wwwroot\" />
     <Folder Include="wwwroot\pictures\" />
   </ItemGroup>
