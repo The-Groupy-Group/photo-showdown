@@ -111,14 +111,16 @@ public class PicturesController : ControllerBase
         APIResponse response = new();
         try
         {
-            if (! await _picturesService.PictureBelongsToUser(pictureId, _sessionService.GetCurrentUserId()))
-            {
-                return Unauthorized(response.ToErrorResponse("You don't have permission to delete this image"));
-            }
-            
-            await _picturesService.DeletePicture(pictureId);
+            var userId = _sessionService.GetCurrentUserId();
+            bool isAdmin = _sessionService.IsCurrentUserInRole(Roles.Admin);
+
+            await _picturesService.DeletePicture(pictureId, userId, isAdmin);
 
             return Ok(response);
+        }
+        catch (UnauthorizedException ex)
+        {
+            return Unauthorized(response.ToErrorResponse(ex.Message));
         }
         catch (NotFoundException ex)
         {

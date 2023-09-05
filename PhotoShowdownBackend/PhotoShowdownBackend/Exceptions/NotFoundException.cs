@@ -1,9 +1,6 @@
 ﻿namespace PhotoShowdownBackend.Exceptions;
 
-public class NotFoundException: AbstractException
+public class NotFoundException : AbstractException
 {
-    public NotFoundException(string? message = "Not Found") : base(message)
-    {
-        
-    }
+    public NotFoundException(string? message = "Not Found") : base(message) { }
 }
