@@ -54,7 +54,7 @@ public class MatchConnectionsFacade : IMatchConnectionsFacade
             throw new NotFoundException("Invalid match Id");
         }
 
-        if (!await _matchConnectionsService.IsUserInMatch(userId, matchId))
+        if (!await _matchConnectionsService.IsUserInThisMatch(userId, matchId))
         {
             throw new UserNotConnectedToMatchException();
         }

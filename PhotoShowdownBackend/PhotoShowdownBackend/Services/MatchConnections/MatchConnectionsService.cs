@@ -44,4 +44,12 @@ public class MatchConnectionsService : IMatchConnectionsService
     {
         return await _matchConnectionsRepo.UserConnectedToMatch(userId);
     }
+    public async Task<bool> IsMatchEmpty(int matchId)
+    {
+        return await _matchConnectionsRepo.IsMatchEmpty(matchId);
+    }
+    public async Task<bool> IsUserInThisMatch(int userId, int matchId)
+    {
+        return await _matchConnectionsRepo.IsUserInThisMatch(userId,matchId);
+    }
 }
