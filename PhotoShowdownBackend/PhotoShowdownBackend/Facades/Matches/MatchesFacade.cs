@@ -8,8 +8,8 @@ namespace PhotoShowdownBackend.Facades.Matches
 {
     public class MatchesFacade
     {
-        IMatchConnectionsService _matchConnectionsService;
-        IMatchesService _matchesService;
+        private readonly IMatchConnectionsService _matchConnectionsService;
+        private readonly IMatchesService _matchesService;
 
         public MatchesFacade(IMatchConnectionsService matchConnectionsService, IMatchesService matchesService)
         {

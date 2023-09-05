@@ -15,15 +15,13 @@ namespace PhotoShowdownBackend.Services.Matches;
 public class MatchesService : IMatchesService
 {
     private readonly IMatchesReporitory _matchesRepo;
-    private readonly IMatchConnectionsService _matchConnectionsService;
     private readonly IMapper _mapper;
     private readonly ILogger<MatchesService> _logger;
 
 
-    public MatchesService(IMatchesReporitory matchesRepository, IMatchConnectionsService matchConnectionsService, IMapper mapper, ILogger<MatchesService> logger)
+    public MatchesService(IMatchesReporitory matchesRepository, IMapper mapper, ILogger<MatchesService> logger)
     {
         _matchesRepo = matchesRepository;
-        _matchConnectionsService = matchConnectionsService;
         _mapper = mapper;
         _logger = logger;
     }
