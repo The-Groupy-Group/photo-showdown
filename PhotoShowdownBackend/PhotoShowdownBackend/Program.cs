@@ -17,6 +17,8 @@ using PhotoShowdownBackend.Services.Matches;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Repositories.MatchConnections;
+using PhotoShowdownBackend.Facades.MatchConnections;
+using PhotoShowdownBackend.Facades.Matches;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,8 +46,8 @@ builder.Services.AddControllers();
 // Add services
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IPicturesService, PicturesService>();
-builder.Services.AddScoped<IMatchesService, MatchesService>();
-builder.Services.AddScoped<IMatchConnectionsService, MatchConnectionsService>();
+builder.Services.AddScoped<IMatchesFacade, MatchesFacade>();
+builder.Services.AddScoped<IMatchConnectionsFacade, MatchConnectionsFacade>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 
 // Add repositories
