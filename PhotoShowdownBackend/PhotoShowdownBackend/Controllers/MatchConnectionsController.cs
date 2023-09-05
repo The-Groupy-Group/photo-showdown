@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
+using PhotoShowdownBackend.Facades.MatchConnections;
+using PhotoShowdownBackend.Facades.Matches;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Services.Pictures;
@@ -16,13 +18,13 @@ namespace PhotoShowdownBackend.Controllers;
 [Authorize]
 public class MatchConnectionsController : ControllerBase
 {
-    private readonly IMatchConnectionsService _matchConnectionsService;
+    private readonly IMatchConnectionsFacade _matchConnectionsFacade;
     private readonly ISessionService _sessionService;
     private readonly ILogger<MatchConnectionsController> _logger;
 
-    public MatchConnectionsController(IMatchConnectionsService matchConnectionsService, ISessionService sessionService, ILogger<MatchConnectionsController> logger)
+    public MatchConnectionsController(IMatchConnectionsFacade matchConnectionsFacade, ISessionService sessionService, ILogger<MatchConnectionsController> logger)
     {
-        _matchConnectionsService = matchConnectionsService;
+        _matchConnectionsFacade = matchConnectionsFacade;
         _sessionService = sessionService;
         _logger = logger;
     }
@@ -38,7 +40,7 @@ public class MatchConnectionsController : ControllerBase
         APIResponse response = new();
         try
         {
-            await _matchConnectionsService.CreateMatchConnection(userId,matchId);
+            await _matchConnectionsFacade.CreateMatchConnection(userId,matchId);
             return Ok(response);
         }
         catch (UserAlreadyConnectedException ex)

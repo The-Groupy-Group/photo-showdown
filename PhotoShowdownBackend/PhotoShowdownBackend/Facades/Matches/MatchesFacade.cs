@@ -6,7 +6,7 @@ using PhotoShowdownBackend.Services.Matches;
 
 namespace PhotoShowdownBackend.Facades.Matches
 {
-    public class MatchesFacade
+    public class MatchesFacade : IMatchesFacade
     {
         private readonly IMatchConnectionsService _matchConnectionsService;
         private readonly IMatchesService _matchesService;

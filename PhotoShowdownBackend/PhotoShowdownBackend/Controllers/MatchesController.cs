@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
+using PhotoShowdownBackend.Facades.Matches;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.Matches;
 using PhotoShowdownBackend.Services.Session;
@@ -17,13 +18,13 @@ namespace PhotoShowdownBackend.Controllers;
 [Authorize]
 public class MatchesController : ControllerBase
 {
-    private readonly IMatchesService _matchesService;
+    private readonly IMatchesFacade _matchesFacade;
     private readonly ISessionService _sessionService;
     private readonly ILogger<MatchesController> _logger;
 
-    public MatchesController(IMatchesService matchesService, ISessionService sessionService, ILogger<MatchesController> logger)
+    public MatchesController(IMatchesFacade matchesFacade, ISessionService sessionService, ILogger<MatchesController> logger)
     {
-        _matchesService = matchesService;
+        _matchesFacade = matchesFacade;
         _sessionService = sessionService;
         _logger = logger;
     }
@@ -38,7 +39,7 @@ public class MatchesController : ControllerBase
         try
         {
             int userId = _sessionService.GetCurrentUserId();
-            var newMatchDetails = await _matchesService.CreateNewMatch(userId);
+            var newMatchDetails = await _matchesFacade.CreateNewMatch(userId);
             response.Data = newMatchDetails;
             return StatusCode(StatusCodes.Status201Created, response);
             //return CreatedAtAction(nameof(GetUser), new { id = newUserDetails.Id }, response);
@@ -67,7 +68,7 @@ public class MatchesController : ControllerBase
         APIResponse<List<MatchDTO>> response = new();
         try
         {
-            var allMatches = await _matchesService.GetAllOpenMatches();
+            var allMatches = await _matchesFacade.GetAllOpenMatches();
             response.Data = allMatches;
             return Ok(response);
             //return CreatedAtAction(nameof(GetUser), new { id = newUserDetails.Id }, response);

@@ -3,15 +3,15 @@ using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Services.Matches;
 using PhotoShowdownBackend.Services.Users;
 
-namespace PhotoShowdownBackend.Facades.Matches
+namespace PhotoShowdownBackend.Facades.MatchConnections
 {
-    public class MatchConnectionsFacade
+    public class MatchConnectionsFacade : IMatchConnectionsFacade
     {
         private readonly IMatchConnectionsService _matchConnectionsService;
         private readonly IUsersService _usersService;
         private readonly IMatchesService _matchesService;
 
-        public MatchConnectionsFacade(IMatchConnectionsService matchConnectionsService,IUsersService usersService,IMatchesService matchesService)
+        public MatchConnectionsFacade(IMatchConnectionsService matchConnectionsService, IUsersService usersService, IMatchesService matchesService)
         {
             _matchConnectionsService = matchConnectionsService;
             _usersService = usersService;
@@ -37,4 +37,4 @@ namespace PhotoShowdownBackend.Facades.Matches
         {
             return await _matchConnectionsService.UserConnectedToMatch(userId);
         }
-}
+    }
