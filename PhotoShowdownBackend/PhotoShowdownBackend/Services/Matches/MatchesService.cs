@@ -30,11 +30,7 @@ public class MatchesService : IMatchesService
 
     public async Task<MatchCreationResponseDTO> CreateNewMatch(int userId)
     {
-        if (await _matchConnectionsService.UserConnectedToMatch(userId))
-        {
-            throw new UserAlreadyConnectedException();
-        }
-
+        
         // Map the request to a Match object
         var match = new Match()
         {
@@ -46,8 +42,6 @@ public class MatchesService : IMatchesService
 
         // Create the response
         var response = _mapper.Map<MatchCreationResponseDTO>(match);
-
-        await _matchConnectionsService.CreateMatchConnection(userId, match.Id);
 
         return response;
     }
