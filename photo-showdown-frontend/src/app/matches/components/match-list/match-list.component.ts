@@ -10,7 +10,6 @@ import { Match } from '../../models/match.model';
 })
 export class MatchListComponent implements OnInit
 {
-  errorMessage?:string;
   matches:Match[]=[];
   constructor(private readonly matchesService: MatchesService){}
 
@@ -21,7 +20,7 @@ export class MatchListComponent implements OnInit
   }
   createMatch()
   {
-    this.errorMessage=undefined;
+
     this.matchesService.createNewMatch().subscribe({
       next:(response)=>{
         //TODO - redicrect to matchroom instead of reload matches
@@ -29,7 +28,7 @@ export class MatchListComponent implements OnInit
       },
       error:(response)=>
       {
-          this.errorMessage=response.error.message;
+          alert(response.error.message);
       }
     })
   }
@@ -37,11 +36,10 @@ export class MatchListComponent implements OnInit
   {
     this.matches=[];
     this.matchesService.getAllOpenMatches().subscribe({
-
-      next:(response)=>{
-        console.log(response);
+      next:(response)=>
+      {
        this.matches=response.data;
-    }
+      }
   })
   }
 }
