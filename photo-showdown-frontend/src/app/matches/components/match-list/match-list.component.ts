@@ -13,7 +13,6 @@ import { JwtService } from 'src/app/shared/jwt-service/jwt.service';
 })
 export class MatchListComponent implements OnInit
 {
-  errorMessage?:string;
   matches:Match[]=[];
   constructor(private readonly matchesService: MatchesService,
     private readonly router:Router){}
@@ -25,7 +24,7 @@ export class MatchListComponent implements OnInit
   }
   createMatch()
   {
-    this.errorMessage=undefined;
+
     this.matchesService.createNewMatch().subscribe({
       next:(response)=>{
         {
@@ -33,7 +32,7 @@ export class MatchListComponent implements OnInit
       }},
       error:(response)=>
       {
-          this.errorMessage=response.error.message;
+          alert(response.error.message);
       }
     })
   }
@@ -41,11 +40,10 @@ export class MatchListComponent implements OnInit
   {
     this.matches=[];
     this.matchesService.getAllOpenMatches().subscribe({
-
-      next:(response)=>{
-        console.log(response);
+      next:(response)=>
+      {
        this.matches=response.data;
-    }
+      }
   })
   }
 }
