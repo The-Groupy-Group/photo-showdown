@@ -36,12 +36,12 @@ export class MatchListComponent implements OnInit
   loadMatches()
   {
     this.matches=[];
+    this.errorMessage=undefined;
     this.matchesService.getAllOpenMatches().subscribe({
-
-      next:(response)=>{
-        console.log(response);
+      next:(response)=>
+      {
        this.matches=response.data;
-    }
+      }
   })
   }
 }
