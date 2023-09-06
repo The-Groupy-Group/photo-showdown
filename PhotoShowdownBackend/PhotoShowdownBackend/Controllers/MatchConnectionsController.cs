@@ -59,6 +59,7 @@ public class MatchConnectionsController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
