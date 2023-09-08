@@ -1,13 +1,9 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.MatchConnections;
-using PhotoShowdownBackend.Repositories.Users;
-using PhotoShowdownBackend.Services.Matches;
-using PhotoShowdownBackend.Services.Users;
+
 
 namespace PhotoShowdownBackend.Services.MatchConnections;
 
