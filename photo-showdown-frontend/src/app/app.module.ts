@@ -22,6 +22,7 @@ import { PictureComponent } from './pictures/components/picture/picture.componen
 import { MatchListComponent } from './matches/components/match-list/match-list.component';
 import { MatchComponent } from './matches/components/match/match.component';
 import { NotifierModule } from 'angular-notifier';
+import { PreGameLobbyComponent } from './matches/components/pre-game-lobby/pre-game-lobby.component';
 
 
 
@@ -36,6 +37,7 @@ import { NotifierModule } from 'angular-notifier';
     PictureComponent,
     MatchListComponent,
     MatchComponent,
+    PreGameLobbyComponent
 
   ],
   imports: [

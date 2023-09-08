@@ -1,11 +1,11 @@
 
-<div class="matches-container" *ngIf="matches.length>0">
+<div class="matches-container" >
   <mat-card-title class="title">Matches</mat-card-title>
     <span>
       <button class="createMatchButton" color="primary" mat-raised-button (click)="createMatch()">Create a match</button>
       <button class="refreshList" color="primary" mat-raised-button (click)="loadMatches()">Refresh</button>
     </span>
-    <div class="match-list">
+    <div class="match-list"*ngIf="matches.length>0">
       <app-match class="match-list-item" *ngFor="let match of this.matches" [match]="match"></app-match>
     </div>
 </div>
