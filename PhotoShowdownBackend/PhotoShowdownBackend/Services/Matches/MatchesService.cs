@@ -78,7 +78,7 @@ public class MatchesService : IMatchesService
 
     public async Task<MatchDTO> GetMatchById(int matchId)
     {
-        Match? match = await _matchesRepo.GetAsync(m => m.Id == matchId) ?? throw new NotFoundException("Invalid match Id");
+        Match? match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId,false) ?? throw new NotFoundException("Invalid match Id");
         MatchDTO matchDTO = new MatchDTO()
         { 
             Id = matchId,
