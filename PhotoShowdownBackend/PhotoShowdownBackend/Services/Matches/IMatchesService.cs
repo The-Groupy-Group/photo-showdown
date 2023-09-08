@@ -12,4 +12,5 @@ public interface IMatchesService
     Task<List<MatchDTO>> GetAllOpenMatches();
 
     Task<bool> DoesMatchExists(int matchId);
+    Task<MatchDTO> GetMatchById(int matchId);
 }

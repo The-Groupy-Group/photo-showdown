@@ -23,5 +23,15 @@ public class MatchesReporitory : Repository<Match>, IMatchesReporitory
         return await GetAllFromQueryAsync(query, filter, tracked, pageNumber, pageSize);
     }
 
+    virtual public async Task<Match?> GetWithUsersAsync(Expression<Func<Match, bool>> filter, bool tracked = true)
+    {
+        IQueryable<Match> query = _dbSet;
+        if (!tracked)
+        {
+            query = query.AsNoTracking();
+        }
+        return await query.Include(match => match.Owner).Include(match => match.MatchConnections).ThenInclude(mc => mc.User).Where(filter).FirstOrDefaultAsync();
+    }
+
 }
 
