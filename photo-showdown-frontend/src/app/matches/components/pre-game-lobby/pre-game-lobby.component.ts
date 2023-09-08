@@ -11,12 +11,13 @@ import { CanComponentDeactivate } from 'src/app/shared/can-deactivate/can-deacti
   templateUrl: './pre-game-lobby.component.html',
   styleUrls: ['./pre-game-lobby.component.css']
 })
-export class PreGameLobbyComponent implements OnInit,CanComponentDeactivate
+export class PreGameLobbyComponent implements OnInit, CanComponentDeactivate
 {
 
   matchId!:number;
-  userId!:number
+  userId!:number;
   isLeavingMatch=false;
+
   constructor(
     private dialog: MatDialog,
     private readonly jwtService:JwtService,
@@ -26,63 +27,57 @@ export class PreGameLobbyComponent implements OnInit,CanComponentDeactivate
     private readonly notifier: NotifierService
     ){}
 
-
+    ngOnInit()
+    {
+      this.isLeavingMatch = false;
+      this.route.params.subscribe(params => 
+      {
+        this.matchId = params['matchId'];
+      });
+  
+      const idFromToken=this.jwtService.getTokenId();
+  
+      if(idFromToken!=undefined)
+      {
+        this.userId=parseInt(idFromToken);
+      }
+    }
 
     canDeactivate()
     {
-
       if(this.isLeavingMatch)
-        return true;
-      if(confirm('Are you sure'))
       {
-        this.matchConnectionService.leaveMatch(this.userId,this.matchId).subscribe();
         return true;
       }
+  
+      if(!window.confirm('Leaving this page will quit the match, Are you sure?'))
+      {
         return false;
-    }
-    ngOnInit():void
-    {
-      this.route.params.subscribe(params => {
-         this.matchId = params['matchId'];
-      });
-      const token=this.jwtService.getTokenId();
-      if(token!=undefined)
-      {
-         this.userId=parseInt(token);
       }
-  }
-  disconnect()
-  {
-    const token=this.jwtService.getTokenId();
-    if(token!=undefined)
-    {
-
-      const userId=parseInt(token);
-        if(confirm('Are you sure?')){
-        this.matchConnectionService.leaveMatch(userId,this.matchId).subscribe({
-        next:()=>
-        {
-          this.isLeavingMatch=true;
-          this.router.navigate(['/matches']);
-        },
-        error:(response)=>
-        {
-          this.notifier.notify('error',response.error.message)
-        }
-
-    })}
-  }
-
+      
+      this.matchConnectionService.leaveMatch(this.userId,this.matchId).subscribe();
+      return true;
     }
+  
+  
+    disconnect()
+    {
+      if(!window.confirm('Are you sure?'))
+      {
+        return;
+      }
 
-
- @HostListener('window:beforeunload', ['$event'])
- onBeforeUnload(event: BeforeUnloadEvent) {
-      this.disconnect();
-
- }
- unload()
- {
-  this.disconnect();
- }
+      this.matchConnectionService.leaveMatch(this.userId,this.matchId).subscribe(
+        {
+          next:()=>
+          {
+            this.isLeavingMatch=true;
+            this.router.navigate(['/matches']);
+          },
+          error:(response)=>
+          {
+            this.notifier.notify('error',response.error.message)
+          }
+        })
+    }
 }
