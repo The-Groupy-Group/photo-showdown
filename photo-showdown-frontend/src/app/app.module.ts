@@ -21,6 +21,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { PictureComponent } from './pictures/components/picture/picture.component';
 import { MatchListComponent } from './matches/components/match-list/match-list.component';
 import { MatchComponent } from './matches/components/match/match.component';
+import { PreGameLobbyComponent } from './matches/components/pre-game-lobby/pre-game-lobby.component';
 
 
 
@@ -35,7 +36,8 @@ import { MatchComponent } from './matches/components/match/match.component';
     PicturesPageComponent,
     PictureComponent,
     MatchListComponent,
-    MatchComponent
+    MatchComponent,
+    PreGameLobbyComponent
   ],
   imports: [
     BrowserModule,
