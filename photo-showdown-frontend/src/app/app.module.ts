@@ -21,7 +21,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { PictureComponent } from './pictures/components/picture/picture.component';
 import { MatchListComponent } from './matches/components/match-list/match-list.component';
 import { MatchComponent } from './matches/components/match/match.component';
-
+import { NotifierModule } from 'angular-notifier';
 
 
 
@@ -35,7 +35,8 @@ import { MatchComponent } from './matches/components/match/match.component';
     PicturesPageComponent,
     PictureComponent,
     MatchListComponent,
-    MatchComponent
+    MatchComponent,
+
   ],
   imports: [
     BrowserModule,
@@ -48,7 +49,8 @@ import { MatchComponent } from './matches/components/match/match.component';
     MatButtonModule,
     HttpClientModule,
     MatToolbarModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    NotifierModule
   ],
   providers: [
     {
