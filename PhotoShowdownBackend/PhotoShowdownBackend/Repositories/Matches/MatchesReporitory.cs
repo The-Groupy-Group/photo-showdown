@@ -23,9 +23,5 @@ public class MatchesReporitory : Repository<Match>, IMatchesReporitory
         return await GetAllFromQueryAsync(query, filter, tracked, pageNumber, pageSize);
     }
 
-    virtual public async Task<bool> MatchExists(int matchId)
-    {
-        return !(await GetAsync(match => match.Id == matchId) == null);
-    }
 }
 

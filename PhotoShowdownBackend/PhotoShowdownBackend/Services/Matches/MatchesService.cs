@@ -59,9 +59,9 @@ public class MatchesService : IMatchesService
         return matches;
     }
 
-    public async Task<bool> MatchExists(int matchId)
+    public async Task<bool> DoesMatchExists(int matchId)
     {
-        return await _matchesRepo.MatchExists(matchId);
+        return await _matchesRepo.AnyAsync(match => match.Id == matchId);
     }
 
     public async Task CloseMatch(int matchId)

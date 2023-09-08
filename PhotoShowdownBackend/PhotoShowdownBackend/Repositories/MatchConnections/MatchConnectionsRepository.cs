@@ -11,18 +11,4 @@ public class MatchConnectionsRepository : Repository<MatchConnection>, IMatchCon
     {
     }
 
-    public async Task<bool> UserConnectedToMatch(int userId)
-    {
-        return await _dbSet.AnyAsync(mc => mc.UserId == userId);
-    }
-
-    public async Task<bool> IsMatchEmpty(int matchId)
-    {
-        return !await _dbSet.AnyAsync(mc => mc.MatchId == matchId);
-    }
-
-    public async Task<bool> IsUserInThisMatch(int userId, int matchId)
-    {
-        return await _dbSet.AnyAsync(mc =>mc.UserId == userId && mc.MatchId == matchId);
-    }
 }

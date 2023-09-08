@@ -57,6 +57,10 @@ public class Repository<T> : IRepository<T> where T : class
         await _db.SaveChangesAsync();
         return entity;
     }
+    virtual public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+    {
+        return await _dbSet.AnyAsync(predicate);
+    }
     virtual internal async Task<List<T>> GetAllFromQueryAsync(IQueryable<T> query, Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null)
     { 
 

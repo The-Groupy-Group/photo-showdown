@@ -36,7 +36,7 @@ public class UsersService : IUsersService
     public async Task<RegisterationResponseDTO> RegisterUser(RegisterationRequestDTO registerationRequest)
     {
         // Verify that the username and email are unique
-        var isUniqueUser = await _usersRepo.IsUniqueUser(registerationRequest.Username, registerationRequest.Email);
+        var isUniqueUser = !await _usersRepo.AnyAsync(u => u.Username == registerationRequest.Username || u.Email == registerationRequest.Email);
         if (!isUniqueUser)
         {
             throw new UsersServiceException("Username or Email already exists");
@@ -64,7 +64,7 @@ public class UsersService : IUsersService
     {
         // Get the user by username
         var user = await _usersRepo.GetAsync(u => u.Username == loginRequest.Username);
-        
+
         // Verify the user exists
         if (user == null)
         {
@@ -90,7 +90,7 @@ public class UsersService : IUsersService
 
     public async Task<UserDTO> GetUser(int id)
     {
-        var user = await _usersRepo.GetAsync(u=>u.Id == id);
+        var user = await _usersRepo.GetAsync(u => u.Id == id);
         if (user == null)
         {
             throw new NotFoundException();
@@ -98,9 +98,9 @@ public class UsersService : IUsersService
         return _mapper.Map<UserDTO>(user);
     }
 
-    public async Task<bool> UserExists(int userId)
+    public async Task<bool> DoesUserExist(int userId)
     {
-        return await _usersRepo.UserExists(userId);
+        return await _usersRepo.AnyAsync(u => u.Id == userId);
     }
 
     // Helpers
@@ -143,5 +143,5 @@ public class UsersService : IUsersService
         return BCrypt.Net.BCrypt.HashPassword(password);
     }
 
-    
+
 }
