@@ -23,7 +23,7 @@ public class MatchesFacade : IMatchesFacade
 
     public async Task<MatchCreationResponseDTO> CreateNewMatch(int userId)
     {
-        if (await _matchConnectionsService.UserConnectedToMatch(userId))
+        if (await _matchConnectionsService.IsUserConnectedToMatch(userId))
         {
             throw new UserAlreadyConnectedException();
         }
@@ -41,6 +41,6 @@ public class MatchesFacade : IMatchesFacade
 
     public async Task<bool> MatchExists(int matchId)
     {
-        return await _matchesService.MatchExists(matchId);
+        return await _matchesService.DoesMatchExists(matchId);
     }
 }

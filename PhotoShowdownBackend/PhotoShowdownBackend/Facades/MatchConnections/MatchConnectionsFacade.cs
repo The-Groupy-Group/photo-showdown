@@ -24,12 +24,12 @@ public class MatchConnectionsFacade : IMatchConnectionsFacade
 
     public async Task CreateMatchConnection(int userId, int matchId)
     {
-        if (!await _usersService.UserExists(userId))
+        if (!await _usersService.DoesUserExist(userId))
         {
             throw new NotFoundException("Invalid user Id");
         }
 
-        if (!await _matchesService.MatchExists(matchId))
+        if (!await _matchesService.DoesMatchExists(matchId))
         {
             throw new NotFoundException("Invalid match Id");
         }
@@ -39,7 +39,7 @@ public class MatchConnectionsFacade : IMatchConnectionsFacade
 
     public async Task<bool> UserConnectedToMatch(int userId)
     {
-        return await _matchConnectionsService.UserConnectedToMatch(userId);
+        return await _matchConnectionsService.IsUserConnectedToMatch(userId);
     }
 
     public async Task LeaveMatch(int userId, int matchId)

@@ -12,7 +12,7 @@ using PhotoShowdownBackend.Exceptions;
 
 namespace PhotoShowdownBackend.Tests.Services;
 
-public class UsersRepositoryTests
+public class UsersServiceTests
 {
     // ------------------- Login ------------------- //
     [Fact]
@@ -27,7 +27,7 @@ public class UsersRepositoryTests
 
         A.CallTo(() => configSec.Value).Returns("h74h346wh6sybserbyre34q");
         A.CallTo(() => config.GetSection("AppSettings:Token")).Returns(configSec);
-        A.CallTo(() => userRepo.IsUniqueUser(A<string>.Ignored, A<string>.Ignored)).Returns(true);
+        A.CallTo(() => userRepo.AnyAsync(A<Expression<Func<User, bool>>>.Ignored)).Returns(true);
         A.CallTo(() => userRepo.GetAsync(A<Expression<Func<User, bool>>>.Ignored, true)).Returns(Task.FromResult(new User
         {
             Id = 1,
@@ -60,7 +60,7 @@ public class UsersRepositoryTests
         var mapper = TestUtils.GetMapper();
         var logger = A.Fake<ILogger<UsersService>>();
 
-        A.CallTo(() => userRepo.IsUniqueUser(A<string>.Ignored, A<string>.Ignored)).Returns(true);
+        A.CallTo(() => userRepo.AnyAsync(A<Expression<Func<User, bool>>>.Ignored)).Returns(false);
         A.CallTo(() => userRepo.CreateAsync(A<User>.Ignored)).Returns(Task.FromResult(new User
         {
             Id = 1,

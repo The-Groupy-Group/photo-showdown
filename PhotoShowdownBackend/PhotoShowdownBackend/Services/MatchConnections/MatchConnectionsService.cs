@@ -1,12 +1,9 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http.HttpResults;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.MatchConnections;
-using PhotoShowdownBackend.Repositories.Users;
-using PhotoShowdownBackend.Services.Matches;
-using PhotoShowdownBackend.Services.Users;
+
 
 namespace PhotoShowdownBackend.Services.MatchConnections;
 
@@ -26,7 +23,7 @@ public class MatchConnectionsService : IMatchConnectionsService
     public async Task CreateMatchConnection(int userId, int matchId)
     {
 
-        if (await _matchConnectionsRepo.UserConnectedToMatch(userId))
+        if (await _matchConnectionsRepo.AnyAsync(mc => mc.UserId == userId))
         {
             throw new UserAlreadyConnectedException();
         }
@@ -40,17 +37,17 @@ public class MatchConnectionsService : IMatchConnectionsService
         await _matchConnectionsRepo.CreateAsync(matchConnection);
     }
 
-    public async Task<bool> UserConnectedToMatch(int userId)
+    public async Task<bool> IsUserConnectedToMatch(int userId)
     {
-        return await _matchConnectionsRepo.UserConnectedToMatch(userId);
+        return await _matchConnectionsRepo.AnyAsync(mc => mc.UserId == userId);
     }
     public async Task<bool> IsMatchEmpty(int matchId)
     {
-        return await _matchConnectionsRepo.IsMatchEmpty(matchId);
+        return !await _matchConnectionsRepo.AnyAsync(mc => mc.MatchId == matchId);
     }
     public async Task<bool> IsUserInThisMatch(int userId, int matchId)
     {
-        return await _matchConnectionsRepo.IsUserInThisMatch(userId,matchId);
+        return await _matchConnectionsRepo.AnyAsync(mc => mc.UserId == userId && mc.MatchId == matchId);
     }
     public async Task CloseConnection(int userId, int matchId)
     {
