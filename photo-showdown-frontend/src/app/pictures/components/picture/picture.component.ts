@@ -18,10 +18,9 @@ export class PictureComponent
   @Output() onDeletePicture: EventEmitter<number> = new EventEmitter();
 
   onDelete()
-{
-  this.onDeletePicture.emit(this.picture.id);
-  this.picturesService.deletePicture(this.picture.id).subscribe()
-
-}
+  {
+    this.onDeletePicture.emit(this.picture.id);
+    this.picturesService.deletePicture(this.picture.id).subscribe()
+  }
 }
 

@@ -1,14 +1,14 @@
 <mat-toolbar color="primary">
   Photo Showdown
     <ul *ngIf="!isLoggedIn" class="menu-container"><!--logged out bar-->
-      <li><a href="/" mat-button>Home</a></li>
-      <li><a href="/login" mat-button>Login</a></li>
-      <li><a href="/register" mat-button>Register</a></li>
+      <li><a [routerLink]="['/']"  mat-button>Home</a></li>
+      <li><a [routerLink]="['/login']"  mat-button>Login</a></li>
+      <li><a [routerLink]="['/register']"  mat-button>Register</a></li>
     </ul>
     <ul *ngIf="isLoggedIn"class="menu-container"><!--logged in bar-->
-      <li><a href="/" mat-button>Home</a></li>
+      <li><a [routerLink]="['/']" mat-button>Home</a></li>
+      <li><a [routerLink]="['/pictures']" mat-button>Pictures</a></li>
+      <li><a [routerLink]="['/matches']"  mat-button>Matches</a></li>
       <li><button mat-button (click)="logout()">Logout</button></li>
-      <li><a href="/pictures" mat-button>Pictures</a></li>
-      <li><a href="/matches" mat-button>Matches</a></li>
     </ul>
 </mat-toolbar>

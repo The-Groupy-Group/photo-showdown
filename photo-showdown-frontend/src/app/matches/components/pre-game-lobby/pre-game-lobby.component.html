@@ -2,23 +2,13 @@
   <h1>pre-lobby</h1>
   <p>match id: 1</p>
   <p>owner name: admin</p>
-  <div >
+  <div>
     <h2>Users:</h2>
     <ul class="users-container">
       <li>user1</li>
       <li>user2</li>
     </ul>
+    <button class="disconnect" color="warn" mat-raised-button (click)="disconnect()">Disconnect</button>
   </div>
-</mat-card>
-<!-- <mat-card  class="lobby-container">
-  <p>Match owner: {{match.ownerName}}</p>
-  <p>Connected users: </p>
-    <ul class="users-container">
-      <li *ngFor="let userName of match.usersNames">{{ userName }} </li>
-    </ul>
-  <span>
-    <button *ngIf="!id===owner.id" mat-raised-button (click)="startGame()">start</button>
-  </span>
-</mat-card>
--->
 
+</mat-card>

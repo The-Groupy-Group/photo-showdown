@@ -30,4 +30,18 @@ export class MatchConnectionService {
       this.httpOptions
     );
   }
+  /**
+   *
+   * leaves the pre-game-lobby
+   * @param userId id of the user joining
+   * @param matchId the matches being joined id
+   * @returns failed/worked
+   */
+  leaveMatch(userId:number,matchId:number)
+  {
+    return this.http.post<EmptyAPIResponse>(
+      this.apiURL + `/LeaveMatch?userId=${userId}&matchId=${matchId}`,
+      this.httpOptions
+    );
+  }
 }
