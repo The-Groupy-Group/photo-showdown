@@ -21,8 +21,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { PictureComponent } from './pictures/components/picture/picture.component';
 import { MatchListComponent } from './matches/components/match-list/match-list.component';
 import { MatchComponent } from './matches/components/match/match.component';
+import { NotifierModule } from 'angular-notifier';
 import { PreGameLobbyComponent } from './matches/components/pre-game-lobby/pre-game-lobby.component';
-
 
 
 
@@ -38,6 +38,7 @@ import { PreGameLobbyComponent } from './matches/components/pre-game-lobby/pre-g
     MatchListComponent,
     MatchComponent,
     PreGameLobbyComponent
+
   ],
   imports: [
     BrowserModule,
@@ -50,7 +51,8 @@ import { PreGameLobbyComponent } from './matches/components/pre-game-lobby/pre-g
     MatButtonModule,
     HttpClientModule,
     MatToolbarModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    NotifierModule
   ],
   providers: [
     {

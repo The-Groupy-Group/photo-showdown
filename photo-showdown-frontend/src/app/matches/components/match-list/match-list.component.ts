@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { MatchesService } from '../../services/matches.service';
 import { Match } from '../../models/match.model';
-import { MatchConnectionService } from '../../services/match-connections.service';
 import { Router } from '@angular/router';
-import { JwtService } from 'src/app/shared/jwt-service/jwt.service';
+import { NotifierService } from 'angular-notifier';
+
 
 
 @Component({
@@ -15,7 +15,8 @@ export class MatchListComponent implements OnInit
 {
   matches:Match[]=[];
   constructor(private readonly matchesService: MatchesService,
-    private readonly router:Router){}
+    private readonly router:Router,
+    private readonly notifier:NotifierService){}
 
 
   ngOnInit(): void
@@ -32,7 +33,7 @@ export class MatchListComponent implements OnInit
       }},
       error:(response)=>
       {
-          alert(response.error.message);
+        this.notifier.notify('error',response.error.message);
       }
     })
   }
