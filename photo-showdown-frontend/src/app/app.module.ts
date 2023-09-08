@@ -1,3 +1,4 @@
+
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
@@ -8,7 +9,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import {MatToolbarModule} from '@angular/material/toolbar'
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { UserRegistrationComponent } from './users/components/user-registration/user-registration.component';
@@ -23,6 +23,7 @@ import { MatchListComponent } from './matches/components/match-list/match-list.c
 import { MatchComponent } from './matches/components/match/match.component';
 import { NotifierModule } from 'angular-notifier';
 import { PreGameLobbyComponent } from './matches/components/pre-game-lobby/pre-game-lobby.component';
+import {MatDialogModule} from "@angular/material/dialog";
 
 
 
@@ -37,7 +38,9 @@ import { PreGameLobbyComponent } from './matches/components/pre-game-lobby/pre-g
     PictureComponent,
     MatchListComponent,
     MatchComponent,
-    PreGameLobbyComponent
+    PreGameLobbyComponent,
+
+
 
   ],
   imports: [
@@ -52,14 +55,16 @@ import { PreGameLobbyComponent } from './matches/components/pre-game-lobby/pre-g
     HttpClientModule,
     MatToolbarModule,
     MatProgressBarModule,
-    NotifierModule
+    NotifierModule,
+    MatDialogModule
   ],
   providers: [
     {
       provide:HTTP_INTERCEPTORS,
       useClass:TokenInterceptor,
       multi:true
-    }
+    },
+
   ],
   bootstrap: [AppComponent],
 })

@@ -28,11 +28,10 @@ joinMatch()
   {
     let userId:number=parseInt(token);
     let matchId:number=this.match.id;
-    console.log(userId);
     this.matchConnectionService.joinMatch(userId,matchId).subscribe({
       next:(response)=>
       {
-        this.router.navigate(['/lobby']);
+        this.router.navigate(['/lobby/'+this.match.id]);
       },
       error:(response)=>
       {

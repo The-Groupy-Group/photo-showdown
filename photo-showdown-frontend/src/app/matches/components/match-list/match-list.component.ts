@@ -29,7 +29,7 @@ export class MatchListComponent implements OnInit
     this.matchesService.createNewMatch().subscribe({
       next:(response)=>{
         {
-            this.router.navigate(['/lobby']);
+            this.router.navigate(['/lobby/'+response.data.id]);
       }},
       error:(response)=>
       {

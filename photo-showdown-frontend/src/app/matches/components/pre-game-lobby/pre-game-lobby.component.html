@@ -2,14 +2,27 @@
   <h1>pre-lobby</h1>
   <p>match id: 1</p>
   <p>owner name: admin</p>
-  <div >
+  <div>
     <h2>Users:</h2>
     <ul class="users-container">
       <li>user1</li>
       <li>user2</li>
     </ul>
+    <button class="disconnect" color="warn" mat-raised-button (click)="disconnect()">Disconnect</button>
   </div>
+
 </mat-card>
+<!-- <div class="confirmation-modal" *ngIf="showConfirmationModal">
+  <div class="modal-content">
+    <h2>Confirmation</h2>
+    <p>Are you sure?</p>
+    <div class="modal-actions">
+      <button mat-button (click)="cancel()">Cancel</button>
+      <button mat-button (click)="disconnect()">Yes</button>
+    </div>
+  </div>
+</div> -->
+
 <!-- <mat-card  class="lobby-container">
   <p>Match owner: {{match.ownerName}}</p>
   <p>Connected users: </p>
