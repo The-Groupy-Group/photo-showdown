@@ -1,4 +1,5 @@
 ﻿using PhotoShowdownBackend.Exceptions;
+using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Facades.Matches;
 using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Services.Matches;
@@ -39,5 +40,17 @@ public class MatchConnectionsFacade : IMatchConnectionsFacade
     public async Task<bool> UserConnectedToMatch(int userId)
     {
         return await _matchConnectionsService.UserConnectedToMatch(userId);
+    }
+
+    public async Task LeaveMatch(int userId, int matchId)
+    {
+
+        await _matchConnectionsService.CloseConnection(userId,matchId);
+
+        if (await _matchConnectionsService.IsMatchEmpty(matchId))
+        {
+            await _matchesService.CloseMatch(matchId);
+        }
+
     }
 }

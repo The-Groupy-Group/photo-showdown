@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using PhotoShowdownBackend.Dtos.Matches;
+using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.MatchConnections;
@@ -61,5 +62,17 @@ public class MatchesService : IMatchesService
     public async Task<bool> MatchExists(int matchId)
     {
         return await _matchesRepo.MatchExists(matchId);
+    }
+
+    public async Task CloseMatch(int matchId)
+    {
+        Match? m = await _matchesRepo.GetAsync(m => m.Id == matchId);
+
+        if (m == null)
+        {
+            throw new NotFoundException("Match not found");
+        }
+
+        await _matchesRepo.DeleteAsync(m);
     }
 }

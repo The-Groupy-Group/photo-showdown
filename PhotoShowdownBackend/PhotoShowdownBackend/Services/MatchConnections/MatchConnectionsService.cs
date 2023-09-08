@@ -44,4 +44,24 @@ public class MatchConnectionsService : IMatchConnectionsService
     {
         return await _matchConnectionsRepo.UserConnectedToMatch(userId);
     }
+    public async Task<bool> IsMatchEmpty(int matchId)
+    {
+        return await _matchConnectionsRepo.IsMatchEmpty(matchId);
+    }
+    public async Task<bool> IsUserInThisMatch(int userId, int matchId)
+    {
+        return await _matchConnectionsRepo.IsUserInThisMatch(userId,matchId);
+    }
+    public async Task CloseConnection(int userId, int matchId)
+    {
+        MatchConnection? mc = await _matchConnectionsRepo.GetAsync(mc => mc.UserId == userId && mc.MatchId == matchId);
+        
+        if(mc == null)
+        {
+            throw new NotFoundException("User is currently not in match");
+        }
+        
+        await _matchConnectionsRepo.DeleteAsync(mc);
+
+    }
 }

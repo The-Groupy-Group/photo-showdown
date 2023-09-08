@@ -58,4 +58,32 @@ public class MatchConnectionsController : ControllerBase
         }
     }
 
+    [HttpPost]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> LeaveMatch(int userId,int matchId)
+    {
+        APIResponse response = new();
+        try
+        {
+            await _matchConnectionsFacade.LeaveMatch(userId, matchId);
+            return Ok(response);
+        }
+        catch (UserAlreadyConnectedException ex)
+        {
+            return BadRequest(response.ToErrorResponse(ex.Message));
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ToErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(LeaveMatch)} Error");
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+        }
+    }
+
 }
