@@ -4,6 +4,7 @@ import { Match } from 'src/app/matches/models/match.model';
 import { MatchesService } from 'src/app/matches/services/matches.service';
 import { JwtService } from 'src/app/shared/jwt-service/jwt.service';
 import { MatchConnectionService } from '../../services/match-connections.service';
+import { NotifierService } from 'angular-notifier';
 
 @Component({
   selector: 'app-match',
@@ -16,7 +17,8 @@ export class MatchComponent
   (
     private readonly jwtService:JwtService,
     private readonly router:Router,
-    private readonly matchConnectionService:MatchConnectionService
+    private readonly matchConnectionService:MatchConnectionService,
+    private readonly notifier:NotifierService
   ) {}
 
 joinMatch()
@@ -31,6 +33,10 @@ joinMatch()
       next:(response)=>
       {
         this.router.navigate(['/lobby']);
+      },
+      error:(response)=>
+      {
+        this.notifier.notify('error',response.error.message)
       }
     });
 }
