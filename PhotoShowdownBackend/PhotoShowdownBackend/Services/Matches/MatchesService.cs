@@ -75,4 +75,19 @@ public class MatchesService : IMatchesService
 
         await _matchesRepo.DeleteAsync(m);
     }
+
+    public async Task<MatchDTO> GetMatchById(int matchId)
+    {
+        Match? match = await _matchesRepo.GetAsync(m => m.Id == matchId) ?? throw new NotFoundException("Invalid match Id");
+        MatchDTO matchDTO = new MatchDTO()
+        { 
+            Id = matchId,
+            OwnerName = match.Owner.Username,
+            UsersNames = match.MatchConnections.Select(mc => mc.User.Username).ToList()
+        };
+        return matchDTO;
+
+
+    }
+
 }

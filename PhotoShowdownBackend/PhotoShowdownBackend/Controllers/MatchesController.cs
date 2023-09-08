@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Win32;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Users;
+using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Facades.Matches;
 using PhotoShowdownBackend.Models;
@@ -76,6 +77,36 @@ public class MatchesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(GetAllOpenMatches)} Error");
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+        }
+
+    }
+
+
+    /// <summary>
+    /// Return match object by given Id
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    [ProducesResponseType(typeof(APIResponse<MatchDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetMatchById(int matchId)
+    {
+        APIResponse <MatchDTO> response = new();
+        try
+        {
+            var match = await _matchesFacade.GetMatchById(matchId);
+            response.Data = match;
+            return Ok(response);
+        }
+        catch(NotFoundException ex)
+        {
+            return NotFound(response.ToErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(GetMatchById)} Error");
             return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
         }
 

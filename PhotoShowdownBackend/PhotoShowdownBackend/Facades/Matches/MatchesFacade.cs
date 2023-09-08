@@ -43,4 +43,9 @@ public class MatchesFacade : IMatchesFacade
     {
         return await _matchesService.DoesMatchExists(matchId);
     }
+
+    public async Task<MatchDTO> GetMatchById(int matchId)
+    {
+        return await _matchesService.GetMatchById(matchId);
+    }
 }
