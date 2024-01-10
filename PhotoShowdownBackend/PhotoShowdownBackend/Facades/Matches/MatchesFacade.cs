@@ -17,7 +17,7 @@ public class MatchesFacade : IMatchesFacade
     {
         _matchConnectionsService = matchConnectionsService;
         _matchesService = matchesService;
-        logger = logger;
+        _logger = logger;
     }
 
 
