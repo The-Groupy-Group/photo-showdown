@@ -21,15 +21,15 @@ public class MatchesFacade : IMatchesFacade
     }
 
 
-    public async Task<MatchCreationResponseDTO> CreateNewMatch(int userId)
+    public async Task<MatchCreationResponseDTO> CreateNewMatch(int ownerId)
     {
-        if (await _matchConnectionsService.IsUserConnectedToMatch(userId))
+        if (await _matchConnectionsService.IsUserConnectedToMatch(ownerId))
         {
             throw new UserAlreadyConnectedException();
         }
 
-        var newMatch = await _matchesService.CreateNewMatch(userId);
-        await _matchConnectionsService.CreateMatchConnection(userId, newMatch.Id);
+        var newMatch = await _matchesService.CreateNewMatch(ownerId);
+        await _matchConnectionsService.CreateMatchConnection(ownerId, newMatch.Id);
         return newMatch;
     }
 

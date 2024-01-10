@@ -39,8 +39,8 @@ public class MatchesController : ControllerBase
         APIResponse<MatchCreationResponseDTO> response = new();
         try
         {
-            int userId = _sessionService.GetCurrentUserId();
-            var newMatchDetails = await _matchesFacade.CreateNewMatch(userId);
+            int ownerId = _sessionService.GetCurrentUserId();
+            var newMatchDetails = await _matchesFacade.CreateNewMatch(ownerId);
             response.Data = newMatchDetails;
             return StatusCode(StatusCodes.Status201Created, response);
             //return CreatedAtAction(nameof(GetUser), new { id = newUserDetails.Id }, response);

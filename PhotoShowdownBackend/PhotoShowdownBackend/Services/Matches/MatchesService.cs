@@ -27,13 +27,12 @@ public class MatchesService : IMatchesService
         _logger = logger;
     }
 
-    public async Task<MatchCreationResponseDTO> CreateNewMatch(int userId)
+    public async Task<MatchCreationResponseDTO> CreateNewMatch(int ownerId)
     {
-        
         // Map the request to a Match object
         var match = new Match()
         {
-            OwnerId = userId
+            OwnerId = ownerId
         };
 
         // Create the match
