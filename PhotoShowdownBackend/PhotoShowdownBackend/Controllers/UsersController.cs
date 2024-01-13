@@ -138,7 +138,9 @@ public class UsersController : ControllerBase
     [HttpGet, Authorize(Roles = Roles.Admin)]
     [ProducesResponseType(typeof(APIResponse<IEnumerable<int>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
     public async Task<IActionResult> GetAllUsers()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     {
         return StatusCode(StatusCodes.Status501NotImplemented);
     }

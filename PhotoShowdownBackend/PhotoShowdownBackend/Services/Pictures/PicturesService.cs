@@ -24,24 +24,20 @@ public class PicturesService : IPicturesService
 
     public async Task<PictureDTO> UploadPicture(IFormFile pictureFile, int userId)
     {
-        var picturePath = Guid.NewGuid().ToString() + ".jpg";
-
         var picture = new Picture()
         {
             UserId = userId,
-            PicturePath = picturePath,
             PictureFile = pictureFile
         };
-        _logger.LogDebug($"Picture path {picturePath} was uploaded by user with id {userId}");
+
         var createdPicture = await _picturesRepo.CreateAsync(picture);
 
         var pictureDto = _mapper.Map<PictureDTO>(createdPicture);
 
-        _logger.LogInformation($"Picture with id {pictureDto.Id} and path {picturePath} was uploaded by user with id {userId}");
+        _logger.LogInformation($"Picture with id {pictureDto.Id} and path {pictureDto.PicturePath} was uploaded by user with id {userId}");
 
         return pictureDto;
     }
-
 
     public async Task<List<PictureDTO>> GetUserPicture(int userId)
     {
