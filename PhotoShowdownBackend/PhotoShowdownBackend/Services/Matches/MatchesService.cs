@@ -46,7 +46,7 @@ public class MatchesService : IMatchesService
     
     public async Task<List<MatchDTO>> GetAllOpenMatches()
     {
-        List<Match> allMatches = await _matchesRepo.GetAllWithUsersAsync(match => match.StartDate == null,tracked:false);
+        List<Match> allMatches = await _matchesRepo.GetAllWithUsersAsync(match => match.StartDate == null);
 
         List<MatchDTO> matches = allMatches.Select(match => { 
             var dto =  _mapper.Map<MatchDTO>(match);
@@ -77,8 +77,8 @@ public class MatchesService : IMatchesService
 
     public async Task<MatchDTO> GetMatchById(int matchId)
     {
-        Match? match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId,false) ?? throw new NotFoundException("Invalid match Id");
-        MatchDTO matchDTO = new MatchDTO()
+        Match? match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ?? throw new NotFoundException("Invalid match Id");
+        MatchDTO matchDTO = new()
         { 
             Id = matchId,
             OwnerName = match.Owner.Username,

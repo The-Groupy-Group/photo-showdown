@@ -33,9 +33,9 @@ builder.Host.UseSerilog();
 // Add services to the container.
 builder.Services.AddDbContext<PhotoShowdownDbContext>(options =>
     {
+        // Swap between InMemoryDatabase and SqlServer
         //options.UseInMemoryDatabase("PhotoShowdownDB");
 
-        // In due time amen
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     }
 );
@@ -74,6 +74,7 @@ builder.Services.AddCors(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
+// Configure Swagger
 builder.Services.AddSwaggerGen(options=>
 {
     options.SwaggerDoc("v1",

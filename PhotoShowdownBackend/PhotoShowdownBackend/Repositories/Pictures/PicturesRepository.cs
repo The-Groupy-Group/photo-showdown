@@ -7,15 +7,12 @@ namespace PhotoShowdownBackend.Repositories.Pictures;
 
 public class PicturesRepository : Repository<Picture>, IPicturesRepository
 {
-    private readonly IWebHostEnvironment _environment;
-
     private readonly string _picturesAsboluteFolderPath;
     private readonly string _picturesFolderName = SystemSettings.PicturesFolderName;
 
     public PicturesRepository(PhotoShowdownDbContext db, IWebHostEnvironment environment) : base(db)
     {
-        _environment = environment;
-        _picturesAsboluteFolderPath = Path.Combine(_environment.WebRootPath, _picturesFolderName);
+        _picturesAsboluteFolderPath = Path.Combine(environment.WebRootPath, _picturesFolderName);
     }
 
     public async override Task<Picture> CreateAsync(Picture picture)

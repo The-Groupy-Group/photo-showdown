@@ -11,11 +11,9 @@ namespace PhotoShowdownBackend.Repositories.Users;
 /// </summary>
 public class MatchesReporitory : Repository<Match>, IMatchesReporitory
 {
-    public MatchesReporitory(PhotoShowdownDbContext _db) : base(_db)
-    {
-    }
+    public MatchesReporitory(PhotoShowdownDbContext _db) : base(_db) { }
 
-    virtual public async Task<List<Match>> GetAllWithUsersAsync(Expression<Func<Match, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null)
+    virtual public async Task<List<Match>> GetAllWithUsersAsync(Expression<Func<Match, bool>>? filter = null, bool tracked = false, int? pageNumber = null, int? pageSize = null)
     {
         IQueryable<Match> query = _dbSet;
         query = query.Include(match => match.Owner).Include(match => match.MatchConnections).ThenInclude(mc => mc.User);
@@ -23,7 +21,7 @@ public class MatchesReporitory : Repository<Match>, IMatchesReporitory
         return await GetAllFromQueryAsync(query, filter, tracked, pageNumber, pageSize);
     }
 
-    virtual public async Task<Match?> GetWithUsersAsync(Expression<Func<Match, bool>> filter, bool tracked = true)
+    virtual public async Task<Match?> GetWithUsersAsync(Expression<Func<Match, bool>> filter, bool tracked = false)
     {
         IQueryable<Match> query = _dbSet;
         if (!tracked)
@@ -34,4 +32,3 @@ public class MatchesReporitory : Repository<Match>, IMatchesReporitory
     }
 
 }
-
