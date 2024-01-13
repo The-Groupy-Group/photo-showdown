@@ -72,7 +72,7 @@ public class UsersServiceTests
         var service = new UsersService(userRepo, config, mapper, logger);
 
         // Act
-        var res = await service.RegisterUser(new RegisterationRequestDTO
+        var res = await service.CreateUser(new RegisterationRequestDTO
         {
             Username = "test",
             Email = "",

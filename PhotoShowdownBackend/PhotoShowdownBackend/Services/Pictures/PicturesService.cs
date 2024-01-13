@@ -57,18 +57,24 @@ public class PicturesService : IPicturesService
 
     public async Task DeletePicture(int pictureId, int userId, bool isAdmin)
     {
-        if (!isAdmin && !await PictureBelongsToUser(pictureId, userId)) 
+        if (!isAdmin && !await DoesPictureBelongToUser(pictureId, userId)) 
             throw new UnauthorizedException("Picture does not belong to user");
 
         var picture = await _picturesRepo.GetAsync(p => p.Id == pictureId);
-        if (picture == null) throw new NotFoundException("Picture not found");
+
+        if (picture == null) 
+            throw new NotFoundException("Picture not found");
+
         await _picturesRepo.DeleteAsync(picture);
     }
 
-    public async Task<bool> PictureBelongsToUser(int pictureId, int userId)
+    public async Task<bool> DoesPictureBelongToUser(int pictureId, int userId)
     {
         var picture = await _picturesRepo.GetAsync(p => p.Id == pictureId);
-        if (picture == null) throw new NotFoundException("Picture not found");
+
+        if (picture == null) 
+            throw new NotFoundException("Picture not found");
+
         return picture.UserId == userId;
     }
 }

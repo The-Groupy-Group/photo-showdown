@@ -17,8 +17,7 @@ using PhotoShowdownBackend.Services.Matches;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Repositories.MatchConnections;
-using PhotoShowdownBackend.Facades.MatchConnections;
-using PhotoShowdownBackend.Facades.Matches;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,10 +41,6 @@ builder.Services.AddDbContext<PhotoShowdownDbContext>(options =>
 );
 
 builder.Services.AddControllers();
-
-// Add facades
-builder.Services.AddScoped<IMatchesFacade, MatchesFacade>();
-builder.Services.AddScoped<IMatchConnectionsFacade, MatchConnectionsFacade>();
 
 // Add services
 builder.Services.AddScoped<IUsersService, UsersService>();

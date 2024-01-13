@@ -6,8 +6,8 @@ using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
-using PhotoShowdownBackend.Facades.Matches;
 using PhotoShowdownBackend.Models;
+using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Services.Matches;
 using PhotoShowdownBackend.Services.Session;
 using PhotoShowdownBackend.Services.Users;
@@ -19,13 +19,16 @@ namespace PhotoShowdownBackend.Controllers;
 [Authorize]
 public class MatchesController : ControllerBase
 {
-    private readonly IMatchesFacade _matchesFacade;
+    private readonly IMatchesService _matchesService;
+    private readonly IMatchConnectionsService _matchConnectionsService;
     private readonly ISessionService _sessionService;
     private readonly ILogger<MatchesController> _logger;
 
-    public MatchesController(IMatchesFacade matchesFacade, ISessionService sessionService, ILogger<MatchesController> logger)
+    public MatchesController(IMatchConnectionsService matchConnectionsService, IMatchesService matchesService, ISessionService sessionService, ILogger<MatchesController> logger)
     {
-        _matchesFacade = matchesFacade;
+        _matchesService = matchesService;
+
+        _matchConnectionsService = matchConnectionsService;
         _sessionService = sessionService;
         _logger = logger;
     }
@@ -40,14 +43,18 @@ public class MatchesController : ControllerBase
         try
         {
             int ownerId = _sessionService.GetCurrentUserId();
-            var newMatchDetails = await _matchesFacade.CreateNewMatch(ownerId);
+
+            if (await _matchConnectionsService.IsUserConnectedToMatch(ownerId))
+            {
+                return BadRequest(response.ToErrorResponse("User is already connected to a match"));
+            }
+
+            var newMatchDetails = await _matchesService.CreateNewMatch(ownerId);
+            await _matchConnectionsService.CreateMatchConnection(ownerId, newMatchDetails.Id);
+
             response.Data = newMatchDetails;
-            return StatusCode(StatusCodes.Status201Created, response);
-            //return CreatedAtAction(nameof(GetUser), new { id = newUserDetails.Id }, response);
-        }
-        catch(UserAlreadyConnectedException ex)
-        {
-            return BadRequest(response.ToErrorResponse(ex.Message));
+            //return StatusCode(StatusCodes.Status201Created, response);
+            return CreatedAtAction(nameof(GetMatchById), new { id = newMatchDetails.Id }, response);
         }
         catch (Exception ex)
         {
@@ -69,17 +76,15 @@ public class MatchesController : ControllerBase
         APIResponse<List<MatchDTO>> response = new();
         try
         {
-            var allMatches = await _matchesFacade.GetAllOpenMatches();
+            var allMatches = await _matchesService.GetAllOpenMatches();
             response.Data = allMatches;
             return Ok(response);
-            //return CreatedAtAction(nameof(GetUser), new { id = newUserDetails.Id }, response);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(GetAllOpenMatches)} Error");
             return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
         }
-
     }
 
 
@@ -96,7 +101,7 @@ public class MatchesController : ControllerBase
         APIResponse <MatchDTO> response = new();
         try
         {
-            var match = await _matchesFacade.GetMatchById(matchId);
+            var match = await _matchesService.GetMatchById(matchId);
             response.Data = match;
             return Ok(response);
         }
@@ -109,7 +114,5 @@ public class MatchesController : ControllerBase
             _logger.LogError(ex, $"{nameof(GetMatchById)} Error");
             return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
         }
-
     }
-
 }

@@ -63,7 +63,7 @@ public class MatchesService : IMatchesService
         return await _matchesRepo.AnyAsync(match => match.Id == matchId);
     }
 
-    public async Task CloseMatch(int matchId)
+    public async Task DeleteMatch(int matchId)
     {
         Match? m = await _matchesRepo.GetAsync(m => m.Id == matchId);
 

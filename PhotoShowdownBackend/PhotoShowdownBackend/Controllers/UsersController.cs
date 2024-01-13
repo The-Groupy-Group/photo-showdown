@@ -43,7 +43,7 @@ public class UsersController : ControllerBase
         APIResponse<RegisterationResponseDTO> response = new();
         try
         {
-            var newUserDetails =  await _usersService.RegisterUser(registrationRequest);
+            var newUserDetails =  await _usersService.CreateUser(registrationRequest);
 
             response.Data = newUserDetails;
 
