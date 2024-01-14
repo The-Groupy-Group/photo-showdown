@@ -85,8 +85,5 @@ public class MatchesService : IMatchesService
             UsersNames = match.MatchConnections.Select(mc => mc.User.Username).ToList()
         };
         return matchDTO;
-
-
     }
-
 }

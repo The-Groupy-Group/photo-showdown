@@ -28,7 +28,9 @@ public class MatchesReporitory : Repository<Match>, IMatchesReporitory
         {
             query = query.AsNoTracking();
         }
-        return await query.Include(match => match.Owner).Include(match => match.MatchConnections).ThenInclude(mc => mc.User).Where(filter).FirstOrDefaultAsync();
+        return await query.Include(match => match.Owner)
+            .Include(match => match.MatchConnections)
+            .ThenInclude(mc => mc.User).Where(filter)
+            .FirstOrDefaultAsync();
     }
-
 }

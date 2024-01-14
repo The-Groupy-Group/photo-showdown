@@ -47,12 +47,12 @@ public class MatchConnectionsController : ControllerBase
         {
             if (!await _usersService.DoesUserExist(userId))
             {
-                return NotFound("Invalid user Id");
+                return NotFound(response.ToErrorResponse("Invalid user Id"));
             }
 
             if (!await _matchesService.DoesMatchExists(matchId))
             {
-               return NotFound("Invalid match Id");
+               return NotFound(response.ToErrorResponse("Invalid match Id"));
             }
 
             await _matchConnectionsService.CreateMatchConnection(userId, matchId);

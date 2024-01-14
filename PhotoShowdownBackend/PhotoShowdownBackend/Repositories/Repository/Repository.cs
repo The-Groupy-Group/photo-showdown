@@ -32,12 +32,11 @@ public class Repository<T> : IRepository<T> where T : class
     }
 
     /// <inheritdoc></inheritdoc>
-    virtual public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null)
+    virtual public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageIndex = null, int? pageSize = null)
     {
         var query = _dbSet;
 
-        return await GetAllFromQueryAsync(query,filter, tracked, pageNumber, pageSize); 
-
+        return await GetAllFromQueryAsync(query,filter, tracked, pageIndex, pageSize); 
     }
     virtual public async Task<T> CreateAsync(T entity)
     {
@@ -61,9 +60,8 @@ public class Repository<T> : IRepository<T> where T : class
     {
         return await _dbSet.AnyAsync(predicate);
     }
-    virtual internal async Task<List<T>> GetAllFromQueryAsync(IQueryable<T> query, Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null)
+    virtual internal async Task<List<T>> GetAllFromQueryAsync(IQueryable<T> query, Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageIndex = null, int? pageSize = null)
     { 
-
         if (filter != null)
         {
             query = query.Where(filter);
@@ -72,18 +70,16 @@ public class Repository<T> : IRepository<T> where T : class
         {
             query = query.AsNoTracking();
         }
-        if (pageSize.HasValue && pageNumber.HasValue)
+        if (pageSize.HasValue && pageIndex.HasValue)
         {
             if (pageSize > MAX_PAGE_SIZE)
             {
                 pageSize = MAX_PAGE_SIZE;
             }
 
-            query = query.Skip(pageSize.Value * (pageNumber.Value - 1)).Take(pageSize.Value);
+            query = query.Skip(pageSize.Value * (pageIndex.Value)).Take(pageSize.Value);
         }
 
         return await query.ToListAsync();
     }
 }
-
-

@@ -14,7 +14,6 @@ using PhotoShowdownBackend.Services.Session;
 using PhotoShowdownBackend.Services.Pictures;
 using PhotoShowdownBackend.Repositories.Pictures;
 using PhotoShowdownBackend.Services.Matches;
-using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Repositories.MatchConnections;
 
@@ -128,7 +127,16 @@ if (app.Environment.IsDevelopment())
 
 // Allow static files
 Directory.CreateDirectory(Path.Combine(builder.Environment.ContentRootPath,"wwwroot", SystemSettings.PicturesFolderName));
-app.UseStaticFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Headers",
+          "Origin, X-Requested-With, Content-Type, Accept");
+    }
+});
 
 // Use Cors
 app.UseCors("CorsPolicy");

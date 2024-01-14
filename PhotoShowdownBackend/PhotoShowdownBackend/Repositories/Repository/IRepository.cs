@@ -14,10 +14,10 @@ public interface IRepository<T> where T : class
     /// </summary>
     /// <param name="filter"></param>
     /// <param name="tracked"></param>
-    /// <param name="pageNumber">Starting from 1</param>
+    /// <param name="pageIndex">Starting from 0</param>
     /// <param name="pageSize"></param>
     /// <returns></returns>
-    public Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageNumber = null, int? pageSize = null);
+    public Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageIndex = null, int? pageSize = null);
     public Task<T> CreateAsync(T entity);
     public Task<T> UpdateAsync(T entity);
     public Task<T> DeleteAsync(T entity);
