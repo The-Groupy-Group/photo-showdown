@@ -20,6 +20,9 @@ using PhotoShowdownBackend.Repositories.MatchConnections;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Create all required folders if they dont exist
+Directory.CreateDirectory(Path.Combine(builder.Environment.ContentRootPath, "wwwroot", SystemSettings.PicturesFolderName));
+
 // Add Serilog
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
@@ -29,13 +32,26 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
+// Build the DB
+string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+try
+{
+    var migrationExecutor = new SQLServerMigrationExecutor(connectionString);
+    migrationExecutor.ExecutePendingScripts();
+}
+catch (Exception ex)
+{
+    Log.Logger.Error(ex, "Failed to build the DB");
+    throw;
+}
+
 // Add services to the container.
 builder.Services.AddDbContext<PhotoShowdownDbContext>(options =>
     {
         // Swap between InMemoryDatabase and SqlServer
         //options.UseInMemoryDatabase("PhotoShowdownDB");
 
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+        options.UseSqlServer(connectionString);
     }
 );
 
@@ -126,8 +142,6 @@ if (app.Environment.IsDevelopment())
 }
 
 // Allow static files
-Directory.CreateDirectory(Path.Combine(builder.Environment.ContentRootPath,"wwwroot", SystemSettings.PicturesFolderName));
-
 app.UseStaticFiles(new StaticFileOptions
 {
     OnPrepareResponse = ctx =>
