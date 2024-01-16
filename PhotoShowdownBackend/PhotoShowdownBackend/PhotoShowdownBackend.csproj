@@ -33,4 +33,10 @@
     <Folder Include="wwwroot\pictures\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="SQL\*.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
