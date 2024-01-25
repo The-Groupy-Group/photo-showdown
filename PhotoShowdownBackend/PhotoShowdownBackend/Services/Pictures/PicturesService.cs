@@ -41,24 +41,24 @@ public class PicturesService : IPicturesService
 
     public async Task<List<PictureDTO>> GetUserPicture(int userId)
     {
-        var pictures = await _picturesRepo.GetAllAsync(p => p.UserId == userId, tracked:false);
+        var pictures = await _picturesRepo.GetAllAsync(p => p.UserId == userId, tracked: false);
         return pictures.Select(p => _mapper.Map<PictureDTO>(p)).ToList();
     }
 
     public async Task<PictureDTO> GetPicture(int pictureId)
     {
-        var picture = await _picturesRepo.GetAsync(p=>p.Id == pictureId);
+        var picture = await _picturesRepo.GetAsync(p => p.Id == pictureId);
         return _mapper.Map<PictureDTO>(picture);
     }
 
     public async Task DeletePicture(int pictureId, int userId, bool isAdmin)
     {
-        if (!isAdmin && !await DoesPictureBelongToUser(pictureId, userId)) 
-            throw new UnauthorizedException("Picture does not belong to user");
+        if (!isAdmin && !await DoesPictureBelongToUser(pictureId, userId))
+            throw new ResourceBelongsToDifferentUserException("Picture does not belong to user");
 
         var picture = await _picturesRepo.GetAsync(p => p.Id == pictureId);
 
-        if (picture == null) 
+        if (picture == null)
             throw new NotFoundException("Picture not found");
 
         await _picturesRepo.DeleteAsync(picture);
@@ -68,7 +68,7 @@ public class PicturesService : IPicturesService
     {
         var picture = await _picturesRepo.GetAsync(p => p.Id == pictureId);
 
-        if (picture == null) 
+        if (picture == null)
             throw new NotFoundException("Picture not found");
 
         return picture.UserId == userId;

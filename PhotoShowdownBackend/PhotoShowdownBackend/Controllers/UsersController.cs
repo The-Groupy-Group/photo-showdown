@@ -51,12 +51,12 @@ public class UsersController : ControllerBase
         }
         catch (UsersServiceException ex)
         {
-            return BadRequest(response.ToErrorResponse(ex.Message));
+            return BadRequest(response.ErrorResponse(ex.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(Register)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
         }
     }
 
@@ -84,12 +84,12 @@ public class UsersController : ControllerBase
         }
         catch (InvalidLoginException ex)
         {
-            return BadRequest(response.ToErrorResponse(ex.Message));
+            return BadRequest(response.ErrorResponse(ex.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(Login)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
         }
     }
 
@@ -109,12 +109,12 @@ public class UsersController : ControllerBase
         {
             if (id != _sessionService.GetCurrentUserId() && !_sessionService.IsCurrentUserInRole(Roles.Admin))
             {
-                return StatusCode(StatusCodes.Status403Forbidden, response.ToErrorResponse("Can't get user if client is not the user or a admin"));
+                return StatusCode(StatusCodes.Status403Forbidden, response.ErrorResponse("Can't get user if client is not the user or a admin"));
             }
             var user = await _usersService.GetUser(id);
             if (user == null)
             {
-                return NotFound(response.ToErrorResponse("User not found"));
+                return NotFound(response.ErrorResponse("User not found"));
             }
 
             response.Data = user!;
@@ -122,12 +122,12 @@ public class UsersController : ControllerBase
         }
         catch( NotFoundException ex)
         {
-            return NotFound(response.ToErrorResponse(ex.Message));
+            return NotFound(response.ErrorResponse(ex.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(GetUser)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
         }
     }
 

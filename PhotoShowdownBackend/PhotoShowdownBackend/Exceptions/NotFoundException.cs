@@ -2,5 +2,5 @@
 
 public class NotFoundException : AbstractException
 {
-    public NotFoundException(string? message = "Not Found") : base(message) { }
+    public NotFoundException(string? message = "resource not found") : base(message) { }
 }

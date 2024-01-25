@@ -46,7 +46,7 @@ public class MatchesController : ControllerBase
 
             if (await _matchConnectionsService.IsUserConnectedToMatch(ownerId))
             {
-                return BadRequest(response.ToErrorResponse("User is already connected to a match"));
+                return BadRequest(response.ErrorResponse("User is already connected to a match"));
             }
 
             var newMatchDetails = await _matchesService.CreateNewMatch(ownerId);
@@ -59,7 +59,7 @@ public class MatchesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(CreateNewMatch)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
         }
     }
 
@@ -83,7 +83,7 @@ public class MatchesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(GetAllOpenMatches)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
         }
     }
 
@@ -107,12 +107,12 @@ public class MatchesController : ControllerBase
         }
         catch(NotFoundException ex)
         {
-            return NotFound(response.ToErrorResponse(ex.Message));
+            return NotFound(response.ErrorResponse(ex.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(GetMatchById)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
         }
     }
 }

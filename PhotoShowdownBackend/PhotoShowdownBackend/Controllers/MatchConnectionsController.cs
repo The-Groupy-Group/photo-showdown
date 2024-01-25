@@ -47,12 +47,12 @@ public class MatchConnectionsController : ControllerBase
         {
             if (!await _usersService.DoesUserExist(userId))
             {
-                return NotFound(response.ToErrorResponse("Invalid user Id"));
+                return NotFound(response.ErrorResponse("Invalid user Id"));
             }
 
             if (!await _matchesService.DoesMatchExists(matchId))
             {
-               return NotFound(response.ToErrorResponse("Invalid match Id"));
+               return NotFound(response.ErrorResponse("Invalid match Id"));
             }
 
             await _matchConnectionsService.CreateMatchConnection(userId, matchId);
@@ -60,12 +60,12 @@ public class MatchConnectionsController : ControllerBase
         }
         catch (UserAlreadyConnectedException ex)
         {
-            return BadRequest(response.ToErrorResponse(ex.Message));
+            return BadRequest(response.ErrorResponse(ex.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(JoinMatch)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
         }
     }
 
@@ -89,16 +89,16 @@ public class MatchConnectionsController : ControllerBase
         }
         catch (UserAlreadyConnectedException ex)
         {
-            return BadRequest(response.ToErrorResponse(ex.Message));
+            return BadRequest(response.ErrorResponse(ex.Message));
         }
         catch (NotFoundException ex)
         {
-            return NotFound(response.ToErrorResponse(ex.Message));
+            return NotFound(response.ErrorResponse(ex.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(LeaveMatch)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
         }
     }
 }

@@ -45,7 +45,8 @@ public class PicturesController : ControllerBase
         var response = new APIResponse<PictureDTO>();
         try
         {
-            if (!pictureFile.ContentType.Contains("image")) return BadRequest(response.ToErrorResponse("Uploaded file is not a image"));
+            if (!pictureFile.ContentType.Contains("image"))
+                return BadRequest(response.ErrorResponse("Uploaded file is not a image"));
 
             var currentUserId = _sessionService.GetCurrentUserId();
             var picture = await _picturesService.UploadPicture(pictureFile, currentUserId);
@@ -60,7 +61,7 @@ public class PicturesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(UploadPicture)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
         }
     }
 
@@ -70,7 +71,6 @@ public class PicturesController : ControllerBase
     /// <returns>A Array of all pictures uploaded by the current user</returns>
     [HttpGet]
     [ProducesResponseType(typeof(APIResponse<IEnumerable<PictureDTO>>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetMyPictures()
     {
@@ -92,13 +92,13 @@ public class PicturesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(UploadPicture)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+            _logger.LogError(ex, $"{nameof(GetMyPictures)} Error");
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
         }
     }
 
     /// <summary>
-    /// 
+    /// Obviusly this deletes a picture
     /// </summary>
     /// <param name="pictureId"></param>
     /// <returns></returns>
@@ -118,18 +118,18 @@ public class PicturesController : ControllerBase
 
             return Ok(response);
         }
-        catch (UnauthorizedException ex)
+        catch (ResourceBelongsToDifferentUserException)
         {
-            return Unauthorized(response.ToErrorResponse(ex.Message));
+            return NotFound(response.ErrorResponse(Messages.PictureNotFound));
         }
-        catch (NotFoundException ex)
+        catch (NotFoundException)
         {
-            return NotFound(response.ToErrorResponse(ex.Message));
+            return NotFound(response.ErrorResponse(Messages.PictureNotFound));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(DeletePicture)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
         }
     }
 
@@ -137,6 +137,10 @@ public class PicturesController : ControllerBase
     [NonAction]
     private string GetPictureBaseBath()
     {
-        return $"{Request.Scheme}://{Request.Host}{Request.PathBase}/pictures/";
+        return $"{Request.Scheme}://{Request.Host}{Request.PathBase}/{SystemSettings.PicturesFolderName}/";
+    }
+    internal static class Messages
+    {
+        public const string PictureNotFound = "Picture not found";
     }
 }
