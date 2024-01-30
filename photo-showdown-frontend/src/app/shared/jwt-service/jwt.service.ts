@@ -21,6 +21,6 @@ export class JwtService {
         return decodedToken.Id;
       }
     }
-    return "error";
+    return undefined;
   }
 }
