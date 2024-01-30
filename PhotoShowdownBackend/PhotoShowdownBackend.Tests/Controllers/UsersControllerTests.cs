@@ -61,7 +61,7 @@ public class UsersControllerTests
             Password = "test"
         };
 
-        A.CallTo(() => service.RegisterUser(regsiterReq)).Returns(Task.FromResult<RegisterationResponseDTO>(new() { Id = 1 }));
+        A.CallTo(() => service.CreateUser(regsiterReq)).Returns(Task.FromResult<RegisterationResponseDTO>(new() { Id = 1 }));
 
         var controller = new UsersController(service, sessionService, logger);
 

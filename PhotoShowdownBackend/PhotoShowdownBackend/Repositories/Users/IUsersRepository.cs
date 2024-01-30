@@ -8,4 +8,5 @@ namespace PhotoShowdownBackend.Repositories.Users;
 /// </summary>
 public interface IUsersRepository: IRepository<User>
 {
+
 }

@@ -33,7 +33,7 @@ public class UsersService : IUsersService
         _logger = logger;
     }
 
-    public async Task<RegisterationResponseDTO> RegisterUser(RegisterationRequestDTO registerationRequest)
+    public async Task<RegisterationResponseDTO> CreateUser(RegisterationRequestDTO registerationRequest)
     {
         // Verify that the username and email are unique
         var isUniqueUser = !await _usersRepo.AnyAsync(u => u.Username == registerationRequest.Username || u.Email == registerationRequest.Email);

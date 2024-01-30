@@ -1,4 +1,5 @@
-﻿using PhotoShowdownBackend.Data;
+﻿using PhotoShowdownBackend.Consts;
+using PhotoShowdownBackend.Data;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.Repository;
 
@@ -6,15 +7,12 @@ namespace PhotoShowdownBackend.Repositories.Pictures;
 
 public class PicturesRepository : Repository<Picture>, IPicturesRepository
 {
-    private readonly IWebHostEnvironment _environment;
-
-    private readonly string _picturesFolderPath;
-    private readonly string _picturesFolderName = "pictures";
+    private readonly string _picturesAsboluteFolderPath;
+    private readonly string _picturesFolderName = SystemSettings.PicturesFolderName;
 
     public PicturesRepository(PhotoShowdownDbContext db, IWebHostEnvironment environment) : base(db)
     {
-        _environment = environment;
-        _picturesFolderPath = Path.Combine(_environment.WebRootPath, _picturesFolderName);
+        _picturesAsboluteFolderPath = Path.Combine(environment.WebRootPath, _picturesFolderName);
     }
 
     public async override Task<Picture> CreateAsync(Picture picture)
@@ -23,6 +21,9 @@ public class PicturesRepository : Repository<Picture>, IPicturesRepository
         {
             throw new ArgumentNullException(nameof(picture.PictureFile));
         }
+
+        // Generate unique picture name
+        picture.PicturePath = Guid.NewGuid().ToString() + ".jpg";
 
         // Save picture file to disk
         var pictureAbsolutePath = GetAbsolutePicturePath(picture.PicturePath);
@@ -67,6 +68,6 @@ public class PicturesRepository : Repository<Picture>, IPicturesRepository
 
     private string GetAbsolutePicturePath(string pictureName)
     {
-        return Path.Combine(_picturesFolderPath, pictureName);
+        return Path.Combine(_picturesAsboluteFolderPath, pictureName);
     }
 }

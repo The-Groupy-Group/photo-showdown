@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
-using PhotoShowdownBackend.Facades.MatchConnections;
-using PhotoShowdownBackend.Facades.Matches;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.MatchConnections;
+using PhotoShowdownBackend.Services.Matches;
 using PhotoShowdownBackend.Services.Pictures;
 using PhotoShowdownBackend.Services.Session;
+using PhotoShowdownBackend.Services.Users;
 
 namespace PhotoShowdownBackend.Controllers;
 
@@ -18,13 +18,18 @@ namespace PhotoShowdownBackend.Controllers;
 [Authorize]
 public class MatchConnectionsController : ControllerBase
 {
-    private readonly IMatchConnectionsFacade _matchConnectionsFacade;
+    private readonly IMatchConnectionsService _matchConnectionsService;
+    private readonly IUsersService _usersService;
+    private readonly IMatchesService _matchesService;
     private readonly ISessionService _sessionService;
     private readonly ILogger<MatchConnectionsController> _logger;
 
-    public MatchConnectionsController(IMatchConnectionsFacade matchConnectionsFacade, ISessionService sessionService, ILogger<MatchConnectionsController> logger)
+    public MatchConnectionsController(IMatchConnectionsService matchConnectionsService, IUsersService usersService
+        , IMatchesService matchesService, ISessionService sessionService, ILogger<MatchConnectionsController> logger)
     {
-        _matchConnectionsFacade = matchConnectionsFacade;
+        _matchConnectionsService = matchConnectionsService;
+        _usersService = usersService;
+        _matchesService = matchesService;
         _sessionService = sessionService;
         _logger = logger;
     }
@@ -40,25 +45,31 @@ public class MatchConnectionsController : ControllerBase
         APIResponse response = new();
         try
         {
-            await _matchConnectionsFacade.CreateMatchConnection(userId,matchId);
+            if (!await _usersService.DoesUserExist(userId))
+            {
+                return NotFound(response.ErrorResponse("Invalid user Id"));
+            }
+
+            if (!await _matchesService.DoesMatchExists(matchId))
+            {
+               return NotFound(response.ErrorResponse("Invalid match Id"));
+            }
+
+            await _matchConnectionsService.CreateMatchConnection(userId, matchId);
             return Ok(response);
         }
         catch (UserAlreadyConnectedException ex)
         {
-            return BadRequest(response.ToErrorResponse(ex.Message));
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(response.ToErrorResponse(ex.Message));
+            return BadRequest(response.ErrorResponse(ex.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(JoinMatch)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
         }
     }
 
-    [HttpPost]
+    [HttpDelete]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
@@ -68,22 +79,26 @@ public class MatchConnectionsController : ControllerBase
         APIResponse response = new();
         try
         {
-            await _matchConnectionsFacade.LeaveMatch(userId, matchId);
+            await _matchConnectionsService.DeleteMatchConnection(userId, matchId);
+
+            if (await _matchConnectionsService.IsMatchEmpty(matchId))
+            {
+                await _matchesService.DeleteMatch(matchId);
+            }
             return Ok(response);
         }
         catch (UserAlreadyConnectedException ex)
         {
-            return BadRequest(response.ToErrorResponse(ex.Message));
+            return BadRequest(response.ErrorResponse(ex.Message));
         }
         catch (NotFoundException ex)
         {
-            return NotFound(response.ToErrorResponse(ex.Message));
+            return NotFound(response.ErrorResponse(ex.Message));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(LeaveMatch)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ToServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
         }
     }
-
 }

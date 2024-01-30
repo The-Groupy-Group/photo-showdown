@@ -7,8 +7,5 @@ namespace PhotoShowdownBackend.Repositories.MatchConnections;
 
 public class MatchConnectionsRepository : Repository<MatchConnection>, IMatchConnectionsRepository
 {
-    public MatchConnectionsRepository(PhotoShowdownDbContext _db) : base(_db)
-    {
-    }
-
+    public MatchConnectionsRepository(PhotoShowdownDbContext _db) : base(_db) { }
 }

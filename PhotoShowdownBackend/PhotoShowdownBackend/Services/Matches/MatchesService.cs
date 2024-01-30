@@ -27,13 +27,12 @@ public class MatchesService : IMatchesService
         _logger = logger;
     }
 
-    public async Task<MatchCreationResponseDTO> CreateNewMatch(int userId)
+    public async Task<MatchCreationResponseDTO> CreateNewMatch(int ownerId)
     {
-        
         // Map the request to a Match object
         var match = new Match()
         {
-            OwnerId = userId
+            OwnerId = ownerId
         };
 
         // Create the match
@@ -47,7 +46,7 @@ public class MatchesService : IMatchesService
     
     public async Task<List<MatchDTO>> GetAllOpenMatches()
     {
-        List<Match> allMatches = await _matchesRepo.GetAllWithUsersAsync(match => match.StartDate == null,tracked:false);
+        List<Match> allMatches = await _matchesRepo.GetAllWithUsersAsync(match => match.StartDate == null);
 
         List<MatchDTO> matches = allMatches.Select(match => { 
             var dto =  _mapper.Map<MatchDTO>(match);
@@ -64,7 +63,7 @@ public class MatchesService : IMatchesService
         return await _matchesRepo.AnyAsync(match => match.Id == matchId);
     }
 
-    public async Task CloseMatch(int matchId)
+    public async Task DeleteMatch(int matchId)
     {
         Match? m = await _matchesRepo.GetAsync(m => m.Id == matchId);
 
@@ -78,16 +77,13 @@ public class MatchesService : IMatchesService
 
     public async Task<MatchDTO> GetMatchById(int matchId)
     {
-        Match? match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId,false) ?? throw new NotFoundException("Invalid match Id");
-        MatchDTO matchDTO = new MatchDTO()
+        Match? match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ?? throw new NotFoundException("Invalid match Id");
+        MatchDTO matchDTO = new()
         { 
             Id = matchId,
             OwnerName = match.Owner.Username,
             UsersNames = match.MatchConnections.Select(mc => mc.User.Username).ToList()
         };
         return matchDTO;
-
-
     }
-
 }

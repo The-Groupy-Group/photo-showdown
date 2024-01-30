@@ -24,51 +24,53 @@ public class PicturesService : IPicturesService
 
     public async Task<PictureDTO> UploadPicture(IFormFile pictureFile, int userId)
     {
-        var picturePath = Guid.NewGuid().ToString() + ".jpg";
-
         var picture = new Picture()
         {
             UserId = userId,
-            PicturePath = picturePath,
             PictureFile = pictureFile
         };
-        _logger.LogDebug($"Picture path {picturePath} was uploaded by user with id {userId}");
+
         var createdPicture = await _picturesRepo.CreateAsync(picture);
 
         var pictureDto = _mapper.Map<PictureDTO>(createdPicture);
 
-        _logger.LogInformation($"Picture with id {pictureDto.Id} and path {picturePath} was uploaded by user with id {userId}");
+        _logger.LogInformation($"Picture with id {pictureDto.Id} and path {pictureDto.PicturePath} was uploaded by user with id {userId}");
 
         return pictureDto;
     }
 
-
     public async Task<List<PictureDTO>> GetUserPicture(int userId)
     {
-        var pictures = await _picturesRepo.GetAllAsync(p => p.UserId == userId, tracked:false);
+        var pictures = await _picturesRepo.GetAllAsync(p => p.UserId == userId, tracked: false);
         return pictures.Select(p => _mapper.Map<PictureDTO>(p)).ToList();
     }
 
     public async Task<PictureDTO> GetPicture(int pictureId)
     {
-        var picture = await _picturesRepo.GetAsync(p=>p.Id == pictureId);
+        var picture = await _picturesRepo.GetAsync(p => p.Id == pictureId);
         return _mapper.Map<PictureDTO>(picture);
     }
 
     public async Task DeletePicture(int pictureId, int userId, bool isAdmin)
     {
-        if (!isAdmin && !await PictureBelongsToUser(pictureId, userId)) 
-            throw new UnauthorizedException("Picture does not belong to user");
+        if (!isAdmin && !await DoesPictureBelongToUser(pictureId, userId))
+            throw new ResourceBelongsToDifferentUserException("Picture does not belong to user");
 
         var picture = await _picturesRepo.GetAsync(p => p.Id == pictureId);
-        if (picture == null) throw new NotFoundException("Picture not found");
+
+        if (picture == null)
+            throw new NotFoundException("Picture not found");
+
         await _picturesRepo.DeleteAsync(picture);
     }
 
-    public async Task<bool> PictureBelongsToUser(int pictureId, int userId)
+    public async Task<bool> DoesPictureBelongToUser(int pictureId, int userId)
     {
         var picture = await _picturesRepo.GetAsync(p => p.Id == pictureId);
-        if (picture == null) throw new NotFoundException("Picture not found");
+
+        if (picture == null)
+            throw new NotFoundException("Picture not found");
+
         return picture.UserId == userId;
     }
 }

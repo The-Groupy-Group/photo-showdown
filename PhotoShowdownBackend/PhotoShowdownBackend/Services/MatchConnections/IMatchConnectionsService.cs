@@ -6,5 +6,5 @@ public interface IMatchConnectionsService
     Task<bool> IsUserConnectedToMatch(int userId);
     Task<bool> IsMatchEmpty(int matchId);
     Task<bool> IsUserInThisMatch(int userId, int matchId);
-    Task CloseConnection(int userId, int matchId);
+    Task DeleteMatchConnection(int userId, int matchId);
 }

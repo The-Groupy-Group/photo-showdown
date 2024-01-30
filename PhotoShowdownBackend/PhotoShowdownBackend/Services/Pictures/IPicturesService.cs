@@ -8,5 +8,5 @@ public interface IPicturesService
     Task<List<PictureDTO>> GetUserPicture(int userId);
     Task<PictureDTO> GetPicture(int pictureId);
     Task DeletePicture(int pictureId, int userId, bool isAdmin);
-    Task<bool> PictureBelongsToUser(int pictureId, int userId);
+    Task<bool> DoesPictureBelongToUser(int pictureId, int userId);
 }

@@ -49,16 +49,15 @@ public class MatchConnectionsService : IMatchConnectionsService
     {
         return await _matchConnectionsRepo.AnyAsync(mc => mc.UserId == userId && mc.MatchId == matchId);
     }
-    public async Task CloseConnection(int userId, int matchId)
+    public async Task DeleteMatchConnection(int userId, int matchId)
     {
         MatchConnection? mc = await _matchConnectionsRepo.GetAsync(mc => mc.UserId == userId && mc.MatchId == matchId);
-        
-        if(mc == null)
+
+        if (mc == null)
         {
             throw new NotFoundException("User is currently not in match");
         }
-        
-        await _matchConnectionsRepo.DeleteAsync(mc);
 
+        await _matchConnectionsRepo.DeleteAsync(mc);
     }
 }

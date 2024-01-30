@@ -39,7 +39,7 @@ export class MatchConnectionService {
    */
   leaveMatch(userId:number,matchId:number)
   {
-    return this.http.post<EmptyAPIResponse>(
+    return this.http.delete<EmptyAPIResponse>(
       this.apiURL + `/LeaveMatch?userId=${userId}&matchId=${matchId}`,
       this.httpOptions
     );

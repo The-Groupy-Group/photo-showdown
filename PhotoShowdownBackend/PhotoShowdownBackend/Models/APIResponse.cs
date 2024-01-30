@@ -11,13 +11,13 @@ public class APIResponse
 {
     public bool IsSuccess { get; set; } = true;
     public string Message { get; set; } = "";
-    public APIResponse ToErrorResponse(string message)
+    public APIResponse ErrorResponse(string message)
     {
         this.IsSuccess = false;
         this.Message = message;
         return this;
     }
-    public static APIResponse ToServerError()
+    public static APIResponse ServerError()
     {
         var response = new APIResponse
         {

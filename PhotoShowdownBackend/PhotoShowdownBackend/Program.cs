@@ -14,13 +14,14 @@ using PhotoShowdownBackend.Services.Session;
 using PhotoShowdownBackend.Services.Pictures;
 using PhotoShowdownBackend.Repositories.Pictures;
 using PhotoShowdownBackend.Services.Matches;
-using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Repositories.MatchConnections;
-using PhotoShowdownBackend.Facades.MatchConnections;
-using PhotoShowdownBackend.Facades.Matches;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Create all required folders if they dont exist
+Directory.CreateDirectory(Path.Combine(builder.Environment.ContentRootPath, "wwwroot", SystemSettings.PicturesFolderName));
 
 // Add Serilog
 Log.Logger = new LoggerConfiguration()
@@ -31,21 +32,30 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
+// Build the DB
+string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+try
+{
+    var migrationExecutor = new SQLServerMigrationExecutor(connectionString);
+    migrationExecutor.ExecutePendingScripts();
+}
+catch (Exception ex)
+{
+    Log.Logger.Error(ex, "Failed to build the DB");
+    throw;
+}
+
 // Add services to the container.
 builder.Services.AddDbContext<PhotoShowdownDbContext>(options =>
     {
+        // Swap between InMemoryDatabase and SqlServer
         //options.UseInMemoryDatabase("PhotoShowdownDB");
 
-        // In due time amen
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+        options.UseSqlServer(connectionString);
     }
 );
 
 builder.Services.AddControllers();
-
-// Add facades
-builder.Services.AddScoped<IMatchesFacade, MatchesFacade>();
-builder.Services.AddScoped<IMatchConnectionsFacade, MatchConnectionsFacade>();
 
 // Add services
 builder.Services.AddScoped<IUsersService, UsersService>();
@@ -79,6 +89,7 @@ builder.Services.AddCors(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
+// Configure Swagger
 builder.Services.AddSwaggerGen(options=>
 {
     options.SwaggerDoc("v1",
@@ -131,8 +142,15 @@ if (app.Environment.IsDevelopment())
 }
 
 // Allow static files
-Directory.CreateDirectory(Path.Combine(builder.Environment.ContentRootPath,"wwwroot", "pictures"));
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Headers",
+          "Origin, X-Requested-With, Content-Type, Accept");
+    }
+});
 
 // Use Cors
 app.UseCors("CorsPolicy");

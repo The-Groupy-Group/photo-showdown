@@ -8,7 +8,7 @@ namespace PhotoShowdownBackend.Services.Users;
 /// </summary>
 public interface IUsersService
 {
-    Task<RegisterationResponseDTO> RegisterUser(RegisterationRequestDTO registerationRequest);
+    Task<RegisterationResponseDTO> CreateUser(RegisterationRequestDTO registerationRequest);
     Task<LoginResponseDTO> Login(LoginRequestDTO loginRequest);
     Task<UserDTO> GetUser(int id);
     Task<bool> DoesUserExist(int userId);

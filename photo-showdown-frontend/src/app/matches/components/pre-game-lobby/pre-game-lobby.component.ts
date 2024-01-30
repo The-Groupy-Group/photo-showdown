@@ -30,13 +30,13 @@ export class PreGameLobbyComponent implements OnInit, CanComponentDeactivate
     ngOnInit()
     {
       this.isLeavingMatch = false;
-      this.route.params.subscribe(params => 
+      this.route.params.subscribe(params =>
       {
         this.matchId = params['matchId'];
       });
-  
+
       const idFromToken=this.jwtService.getTokenId();
-  
+
       if(idFromToken!=undefined)
       {
         this.userId=parseInt(idFromToken);
@@ -49,35 +49,19 @@ export class PreGameLobbyComponent implements OnInit, CanComponentDeactivate
       {
         return true;
       }
-  
-      if(!window.confirm('Leaving this page will quit the match, Are you sure?'))
+
+      if(!window.confirm('Are you sure?'))
       {
         return false;
       }
-      
+
       this.matchConnectionService.leaveMatch(this.userId,this.matchId).subscribe();
       return true;
     }
-  
-  
+
+
     disconnect()
     {
-      if(!window.confirm('Are you sure?'))
-      {
-        return;
-      }
-
-      this.matchConnectionService.leaveMatch(this.userId,this.matchId).subscribe(
-        {
-          next:()=>
-          {
-            this.isLeavingMatch=true;
-            this.router.navigate(['/matches']);
-          },
-          error:(response)=>
-          {
-            this.notifier.notify('error',response.error.message)
-          }
-        })
+      this.router.navigate(['/matches']);
     }
 }
