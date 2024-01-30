@@ -1,11 +1,9 @@
-import { APIResponse } from './../../../shared/models/api-response.model';
 import { Component,OnInit, } from '@angular/core';
 import { Router } from '@angular/router';
 import { JwtService } from 'src/app/shared/jwt-service/jwt.service';
 import { MatchConnectionService } from '../../services/match-connections.service';
 import { ActivatedRoute } from '@angular/router';
 import { NotifierService } from 'angular-notifier';
-import { CanComponentDeactivate } from 'src/app/shared/can-deactivate/can-deactivate.guard';
 import { MatchesService } from '../../services/matches.service';
 import {Match} from '../../models/match.model'
 @Component({
@@ -13,7 +11,7 @@ import {Match} from '../../models/match.model'
   templateUrl: './pre-game-lobby.component.html',
   styleUrls: ['./pre-game-lobby.component.css']
 })
-export class PreGameLobbyComponent implements OnInit, CanComponentDeactivate
+export class PreGameLobbyComponent implements OnInit
 {
 
   matchId!:number;
@@ -53,7 +51,7 @@ export class PreGameLobbyComponent implements OnInit, CanComponentDeactivate
 
     }
 
-    canDeactivate()
+    /*canDeactivate()
     {
       if(this.isLeavingMatch)
       {
@@ -68,7 +66,7 @@ export class PreGameLobbyComponent implements OnInit, CanComponentDeactivate
       this.matchConnectionService.leaveMatch(this.userId,this.matchId).subscribe();
       return true;
     }
-
+*/
 
     disconnect()
     {
