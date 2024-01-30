@@ -1,14 +1,14 @@
 <mat-card class="lobby-container">
-  <h1>pre-lobby</h1>
-  <p>match id: 1</p>
-  <p>owner name: admin</p>
+  <div class="inner-container">
+  <h2>pre-lobby</h2>
+  <p>match id: {{match?.id}}</p>
+  <p>owner name: {{match?.ownerName}}</p>
   <div>
     <h2>Users:</h2>
-    <ul class="users-container">
-      <li>user1</li>
-      <li>user2</li>
-    </ul>
+    <div class="users-container">
+      <div *ngFor="let userName of match?.usersNames">{{ userName }}</div>
+    </div>
     <button class="disconnect" color="warn" mat-raised-button (click)="disconnect()">Disconnect</button>
   </div>
-
+</div>
 </mat-card>
