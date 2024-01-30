@@ -7,38 +7,39 @@ import { authGuard } from './shared/auth-guard/auth.guard';
 import { PicturesPageComponent } from './pictures/components/pictures-page/pictures-page.component';
 import { MatchListComponent } from './matches/components/match-list/match-list.component';
 import { PreGameLobbyComponent } from './matches/components/pre-game-lobby/pre-game-lobby.component';
-import { canDeactivateGuard } from './shared/can-deactivate/can-deactivate.guard';
+import { isInMatchGuard } from './shared/is-in-match-guard/is-in-match.guard';
 
 
 const routes: Routes = [
   {
     component:HomepageComponent,
     path:'',
-    canActivate: [authGuard]
+    canActivate: [authGuard,isInMatchGuard]
   },
   {
     component:UserLoginComponent,
-    path:'login'
+    path:'login',
+    canActivate:[isInMatchGuard]
   },
   {
     component:PreGameLobbyComponent,
     path:'lobby/:matchId',
     canActivate: [authGuard],
-    canDeactivate: [canDeactivateGuard]
   },
   {
     component:MatchListComponent,
     path:'matches',
-    canActivate: [authGuard]
+    canActivate: [authGuard,isInMatchGuard]
   },
   {
     component:PicturesPageComponent,
     path:'pictures',
-    canActivate: [authGuard]
+    canActivate: [authGuard,isInMatchGuard]
   },
   {
     component:UserRegistrationComponent,
-    path:'register'
+    path:'register',
+    canActivate:[isInMatchGuard]
   }
 ];
 
