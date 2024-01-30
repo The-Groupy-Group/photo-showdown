@@ -41,4 +41,16 @@ export class MatchesService {
       this.httpOptions
     );
   }
+/**
+ *Use match id to get match details
+ *
+ * @returns match details
+ */
+  getMatchById(matchId:number):Observable<APIResponse<Match>>
+  {
+    return this.http.get<APIResponse<Match>>(
+      this.apiURL+`/GetMatchById?matchId=${matchId}`,
+      this.httpOptions
+    );
+  }
 }
