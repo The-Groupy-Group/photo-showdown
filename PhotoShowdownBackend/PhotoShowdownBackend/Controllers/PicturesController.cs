@@ -7,9 +7,9 @@ using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.PicturesDto;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
-using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.Pictures;
 using PhotoShowdownBackend.Services.Session;
+using PhotoShowdownBackend.Utils;
 
 
 namespace PhotoShowdownBackend.Controllers;
@@ -61,7 +61,7 @@ public class PicturesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(UploadPicture)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }
 
@@ -93,7 +93,7 @@ public class PicturesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(GetMyPictures)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }
 
@@ -129,7 +129,7 @@ public class PicturesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(DeletePicture)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }
 

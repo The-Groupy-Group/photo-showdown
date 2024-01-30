@@ -6,9 +6,9 @@ using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.Users;
-using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.Session;
 using PhotoShowdownBackend.Services.Users;
+using PhotoShowdownBackend.Utils;
 using System.Net;
 
 namespace PhotoShowdownBackend.Controllers;
@@ -56,7 +56,7 @@ public class UsersController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(Register)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }
 
@@ -89,7 +89,7 @@ public class UsersController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(Login)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }
 
@@ -127,7 +127,7 @@ public class UsersController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(GetUser)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }
 

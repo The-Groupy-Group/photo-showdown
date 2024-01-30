@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
-using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Services.Matches;
 using PhotoShowdownBackend.Services.Pictures;
 using PhotoShowdownBackend.Services.Session;
 using PhotoShowdownBackend.Services.Users;
+using PhotoShowdownBackend.Utils;
 
 namespace PhotoShowdownBackend.Controllers;
 
@@ -65,7 +65,7 @@ public class MatchConnectionsController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(JoinMatch)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }
 
@@ -98,7 +98,7 @@ public class MatchConnectionsController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(LeaveMatch)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }
 }

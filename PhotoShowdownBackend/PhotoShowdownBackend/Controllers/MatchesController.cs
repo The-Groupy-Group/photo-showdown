@@ -6,11 +6,11 @@ using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
-using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Services.Matches;
 using PhotoShowdownBackend.Services.Session;
 using PhotoShowdownBackend.Services.Users;
+using PhotoShowdownBackend.Utils;
 
 namespace PhotoShowdownBackend.Controllers;
 
@@ -59,7 +59,7 @@ public class MatchesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(CreateNewMatch)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }
 
@@ -83,7 +83,7 @@ public class MatchesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(GetAllOpenMatches)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }
 
@@ -112,7 +112,7 @@ public class MatchesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(GetMatchById)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError());
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }
 }

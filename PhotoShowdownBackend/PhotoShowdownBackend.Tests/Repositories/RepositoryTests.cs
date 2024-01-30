@@ -164,7 +164,7 @@ public class RepositoryTests
         // Assert
         Assert.Equal(user!.Username, newUser.Username);
         Assert.Equal(user.Email, newUser.Email);
-        Assert.True(user.GetType() != typeof(User));
+        Assert.IsNotType<User>(user);
     }
     // ------------------- GetAllAsync ------------------- //
     [Fact]
@@ -209,13 +209,14 @@ public class RepositoryTests
         await _db.SaveChangesAsync();
 
         var repo = new Repository<User>(_db);
+
         // Act
-        var users = await repo.GetAllAsync(u => new { u.FirstName, u.LastName, u.Email});
+        var users = await repo.GetAllAsync(u => new { u.Username, u.LastName, u.Email});
 
         // Assert
         var user = users[0];
-        Assert.Equal(user!.FirstName, newUser.FirstName);
+        Assert.Equal(user!.Username, newUser.Username);
         Assert.Equal(user.Email, newUser.Email);
-        Assert.True(user.GetType() != typeof(User));
+        Assert.IsNotType<User>(user);
     }
 }
