@@ -141,6 +141,31 @@ public class RepositoryTests
         Assert.Equal(user!.Username, newUser.Username);
         Assert.Equal(user.Email, newUser.Email);
     }
+    [Fact]
+    public async Task GetAsync_Select_Returns_The_User()
+    {
+        // Arrange
+        var _db = TestUtils.GetInMemoryContext();
+
+        var newUser = new User
+        {
+            Username = "test",
+            Email = "",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("test")
+        };
+
+        _db.Users.Add(newUser);
+        await _db.SaveChangesAsync();
+
+        var repo = new Repository<User>(_db);
+        // Act
+        var user = await repo.GetAsync(u => new { u.Username , u.Email },u => u.Id == newUser.Id);
+
+        // Assert
+        Assert.Equal(user!.Username, newUser.Username);
+        Assert.Equal(user.Email, newUser.Email);
+        Assert.True(user.GetType() != typeof(User));
+    }
     // ------------------- GetAllAsync ------------------- //
     [Fact]
     public async Task GetAllAsync_Returns_The_Users()
@@ -160,11 +185,37 @@ public class RepositoryTests
 
         var repo = new Repository<User>(_db);
         // Act
-        var users = await repo.GetAllAsync();
+        var users = await repo.GetAllAsync(map: e => e);
 
         // Assert
         var user = users[0];
         Assert.Equal(user!.Username, newUser.Username);
         Assert.Equal(user.Email, newUser.Email);
+    }
+    [Fact]
+    public async Task GetAllAsync_Select_Returns_The_Users()
+    {
+        // Arrange
+        var _db = TestUtils.GetInMemoryContext();
+
+        var newUser = new User
+        {
+            Username = "test",
+            Email = "",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("test")
+        };
+
+        _db.Users.Add(newUser);
+        await _db.SaveChangesAsync();
+
+        var repo = new Repository<User>(_db);
+        // Act
+        var users = await repo.GetAllAsync(u => new { u.FirstName, u.LastName, u.Email});
+
+        // Assert
+        var user = users[0];
+        Assert.Equal(user!.FirstName, newUser.FirstName);
+        Assert.Equal(user.Email, newUser.Email);
+        Assert.True(user.GetType() != typeof(User));
     }
 }

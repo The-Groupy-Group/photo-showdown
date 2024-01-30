@@ -16,9 +16,12 @@ public class MatchesReporitory : Repository<Match>, IMatchesReporitory
     virtual public async Task<List<Match>> GetAllWithUsersAsync(Expression<Func<Match, bool>>? filter = null, bool tracked = false, int? pageNumber = null, int? pageSize = null)
     {
         IQueryable<Match> query = _dbSet;
-        query = query.Include(match => match.Owner).Include(match => match.MatchConnections).ThenInclude(mc => mc.User);
+        query = query
+            .Include(match => match.Owner)
+            .Include(match => match.MatchConnections)
+            .ThenInclude(mc => mc.User);
 
-        return await GetAllFromQueryAsync(query, filter, tracked, pageNumber, pageSize);
+        return await GetAllFromQueryAsync<Match>(query, filter,null, tracked, pageNumber, pageSize);
     }
 
     virtual public async Task<Match?> GetWithUsersAsync(Expression<Func<Match, bool>> filter, bool tracked = false)
@@ -28,7 +31,8 @@ public class MatchesReporitory : Repository<Match>, IMatchesReporitory
         {
             query = query.AsNoTracking();
         }
-        return await query.Include(match => match.Owner)
+        return await query
+            .Include(match => match.Owner)
             .Include(match => match.MatchConnections)
             .ThenInclude(mc => mc.User).Where(filter)
             .FirstOrDefaultAsync();

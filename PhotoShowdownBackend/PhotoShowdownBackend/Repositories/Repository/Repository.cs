@@ -15,6 +15,7 @@ public class Repository<T> : IRepository<T> where T : class
     internal DbSet<T> _dbSet;
 
     private const int MAX_PAGE_SIZE = 100;
+
     public Repository(PhotoShowdownDbContext db)
     {
         _db = db;
@@ -22,21 +23,40 @@ public class Repository<T> : IRepository<T> where T : class
     }
     virtual public async Task<T?> GetAsync(Expression<Func<T, bool>> filter, bool tracked = true)
     {
+        return await GetAsync(e => e, filter, tracked);
+    }
+    virtual public async Task<S?> GetAsync<S>(Expression<Func<T, S>> map, Expression<Func<T, bool>> filter, bool tracked = true)
+    {
         IQueryable<T> query = _dbSet;
         if (!tracked)
         {
             query = query.AsNoTracking();
         }
- 
-        return await query.Where(filter).FirstOrDefaultAsync();
+
+        return await query.Where(filter).Select(map).FirstOrDefaultAsync();
     }
 
     /// <inheritdoc></inheritdoc>
-    virtual public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageIndex = null, int? pageSize = null)
+    virtual public async Task<List<T>> GetAllAsync(
+        Expression<Func<T, bool>>? filter = null,
+        bool tracked = true,
+        int? pageIndex = null,
+        int? pageSize = null)
+    {
+
+        return await GetAllAsync(e => e, filter, tracked, pageIndex, pageSize);
+    }
+    /// <inheritdoc></inheritdoc>
+    virtual public async Task<List<S>> GetAllAsync<S>(
+        Expression<Func<T, S>>? map,
+        Expression<Func<T, bool>>? filter = null,
+        bool tracked = true,
+        int? pageIndex = null,
+        int? pageSize = null)
     {
         var query = _dbSet;
 
-        return await GetAllFromQueryAsync(query,filter, tracked, pageIndex, pageSize); 
+        return await GetAllFromQueryAsync(query, filter, map, tracked, pageIndex, pageSize);
     }
     virtual public async Task<T> CreateAsync(T entity)
     {
@@ -60,9 +80,15 @@ public class Repository<T> : IRepository<T> where T : class
     {
         return await _dbSet.AnyAsync(predicate);
     }
-    virtual internal async Task<List<T>> GetAllFromQueryAsync(IQueryable<T> query, Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageIndex = null, int? pageSize = null)
-    { 
-        if (filter != null)
+    virtual internal async Task<List<S>> GetAllFromQueryAsync<S>(
+        IQueryable<T> query,
+        Expression<Func<T, bool>>? filter = null,
+        Expression<Func<T, S>>? map = null,
+        bool tracked = true,
+        int? pageIndex = null,
+        int? pageSize = null)
+    {
+        if (filter is not null)
         {
             query = query.Where(filter);
         }
@@ -79,7 +105,13 @@ public class Repository<T> : IRepository<T> where T : class
 
             query = query.Skip(pageSize.Value * (pageIndex.Value)).Take(pageSize.Value);
         }
+        IQueryable<S> mappedQuery;
+        if (map is null)
+        {
+            map = e => (S)(object)e;
+        }
+        mappedQuery = query.Select(map);
 
-        return await query.ToListAsync();
+        return await mappedQuery.ToListAsync();
     }
 }

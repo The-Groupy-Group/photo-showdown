@@ -9,6 +9,7 @@ namespace PhotoShowdownBackend.Repositories.Repository;
 public interface IRepository<T> where T : class
 {
     public Task<T?> GetAsync(Expression<Func<T, bool>> filter, bool tracked = true);
+    public Task<S?> GetAsync<S>(Expression<Func<T, S>> map, Expression<Func<T, bool>> filter, bool tracked = true);
     /// <summary>
     /// 
     /// </summary>
@@ -17,7 +18,26 @@ public interface IRepository<T> where T : class
     /// <param name="pageIndex">Starting from 0</param>
     /// <param name="pageSize"></param>
     /// <returns></returns>
-    public Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, int? pageIndex = null, int? pageSize = null);
+    public Task<List<T>> GetAllAsync(
+        Expression<Func<T, bool>>? filter = null,
+        bool tracked = true,
+        int? pageIndex = null,
+        int? pageSize = null);
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <param name="map"></param>
+    /// <param name="tracked"></param>
+    /// <param name="pageIndex">Starting from 0</param>
+    /// <param name="pageSize"></param>
+    /// <returns></returns>
+    public Task<List<S>> GetAllAsync<S>(
+        Expression<Func<T, S>> map,
+        Expression<Func<T, bool>>? filter = null,
+        bool tracked = true,
+        int? pageIndex = null,
+        int? pageSize = null);
     public Task<T> CreateAsync(T entity);
     public Task<T> UpdateAsync(T entity);
     public Task<T> DeleteAsync(T entity);
