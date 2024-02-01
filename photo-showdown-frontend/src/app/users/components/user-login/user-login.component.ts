@@ -22,15 +22,9 @@ export class UserLoginComponent {
     this.username = form.value.username;
     this.password = form.value.password;
 
-    console.log(this.username);
-    console.log(this.password);
     this.authService.login(this.username, this.password).subscribe({
       next: (response) => {
         this.errorMessage = undefined;
-        console.log(response);
-        this.router.navigate(['/']).then(() => {
-          window.location.reload();
-        });
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = error.error.message;

@@ -1,10 +1,10 @@
-import { JwtService } from './../jwt-service/jwt.service';
 import { inject } from '@angular/core';
 import { MatchConnectionService } from './../../matches/services/match-connections.service';
 import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from '../auth-service/auth.service';
 
 export const isInMatchGuard: CanActivateFn = (route, state) => {
-  const jwtService = inject(JwtService);
+  const authService = inject(AuthService);
   const matchConnectionService = inject(MatchConnectionService);
   const router = inject(Router);
   const previousUrl = router.routerState.snapshot.url;
@@ -18,7 +18,7 @@ export const isInMatchGuard: CanActivateFn = (route, state) => {
     return false;
   }
 
-  const userIdString = jwtService.getTokenId();
+  const userIdString = authService.getUserId();
   const userId = parseInt(userIdString!);
 
   const splitUrl = previousUrl.split('/');
