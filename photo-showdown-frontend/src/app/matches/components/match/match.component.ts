@@ -21,18 +21,18 @@ export class MatchComponent {
 
   joinMatch() {
     const token = this.authService.getUserId();
-    if (token != undefined) {
-      let userId: number = parseInt(token);
-      let matchId: number = this.match.id;
-      this.matchConnectionService.joinMatch(userId, matchId).subscribe({
-        next: (response) => {
-          this.router.navigate(['/lobby/' + this.match.id]);
-        },
-        error: (response) => {
-          this.notifier.notify('error', response.error.message);
-        },
-      });
-    }
+
+    let userId: number = parseInt(token);
+    let matchId: number = this.match.id;
+    
+    this.matchConnectionService.joinMatch(userId, matchId).subscribe({
+      next: (response) => {
+        this.router.navigate(['/lobby/' + this.match.id]);
+      },
+      error: (response) => {
+        this.notifier.notify('error', response.error.message);
+      },
+    });
   }
 
   @Input() match!: Match;

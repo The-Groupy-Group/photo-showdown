@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { NavigationExtras, Router } from '@angular/router';
 import { MatchConnectionService } from '../../services/match-connections.service';
 import { ActivatedRoute } from '@angular/router';
 import { NotifierService } from 'angular-notifier';
@@ -14,7 +14,6 @@ import { AuthService } from 'src/app/shared/auth-service/auth.service';
 export class PreGameLobbyComponent implements OnInit {
   matchId!: number;
   userId!: number;
-  isLeavingMatch = false;
   match: Match | undefined;
   constructor(
     private readonly authService: AuthService,
@@ -26,7 +25,6 @@ export class PreGameLobbyComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.isLeavingMatch = false;
     this.route.params.subscribe((params) => {
       this.matchId = params['matchId'];
     });
