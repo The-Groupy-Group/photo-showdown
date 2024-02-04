@@ -12,4 +12,8 @@ public interface IMatchesService
     Task<List<MatchDTO>> GetAllOpenMatches();
     Task<bool> DoesMatchExists(int matchId);
     Task<MatchDTO> GetMatchById(int matchId);
+    Task JoinMatch(int userId, int matchId);
+    Task LeaveMatch(int userId, int matchId);
+    Task<bool> IsUserConnectedToMatch(int userId);
+    Task CreateMatchConnection(int userId, int matchId);
 }
