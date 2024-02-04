@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Azure;
+using Microsoft.AspNetCore.Mvc;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
@@ -6,6 +8,7 @@ using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.MatchConnections;
 using PhotoShowdownBackend.Repositories.Users;
 using PhotoShowdownBackend.Services.MatchConnections;
+using PhotoShowdownBackend.Utils;
 
 
 namespace PhotoShowdownBackend.Services.Matches;
@@ -16,24 +19,32 @@ namespace PhotoShowdownBackend.Services.Matches;
 public class MatchesService : IMatchesService
 {
     private readonly IMatchesReporitory _matchesRepo;
+    private readonly IMatchConnectionsService _matchConnectionsService;
     private readonly IMapper _mapper;
     private readonly ILogger<MatchesService> _logger;
 
 
-    public MatchesService(IMatchesReporitory matchesRepository, IMapper mapper, ILogger<MatchesService> logger)
+    public MatchesService(IMatchesReporitory matchesRepository,IMatchConnectionsService matchConnectionsService, IMapper mapper, ILogger<MatchesService> logger)
     {
         _matchesRepo = matchesRepository;
+        _matchConnectionsService = matchConnectionsService;
         _mapper = mapper;
         _logger = logger;
     }
 
     public async Task<MatchCreationResponseDTO> CreateNewMatch(int ownerId)
     {
+        if (await _matchConnectionsService.IsUserConnectedToMatch(ownerId))
+        {
+            throw new UserAlreadyConnectedException();
+        }
+
         // Map the request to a Match object
         var match = new Match()
         {
             OwnerId = ownerId
         };
+
 
         // Create the match
         await _matchesRepo.CreateAsync(match);
@@ -86,4 +97,37 @@ public class MatchesService : IMatchesService
         };
         return matchDTO;
     }
+
+    public async Task JoinMatch(int userId, int matchId)
+    {
+        if (!await DoesMatchExists(matchId))
+        {
+            throw new NotFoundException(matchId);
+        }
+
+        await _matchConnectionsService.CreateMatchConnection(userId, matchId);
+    }
+
+    public async Task LeaveMatch(int userId, int matchId)
+    {
+
+        await _matchConnectionsService.DeleteMatchConnection(userId, matchId);
+
+        if (await _matchConnectionsService.IsMatchEmpty(matchId))
+        {
+            await DeleteMatch(matchId);
+        }
+       
+    }
+
+    public async Task<bool> IsUserConnectedToMatch(int userId)
+    {
+        return await _matchConnectionsService.IsUserConnectedToMatch(userId);
+    }
+    public async Task CreateMatchConnection(int userId,int matchId)
+    {
+        await _matchConnectionsService.CreateMatchConnection(userId, matchId);
+    }
+    
+
 }
