@@ -9,78 +9,65 @@ import { PicturesService } from '../../services/pictures.service';
 @Component({
   selector: 'app-pictures-page',
   templateUrl: './pictures-page.component.html',
-  styleUrls: ['./pictures-page.component.css']
+  styleUrls: ['./pictures-page.component.css'],
 })
-export class PicturesPageComponent implements OnInit{
+export class PicturesPageComponent implements OnInit {
+  pictures: Picture[] = [];
+  file?: File;
+  errorMessage?: string;
+  imageSrc?: string;
+  isDeletable: boolean = true;
+
   constructor(
     private readonly picturesService: PicturesService,
     private readonly router: Router
   ) {}
 
-  pictures:Picture[]=[]
-  file?:File;
-  errorMessage?: string;
-  imageSrc?:string;
-  isDeletable:boolean=true;
-
-  removePicture(id:number)
-  {
-    this.pictures.find(picture=>picture.id===id)
+  removePicture(id: number) {
+    this.pictures.find((picture) => picture.id === id);
     this.pictures = [...this.pictures.filter((picture) => id !== picture.id)];
   }
-  showUpload(imagePath:string)
-  {
-    this.imageSrc=imagePath;
-    this.file=undefined;
+  showUpload(imagePath: string) {
+    this.imageSrc = imagePath;
+    this.file = undefined;
   }
-  getFile(event:Event)
-  {
+  getFile(event: Event) {
     const inputElement = event.target as HTMLInputElement;
     if (inputElement.files && inputElement.files.length > 0)
       this.file = inputElement.files[0];
   }
-  onSubmit(form: NgForm)
-  {
-
-    let formData=new FormData();
-    if(this.file==undefined)
-      {
-        this.errorMessage='Please choose a photo.'
-        return;
-      }
-    formData.append("pictureFile",this.file);
+  onSubmit(form: NgForm) {
+    let formData = new FormData();
+    if (this.file == undefined) {
+      this.errorMessage = 'Please choose a photo.';
+      return;
+    }
+    formData.append('pictureFile', this.file);
     this.picturesService.uploadPicture(formData).subscribe({
       next: (response) => {
         this.errorMessage = undefined;
         this.showUpload(response.data.picturePath);
         form.resetForm();
-
-
-
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = error.message;
-
       },
     });
   }
 
-  loadList()
-  {
-    this.pictures=[];
+  loadList() {
+    this.pictures = [];
     this.picturesService.getMyPicutres().subscribe({
+      next: (response) => {
+        console.log(response);
+        response.data.forEach((picture) => {
+          this.pictures.push({ ...picture });
+        });
+      },
+    });
+  }
 
-      next:(response)=>{
-      console.log(response);
-      response.data.forEach(picture=>{
-        this.pictures.push({...picture});
-      })
-    }
-  })
-}
-
-  ngOnInit(): void
-  {
+  ngOnInit(): void {
     this.loadList();
   }
 }

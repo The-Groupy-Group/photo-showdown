@@ -68,9 +68,14 @@ export class AuthService {
    *decodes the token_id from local storage
    * @returns string of the user's id
    */
-  public getUserId(): string {
+  public getUserId(): number {
     var JwtPayload = this.getJwtPayload();
-    return JwtPayload.Id;
+    return Number(JwtPayload.Id);
+  }
+
+  public getUsername(): string {
+    var JwtPayload = this.getJwtPayload();
+    return JwtPayload.Username;
   }
 
   public getExpirationDate(): Date {

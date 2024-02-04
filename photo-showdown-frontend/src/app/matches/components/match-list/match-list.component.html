@@ -6,7 +6,7 @@
       <button class="refreshList" color="primary" mat-raised-button (click)="loadMatches()">Refresh</button>
     </span>
     <div class="match-list"*ngIf="matches.length>0">
-      <app-match class="match-list-item" *ngFor="let match of this.matches" [match]="match"></app-match>
+      <app-match-list-item *ngFor="let match of this.matches" [match]="match" (onJoinMatch)="joinedMatch($event)"></app-match-list-item>
     </div>
 </div>
 

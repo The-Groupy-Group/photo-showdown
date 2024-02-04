@@ -7,8 +7,9 @@ import { Router } from '@angular/router';
   styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent {
-
+  username:string|undefined;
   isLoggedIn: boolean = false;
+
   constructor(
     private readonly authService: AuthService,
     private readonly router: Router
@@ -26,5 +27,6 @@ export class HeaderComponent {
 
   setStatus(): void {
     this.isLoggedIn = this.authService.isLoggedIn();
+    this.username = this.isLoggedIn ? this.authService.getUsername(): undefined;
   }
 }

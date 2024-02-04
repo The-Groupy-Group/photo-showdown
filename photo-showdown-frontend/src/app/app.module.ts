@@ -1,4 +1,3 @@
-
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
@@ -8,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import {MatToolbarModule} from '@angular/material/toolbar'
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { UserRegistrationComponent } from './users/components/user-registration/user-registration.component';
@@ -20,12 +19,11 @@ import { PicturesPageComponent } from './pictures/components/pictures-page/pictu
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { PictureComponent } from './pictures/components/picture/picture.component';
 import { MatchListComponent } from './matches/components/match-list/match-list.component';
-import { MatchComponent } from './matches/components/match/match.component';
+import { MatchListItemComponent } from './matches/components/match-list-item/match-list-item.component';
 import { NotifierModule } from 'angular-notifier';
 import { PreGameLobbyComponent } from './matches/components/pre-game-lobby/pre-game-lobby.component';
-import {MatDialogModule} from "@angular/material/dialog";
-
-
+import { MatDialogModule } from '@angular/material/dialog';
+import { GameComponent } from './matches/components/game/game.component';
 
 @NgModule({
   declarations: [
@@ -37,11 +35,9 @@ import {MatDialogModule} from "@angular/material/dialog";
     PicturesPageComponent,
     PictureComponent,
     MatchListComponent,
-    MatchComponent,
+    MatchListItemComponent,
     PreGameLobbyComponent,
-
-
-
+    GameComponent,
   ],
   imports: [
     BrowserModule,
@@ -56,15 +52,14 @@ import {MatDialogModule} from "@angular/material/dialog";
     MatToolbarModule,
     MatProgressBarModule,
     NotifierModule,
-    MatDialogModule
+    MatDialogModule,
   ],
   providers: [
     {
-      provide:HTTP_INTERCEPTORS,
-      useClass:TokenInterceptor,
-      multi:true
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenInterceptor,
+      multi: true,
     },
-
   ],
   bootstrap: [AppComponent],
 })

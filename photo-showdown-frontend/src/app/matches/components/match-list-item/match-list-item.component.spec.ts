@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MatchComponent } from './match.component';
+import { MatchListItemComponent } from './match-list-item.component';
 
 describe('MatchComponent', () => {
-  let component: MatchComponent;
-  let fixture: ComponentFixture<MatchComponent>;
+  let component: MatchListItemComponent;
+  let fixture: ComponentFixture<MatchListItemComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [MatchComponent]
+      declarations: [MatchListItemComponent],
     });
-    fixture = TestBed.createComponent(MatchComponent);
+    fixture = TestBed.createComponent(MatchListItemComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

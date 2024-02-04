@@ -12,6 +12,7 @@ export class UserLoginComponent {
   username: string = '';
   password: string = '';
   errorMessage?: string;
+  isLoading = false;
 
   constructor(
     private readonly authService: AuthService,
@@ -22,6 +23,7 @@ export class UserLoginComponent {
     this.username = form.value.username;
     this.password = form.value.password;
 
+    this.isLoading = true;
     this.authService.login(this.username, this.password).subscribe({
       next: (response) => {
         this.errorMessage = undefined;

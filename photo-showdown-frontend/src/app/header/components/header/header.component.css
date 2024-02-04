@@ -25,3 +25,8 @@ li a
   text-decoration: none;
   cursor: pointer;
 }
+
+strong
+{
+  margin: 0 10px;
+}

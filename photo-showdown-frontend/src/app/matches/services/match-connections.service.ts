@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { AuthService } from 'src/app/shared/auth-service/auth.service';
 import { EmptyAPIResponse } from 'src/app/shared/models/api-response.model';
 
 @Injectable({
@@ -9,7 +10,11 @@ import { EmptyAPIResponse } from 'src/app/shared/models/api-response.model';
 export class MatchConnectionService {
 
   readonly apiURL = 'https://localhost:7222/api/MatchConnections';
-  constructor(private http: HttpClient) {}
+  userId!: number;
+  constructor(private http: HttpClient,
+    private authService: AuthService) {
+    this.userId = this.authService.getUserId();
+    }
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
@@ -23,10 +28,10 @@ export class MatchConnectionService {
    * @param matchId the matches being joined id
    * @returns failed/worked
    */
-  joinMatch(userId:number,matchId:number):Observable<EmptyAPIResponse>
+  joinMatch(matchId:number):Observable<EmptyAPIResponse>
   {
     return this.http.post<EmptyAPIResponse>(
-      this.apiURL + `/JoinMatch?userId=${userId}&matchId=${matchId}`,
+      this.apiURL + `/JoinMatch?userId=${this.userId}&matchId=${matchId}`,
       this.httpOptions
     );
   }
@@ -37,10 +42,10 @@ export class MatchConnectionService {
    * @param matchId the matches being joined id
    * @returns failed/worked
    */
-  leaveMatch(userId:number,matchId:number)
+  leaveMatch(matchId:number)
   {
     return this.http.delete<EmptyAPIResponse>(
-      this.apiURL + `/LeaveMatch?userId=${userId}&matchId=${matchId}`,
+      this.apiURL + `/LeaveMatch?userId=${this.userId}&matchId=${matchId}`,
       this.httpOptions
     );
   }

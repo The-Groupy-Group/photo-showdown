@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { MatchesService } from '../../services/matches.service';
 import { Match } from '../../models/match.model';
 import { Router } from '@angular/router';
@@ -11,6 +11,8 @@ import { NotifierService } from 'angular-notifier';
 })
 export class MatchListComponent implements OnInit {
   matches: Match[] = [];
+  @Output() onJoinMatch: EventEmitter<number> = new EventEmitter();
+
   constructor(
     private readonly matchesService: MatchesService,
     private readonly router: Router,
@@ -20,12 +22,12 @@ export class MatchListComponent implements OnInit {
   ngOnInit(): void {
     this.loadMatches();
   }
-  
+
   createMatch() {
     this.matchesService.createNewMatch().subscribe({
       next: (response) => {
         {
-          this.router.navigate(['/lobby/' + response.data.id]);
+          this.onJoinMatch.emit(response.data.id);
         }
       },
       error: (response) => {
@@ -41,5 +43,9 @@ export class MatchListComponent implements OnInit {
         this.matches = response.data;
       },
     });
+  }
+
+  joinedMatch(matchId: number) {
+    this.onJoinMatch.emit(matchId);
   }
 }
