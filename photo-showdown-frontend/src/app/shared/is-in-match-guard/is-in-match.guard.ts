@@ -1,11 +1,11 @@
 import { inject } from '@angular/core';
-import { MatchConnectionService } from './../../matches/services/match-connections.service';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../auth-service/auth.service';
+import { MatchesService } from 'src/app/matches/services/matches.service';
 
 export const isInMatchGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
-  const matchConnectionService = inject(MatchConnectionService);
+  const matchesService = inject(MatchesService);
   const router = inject(Router);
   const previousUrl = router.routerState.snapshot.url;
 
@@ -23,7 +23,7 @@ export const isInMatchGuard: CanActivateFn = (route, state) => {
   const splitUrl = previousUrl.split('/');
   const matchId = parseInt(splitUrl[splitUrl.length - 1]);
   
-  matchConnectionService.leaveMatch(matchId).subscribe();
+  matchesService.leaveMatch(matchId).subscribe();
 
   return true;
 };

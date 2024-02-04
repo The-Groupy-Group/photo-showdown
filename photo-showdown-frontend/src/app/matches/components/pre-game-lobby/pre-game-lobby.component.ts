@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { MatchConnectionService } from '../../services/match-connections.service';
 import { NotifierService } from 'angular-notifier';
 import { MatchesService } from '../../services/matches.service';
 import { Match } from '../../models/match.model';
@@ -15,13 +14,12 @@ export class PreGameLobbyComponent implements OnInit {
   @Output() onDisconnect: EventEmitter<undefined> = new EventEmitter();
 
   constructor(
-    private readonly matchConnectionService: MatchConnectionService,
     private readonly notifier: NotifierService,
-    private readonly matchService: MatchesService
+    private readonly matchesService: MatchesService
   ) {}
 
   ngOnInit() {
-    this.matchService.getMatchById(this.matchId).subscribe({
+    this.matchesService.getMatchById(this.matchId).subscribe({
       next: (response) => {
         this.match = response.data;
       },
@@ -29,7 +27,7 @@ export class PreGameLobbyComponent implements OnInit {
   }
 
   disconnect() {
-    this.matchConnectionService.leaveMatch(this.matchId).subscribe({
+    this.matchesService.leaveMatch(this.matchId).subscribe({
       next: (response) => {
         this.onDisconnect.emit();
       },

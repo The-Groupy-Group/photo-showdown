@@ -1,6 +1,9 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { APIResponse } from 'src/app/shared/models/api-response.model';
+import {
+  APIResponse,
+  EmptyAPIResponse,
+} from 'src/app/shared/models/api-response.model';
 import { Match } from '../models/match.model';
 import { Observable } from 'rxjs';
 import { Entity } from 'src/app/shared/models/entity.model';
@@ -45,7 +48,31 @@ export class MatchesService {
    */
   getMatchById(matchId: number): Observable<APIResponse<Match>> {
     return this.http.get<APIResponse<Match>>(
-      this.apiURL + `/GetMatchById?matchId=${matchId}`,
+      this.apiURL + `/GetMatchById/${matchId}`,
+      this.httpOptions
+    );
+  }
+  /**
+   *
+   * joins the pre-game-lobby
+   * @param matchId the matches being joined id
+   * @returns failed/worked
+   */
+  joinMatch(matchId: number): Observable<EmptyAPIResponse> {
+    return this.http.post<EmptyAPIResponse>(
+      this.apiURL + `/JoinMatch/${matchId}`,
+      this.httpOptions
+    );
+  }
+  /**
+   *
+   * leaves the pre-game-lobby
+   * @param matchId the matches being joined id
+   * @returns failed/worked
+   */
+  leaveMatch(matchId: number) {
+    return this.http.delete<EmptyAPIResponse>(
+      this.apiURL + `/LeaveMatch/${matchId}`,
       this.httpOptions
     );
   }
