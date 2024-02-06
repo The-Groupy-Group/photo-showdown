@@ -184,17 +184,17 @@ public class MatchesController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(APIResponse<CurrentMatchDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetCurrentMatch()
     {
-        APIResponse<MatchDTO> response = new();
+        APIResponse<CurrentMatchDTO> response = new();
         try
         {
             int userId = _sessionService.GetCurrentUserId();     
-            var match = await _matchesService.GetMatchById(userId);
+            var match = await _matchesService.GetMatchByUserId(userId);
             response.Data = match;
             return Ok(response);
         }
