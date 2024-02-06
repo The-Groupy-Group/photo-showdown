@@ -29,6 +29,7 @@ export class UserLoginComponent {
         this.errorMessage = undefined;
       },
       error: (error: HttpErrorResponse) => {
+        this.isLoading = false;
         this.errorMessage = error.error.message;
       },
     });

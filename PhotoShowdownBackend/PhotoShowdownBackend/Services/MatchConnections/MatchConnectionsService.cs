@@ -61,4 +61,15 @@ public class MatchConnectionsService : IMatchConnectionsService
         await _matchConnectionsRepo.DeleteAsync(mc);
     }
 
+    public async Task<int> GetMatchIdByUserId(int userId)
+    {
+        MatchConnection? mc = await _matchConnectionsRepo.GetAsync(mc => mc.UserId == userId);
+
+        if (mc == null)
+        {
+            throw new UserNotConnectedToMatchException();
+        }
+
+        return mc.MatchId;
+    }
 }

@@ -24,7 +24,7 @@ public class MatchesService : IMatchesService
     private readonly ILogger<MatchesService> _logger;
 
 
-    public MatchesService(IMatchesReporitory matchesRepository,IMatchConnectionsService matchConnectionsService, IMapper mapper, ILogger<MatchesService> logger)
+    public MatchesService(IMatchesReporitory matchesRepository, IMatchConnectionsService matchConnectionsService, IMapper mapper, ILogger<MatchesService> logger)
     {
         _matchesRepo = matchesRepository;
         _matchConnectionsService = matchConnectionsService;
@@ -54,13 +54,14 @@ public class MatchesService : IMatchesService
 
         return response;
     }
-    
+
     public async Task<List<MatchDTO>> GetAllOpenMatches()
     {
         List<Match> allMatches = await _matchesRepo.GetAllWithUsersAsync(match => match.StartDate == null);
 
-        List<MatchDTO> matches = allMatches.Select(match => { 
-            var dto =  _mapper.Map<MatchDTO>(match);
+        List<MatchDTO> matches = allMatches.Select(match =>
+        {
+            var dto = _mapper.Map<MatchDTO>(match);
             dto.OwnerName = match.Owner.Username;
             dto.UsersNames = match.MatchConnections.Select(mc => mc.User.Username).ToList();
             return dto;
@@ -90,7 +91,7 @@ public class MatchesService : IMatchesService
     {
         Match? match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ?? throw new NotFoundException("Invalid match Id");
         MatchDTO matchDTO = new()
-        { 
+        {
             Id = matchId,
             OwnerName = match.Owner.Username,
             UsersNames = match.MatchConnections.Select(mc => mc.User.Username).ToList()
@@ -110,27 +111,29 @@ public class MatchesService : IMatchesService
 
     public async Task LeaveMatch(int userId, int matchId)
     {
-
         await _matchConnectionsService.DeleteMatchConnection(userId, matchId);
 
         if (await _matchConnectionsService.IsMatchEmpty(matchId))
         {
             await DeleteMatch(matchId);
         }
-       
     }
 
     public async Task<bool> IsUserConnectedToMatch(int userId)
     {
         return await _matchConnectionsService.IsUserConnectedToMatch(userId);
     }
-    public async Task CreateMatchConnection(int userId,int matchId)
+
+    public async Task CreateMatchConnection(int userId, int matchId)
     {
         await _matchConnectionsService.CreateMatchConnection(userId, matchId);
     }
+
     public async Task<CurrentMatchDTO> GetMatchByUserId(int userId)
     {
-        Match? match = await _matchesRepo.GetWithUsersAsync(m => _matchConnectionsService.IsUserInThisMatch(userId,m.Id).Result) ?? throw new NotFoundException("User currently is not in any match.");
+        int matchId = await _matchConnectionsService.GetMatchIdByUserId(userId);
+        Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ?? throw new NotFoundException("Invalid match Id");
+
         CurrentMatchDTO matchDTO = new()
         {
             Id = match.Id,
@@ -140,6 +143,4 @@ public class MatchesService : IMatchesService
         };
         return matchDTO;
     }
-    
-
 }
