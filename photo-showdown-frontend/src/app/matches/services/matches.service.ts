@@ -7,6 +7,7 @@ import {
 import { Match } from '../models/match.model';
 import { Observable } from 'rxjs';
 import { Entity } from 'src/app/shared/models/entity.model';
+import { CurrentMatch } from '../models/current-match.model';
 
 @Injectable({
   providedIn: 'root',
@@ -70,9 +71,15 @@ export class MatchesService {
    * @param matchId the matches being joined id
    * @returns failed/worked
    */
-  leaveMatch(matchId: number) {
+  leaveMatch(matchId: number): Observable<EmptyAPIResponse> {
     return this.http.delete<EmptyAPIResponse>(
       this.apiURL + `/LeaveMatch/${matchId}`,
+      this.httpOptions
+    );
+  }
+  getCurrentMatch(): Observable<APIResponse<CurrentMatch>> {
+    return this.http.get<APIResponse<CurrentMatch>>(
+      this.apiURL + '/GetCurrentMatch',
       this.httpOptions
     );
   }

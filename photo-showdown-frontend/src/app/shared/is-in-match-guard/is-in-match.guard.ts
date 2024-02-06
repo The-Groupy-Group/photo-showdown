@@ -4,7 +4,7 @@ import { AuthService } from '../auth-service/auth.service';
 import { MatchesService } from 'src/app/matches/services/matches.service';
 
 export const isInMatchGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
+  return true;
   const matchesService = inject(MatchesService);
   const router = inject(Router);
   const previousUrl = router.routerState.snapshot.url;
@@ -14,16 +14,16 @@ export const isInMatchGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  if (!window.confirm('Are you sure?')) {
+  if (!window.confirm('This action will leave the match, Are you sure?')) {
     return false;
   }
 
-  const userId = authService.getUserId();
-
-  const splitUrl = previousUrl.split('/');
-  const matchId = parseInt(splitUrl[splitUrl.length - 1]);
-  
-  matchesService.leaveMatch(matchId).subscribe();
+  matchesService.getCurrentMatch().subscribe({
+    next: (response) => {
+      matchesService.leaveMatch(response.data.id!).subscribe();
+    },
+    error: (err) => {},
+  });
 
   return true;
 };

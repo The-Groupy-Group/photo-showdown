@@ -162,7 +162,6 @@ public class MatchesController : ControllerBase
         APIResponse response = new();
         try
         {
-
             int userId = _sessionService.GetCurrentUserId();
             await _matchesService.LeaveMatch(userId, matchId);
            
@@ -204,7 +203,7 @@ public class MatchesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(LeaveMatch)} Error");
+            _logger.LogError(ex, $"{nameof(GetCurrentMatch)} Error");
             return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }

@@ -23,6 +23,10 @@ export class PicturesPageComponent implements OnInit {
     private readonly router: Router
   ) {}
 
+  ngOnInit(): void {
+    this.loadList();
+  }
+
   removePicture(id: number) {
     this.pictures.find((picture) => picture.id === id);
     this.pictures = [...this.pictures.filter((picture) => id !== picture.id)];
@@ -57,17 +61,12 @@ export class PicturesPageComponent implements OnInit {
 
   loadList() {
     this.pictures = [];
-    this.picturesService.getMyPicutres().subscribe({
+    this.picturesService.getMyPictures().subscribe({
       next: (response) => {
-        console.log(response);
         response.data.forEach((picture) => {
           this.pictures.push({ ...picture });
         });
       },
     });
-  }
-
-  ngOnInit(): void {
-    this.loadList();
   }
 }
