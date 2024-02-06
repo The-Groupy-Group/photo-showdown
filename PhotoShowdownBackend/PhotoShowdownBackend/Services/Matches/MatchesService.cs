@@ -128,6 +128,17 @@ public class MatchesService : IMatchesService
     {
         await _matchConnectionsService.CreateMatchConnection(userId, matchId);
     }
+    public async Task<MatchDTO> GetMatchByUserId(int userId)
+    {
+        Match? match = await _matchesRepo.GetWithUsersAsync(m => _matchConnectionsService.IsUserInThisMatch(userId,m.Id).Result) ?? throw new NotFoundException("User currently is not in any match.");
+        MatchDTO matchDTO = new()
+        {
+            Id = match.Id,
+            OwnerName = match.Owner.Username,
+            UsersNames = match.MatchConnections.Select(mc => mc.User.Username).ToList()
+        };
+        return matchDTO;
+    }
     
 
 }
