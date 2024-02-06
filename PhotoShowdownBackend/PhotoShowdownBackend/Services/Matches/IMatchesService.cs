@@ -1,4 +1,5 @@
 ﻿using PhotoShowdownBackend.Dtos.Matches;
+using PhotoShowdownBackend.Exceptions;
 
 namespace PhotoShowdownBackend.Services.Matches;
 
@@ -16,4 +17,6 @@ public interface IMatchesService
     Task LeaveMatch(int userId, int matchId);
     Task<bool> IsUserConnectedToMatch(int userId);
     Task CreateMatchConnection(int userId, int matchId);
+    Task<CurrentMatchDTO> GetMatchByUserId(int userId);
+    
 }

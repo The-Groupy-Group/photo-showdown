@@ -183,5 +183,29 @@ public class MatchesController : ControllerBase
         }
     }
 
-
+    [HttpGet]
+    [ProducesResponseType(typeof(APIResponse<CurrentMatchDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetCurrentMatch()
+    {
+        APIResponse<CurrentMatchDTO> response = new();
+        try
+        {
+            int userId = _sessionService.GetCurrentUserId();     
+            var match = await _matchesService.GetMatchByUserId(userId);
+            response.Data = match;
+            return Ok(response);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(LeaveMatch)} Error");
+            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
+        }
+    }
 }
