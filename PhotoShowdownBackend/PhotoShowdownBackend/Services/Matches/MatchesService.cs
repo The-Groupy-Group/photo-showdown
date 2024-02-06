@@ -136,7 +136,7 @@ public class MatchesService : IMatchesService
             Id = match.Id,
             OwnerName = match.Owner.Username,
             UsersNames = match.MatchConnections.Select(mc => mc.User.Username).ToList(),
-            HasStarted = match.StartDate != null
+            HasStarted = match.StartDate != null || DateTime.UtcNow >= match.StartDate
         };
         return matchDTO;
     }
