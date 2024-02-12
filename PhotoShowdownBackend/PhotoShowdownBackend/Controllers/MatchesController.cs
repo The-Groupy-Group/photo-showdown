@@ -218,7 +218,8 @@ public class MatchesController : ControllerBase
 
     [Route("/ws")]
     [HttpGet]
-    public async Task WebSocket()
+    [NonAction]
+    public async Task WebSocket(string token)
     {
 
         if (!HttpContext.WebSockets.IsWebSocketRequest)

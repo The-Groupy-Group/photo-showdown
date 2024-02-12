@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { NotifierService } from 'angular-notifier';
 import { MatchesService } from '../../services/matches.service';
 import { Match } from '../../models/match.model';
+import { WebSocketService } from '../../services/web-socket.service';
 
 @Component({
   selector: 'app-pre-game-lobby',
@@ -15,7 +16,8 @@ export class PreGameLobbyComponent implements OnInit {
 
   constructor(
     private readonly notifier: NotifierService,
-    private readonly matchesService: MatchesService
+    private readonly matchesService: MatchesService,
+    private readonly webSocketService: WebSocketService,
   ) {}
 
   ngOnInit() {

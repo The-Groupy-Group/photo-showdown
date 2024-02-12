@@ -18,6 +18,7 @@ using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Repositories.MatchConnections;
 using System.Text.Json.Serialization;
 using PhotoShowdownBackend.WebSockets;
+using PhotoShowdownBackend.Middlewares;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -170,5 +171,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.UseWebSockets();
+
+app.UseMiddleware<JwtMiddleware>();
 
 app.Run();
