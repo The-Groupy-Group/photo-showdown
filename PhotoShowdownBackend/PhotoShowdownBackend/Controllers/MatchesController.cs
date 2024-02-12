@@ -215,23 +215,4 @@ public class MatchesController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }
-
-    [Route("/ws")]
-    [HttpGet]
-    [NonAction]
-    public async Task WebSocket(string token)
-    {
-
-        if (!HttpContext.WebSockets.IsWebSocketRequest)
-        {
-            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-            return;
-        }
-        var socket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-        int userId = _sessionService.GetCurrentUserId();
-        var match = await _matchesService.GetMatchByUserId(userId);
-        _webSocketManager.AddSocket(userId, match.Id, socket);
-
-        await _webSocketManager.HandleWebSocket(socket, userId, match.Id);
-    }
 }
