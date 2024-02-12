@@ -63,7 +63,7 @@ public class MatchesService : IMatchesService
         {
             var dto = _mapper.Map<MatchDTO>(match);
             dto.OwnerName = match.Owner.Username;
-            dto.UsersNames = match.MatchConnections.Select(mc => mc.User.Username).ToList();
+            dto.UserNames = match.MatchConnections.Select(mc => mc.User.Username).ToList();
             return dto;
         }).ToList();
 
@@ -94,7 +94,7 @@ public class MatchesService : IMatchesService
         {
             Id = matchId,
             OwnerName = match.Owner.Username,
-            UsersNames = match.MatchConnections.Select(mc => mc.User.Username).ToList()
+            UserNames = match.MatchConnections.Select(mc => mc.User.Username).ToList()
         };
         return matchDTO;
     }
@@ -138,7 +138,7 @@ public class MatchesService : IMatchesService
         {
             Id = match.Id,
             OwnerName = match.Owner.Username,
-            UsersNames = match.MatchConnections.Select(mc => mc.User.Username).ToList(),
+            UserNames = match.MatchConnections.Select(mc => mc.User.Username).ToList(),
             HasStarted = match.StartDate != null && DateTime.UtcNow >= match.StartDate
         };
         return matchDTO;
