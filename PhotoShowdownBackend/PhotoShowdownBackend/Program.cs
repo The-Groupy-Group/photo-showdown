@@ -61,7 +61,7 @@ builder.Services.AddDbContext<PhotoShowdownDbContext>(options =>
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-}); ;
+});
 
 
 // Add services

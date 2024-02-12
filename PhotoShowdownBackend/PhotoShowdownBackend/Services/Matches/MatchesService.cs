@@ -9,6 +9,8 @@ using PhotoShowdownBackend.Repositories.MatchConnections;
 using PhotoShowdownBackend.Repositories.Users;
 using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Utils;
+using PhotoShowdownBackend.WebSockets;
+using System.Text.Json;
 
 
 namespace PhotoShowdownBackend.Services.Matches;
@@ -20,14 +22,21 @@ public class MatchesService : IMatchesService
 {
     private readonly IMatchesReporitory _matchesRepo;
     private readonly IMatchConnectionsService _matchConnectionsService;
+    private readonly WebSocketRoomManager _webSocketRoomManager;
     private readonly IMapper _mapper;
     private readonly ILogger<MatchesService> _logger;
 
 
-    public MatchesService(IMatchesReporitory matchesRepository, IMatchConnectionsService matchConnectionsService, IMapper mapper, ILogger<MatchesService> logger)
+    public MatchesService(
+        IMatchesReporitory matchesRepository,
+        IMatchConnectionsService matchConnectionsService,
+        WebSocketRoomManager webSocketRoomManager,
+        IMapper mapper,
+        ILogger<MatchesService> logger)
     {
         _matchesRepo = matchesRepository;
         _matchConnectionsService = matchConnectionsService;
+        _webSocketRoomManager = webSocketRoomManager;
         _mapper = mapper;
         _logger = logger;
     }
@@ -99,7 +108,7 @@ public class MatchesService : IMatchesService
         return matchDTO;
     }
 
-    public async Task JoinMatch(int userId, int matchId)
+    public async Task JoinMatch(int userId, int matchId, string userName)
     {
         if (!await DoesMatchExists(matchId))
         {
@@ -107,6 +116,8 @@ public class MatchesService : IMatchesService
         }
 
         await _matchConnectionsService.CreateMatchConnection(userId, matchId);
+        var wsMessage = new WebSocketMessage(userName, WebSocketMessage.MessageType.playerJoined);
+        await _webSocketRoomManager.SendMessage(userId, matchId, wsMessage.ToString());
     }
 
     public async Task LeaveMatch(int userId, int matchId)

@@ -140,7 +140,7 @@ public class MatchesController : ControllerBase
                 return NotFound(response.ErrorResponse("Invalid user Id"));
             }
 
-            await _matchesService.JoinMatch(userId, matchId);
+            await _matchesService.JoinMatch(userId, matchId, _sessionService.GetCurrentUserName());
             return Ok(response);
         }
         catch (NotFoundException ex)
