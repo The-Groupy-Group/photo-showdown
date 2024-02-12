@@ -16,6 +16,8 @@ using PhotoShowdownBackend.Repositories.Pictures;
 using PhotoShowdownBackend.Services.Matches;
 using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Repositories.MatchConnections;
+using System.Text.Json.Serialization;
+using PhotoShowdownBackend.WebSockets;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,7 +57,11 @@ builder.Services.AddDbContext<PhotoShowdownDbContext>(options =>
     }
 );
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+}); ;
+
 
 // Add services
 builder.Services.AddScoped<IUsersService, UsersService>();
@@ -70,6 +76,8 @@ builder.Services.AddScoped<IPicturesRepository, PicturesRepository>();
 builder.Services.AddScoped<IMatchesReporitory, MatchesReporitory>();
 builder.Services.AddScoped<IMatchConnectionsRepository, MatchConnectionsRepository>();
 
+// Add WebSocketManager
+builder.Services.AddSingleton<WebSocketRoomManager>();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingConfig).Assembly);
@@ -160,5 +168,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseWebSockets();
 
 app.Run();
