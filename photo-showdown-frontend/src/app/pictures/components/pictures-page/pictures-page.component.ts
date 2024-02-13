@@ -32,7 +32,7 @@ export class PicturesPageComponent implements OnInit {
     this.pictures.find((picture) => picture.id === id);
     this.pictures = [...this.pictures.filter((picture) => id !== picture.id)];
   }
-  
+
   showUpload(imagePath: string) {
     this.imageSrc = imagePath;
     this.pictureFile = undefined;
@@ -40,8 +40,10 @@ export class PicturesPageComponent implements OnInit {
 
   getFile(event: Event) {
     const inputElement = event.target as HTMLInputElement;
-    if (inputElement.files && inputElement.files.length > 0)
+    if (inputElement.files && inputElement.files.length > 0) {
+      this.showUpload(URL.createObjectURL(inputElement.files[0]));
       this.pictureFile = inputElement.files[0];
+    }
   }
 
   onSubmit(form: NgForm) {
@@ -51,8 +53,10 @@ export class PicturesPageComponent implements OnInit {
     }
     formData.append('pictureFile', this.pictureFile);
     this.picturesService.uploadPicture(formData).subscribe({
-      next: (response) => {
-        this.showUpload(response.data.picturePath);
+      next: () => {
+        this.imageSrc = undefined;
+        this.pictureFile = undefined;
+        this.loadList();
         form.resetForm();
       },
       error: (error: HttpErrorResponse) => {
