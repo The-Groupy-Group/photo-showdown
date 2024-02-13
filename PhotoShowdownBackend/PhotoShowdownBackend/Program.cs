@@ -19,6 +19,7 @@ using PhotoShowdownBackend.Repositories.MatchConnections;
 using System.Text.Json.Serialization;
 using PhotoShowdownBackend.WebSockets;
 using PhotoShowdownBackend.Middlewares;
+using System.Text.Json;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -60,7 +61,7 @@ builder.Services.AddDbContext<PhotoShowdownDbContext>(options =>
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
-    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
 });
 
 

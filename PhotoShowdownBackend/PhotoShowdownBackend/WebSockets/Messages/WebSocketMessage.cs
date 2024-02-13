@@ -12,7 +12,7 @@ public abstract class WebSocketMessage
     }
     override public string ToString()
     {
-        var res = JsonSerializer.Serialize((object)this, new JsonSerializerOptions
+        var res = JsonSerializer.Serialize<object>(this, new JsonSerializerOptions
         {
             Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

@@ -219,7 +219,8 @@ public class MatchesController : ControllerBase
     /// </summary>
     [Route("/ws")]
     [HttpGet]
-    [ProducesResponseType(typeof(PlayerJoinedWebSocketMessage), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PlayerJoinedWebSocketMessage), StatusCodes.Status101SwitchingProtocols)]
+    [ProducesResponseType(typeof(PlayerLeftWebSocketMessage), StatusCodes.Status101SwitchingProtocols)]
     public void WebSocket()
     {
         if (!HttpContext.WebSockets.IsWebSocketRequest)

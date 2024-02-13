@@ -10,6 +10,11 @@ namespace PhotoShowdownBackend.WebSockets;
 public class WebSocketRoomManager
 {
     private readonly ConcurrentDictionary<int, WebSocketRoom> ChatRooms = new();
+    private readonly ILogger<WebSocketRoomManager> _logger;
+    public WebSocketRoomManager(ILogger<WebSocketRoomManager> logger)
+    {
+        _logger = logger;
+    }
     public void AddSocket(int userId, int matchId, WebSocket socket)
     {
         WebSocketRoom room = GetOrCreateRoom(matchId);
@@ -20,8 +25,9 @@ public class WebSocketRoomManager
         WebSocketRoom room = GetOrCreateRoom(matchId);
         room.ConnectedUsers.TryRemove(userId, out _);
     }
-    public async Task SendMessage(int sendingUserId, int matchId, WebSocketMessage message)
+    public async Task SendMessageToRoom(int sendingUserId, int matchId, WebSocketMessage message)
     {
+        _logger.LogInformation("Sending web socket message by user {userId} to match {matchId}: {message}", sendingUserId, matchId, message);
         if (ChatRooms.TryGetValue(matchId, out var room))
         {
             foreach (var (userId, userSocket) in room.ConnectedUsers)
@@ -29,6 +35,10 @@ public class WebSocketRoomManager
                 if (userId != sendingUserId)
                     await userSocket.SendMessageAsync(message.ToString());
             }
+        }
+        else
+        {
+            _logger.LogWarning("Match {matchId} not found", matchId);
         }
     }
     public async Task HandleWebSocket(WebSocket webSocket, int userId, int matchId)

@@ -119,7 +119,7 @@ public class MatchesService : IMatchesService
         await _matchConnectionsService.CreateMatchConnection(userId, matchId);
 
         var wsMessage = new PlayerJoinedWebSocketMessage(userName);
-        await _webSocketRoomManager.SendMessage(userId, matchId, wsMessage);
+        await _webSocketRoomManager.SendMessageToRoom(userId, matchId, wsMessage);
     }
 
     public async Task LeaveMatch(int userId, int matchId, string userName)
@@ -127,7 +127,7 @@ public class MatchesService : IMatchesService
         await _matchConnectionsService.DeleteMatchConnection(userId, matchId);
 
         var wsMessage = new PlayerLeftWebSocketMessage(userName);
-        await _webSocketRoomManager.SendMessage(userId, matchId, wsMessage);
+        await _webSocketRoomManager.SendMessageToRoom(userId, matchId, wsMessage);
         await _webSocketRoomManager.CloseConnection(userId, matchId);
 
         if (await _matchConnectionsService.IsMatchEmpty(matchId))
