@@ -2,8 +2,7 @@
 <mat-card class="upload-menu">
   <form class="form" (submit)="onSubmit(pictureForm)" enctype="multipart/form-data" #pictureForm="ngForm">
       <input type="file" class="file-button"  [accept]="'image/jpeg,image/png'"  name="file" (change)="getFile($event)" ngModel required placeholder="Please choose a file">
-      <button mat-raised-button color="primary" type="submit">upload</button>
-      <mat-error *ngIf="errorMessage">{{errorMessage}}</mat-error>
+      <button mat-raised-button color="primary" type="submit" [disabled]="this.pictureFile == undefined">upload</button>
   </form>
   </mat-card>
   <div class="upload-container" *ngIf="imageSrc!=null">
@@ -13,10 +12,5 @@
     <app-picture class="picture-item" *ngFor="let picture of this.pictures" [picture]="picture"
       [allowDelete]="isDeletable"
       (onDeletePicture)="removePicture($event)">
-
     </app-picture>
-
   </div>
-
-
-

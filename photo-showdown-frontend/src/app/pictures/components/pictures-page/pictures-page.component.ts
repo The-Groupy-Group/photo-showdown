@@ -5,6 +5,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PicturesService } from '../../services/pictures.service';
+import { NotifierService } from 'angular-notifier';
 
 @Component({
   selector: 'app-pictures-page',
@@ -13,13 +14,13 @@ import { PicturesService } from '../../services/pictures.service';
 })
 export class PicturesPageComponent implements OnInit {
   pictures: Picture[] = [];
-  file?: File;
-  errorMessage?: string;
+  pictureFile?: File;
   imageSrc?: string;
   isDeletable: boolean = true;
 
   constructor(
     private readonly picturesService: PicturesService,
+    private readonly notifier: NotifierService,
     private readonly router: Router
   ) {}
 
@@ -31,30 +32,31 @@ export class PicturesPageComponent implements OnInit {
     this.pictures.find((picture) => picture.id === id);
     this.pictures = [...this.pictures.filter((picture) => id !== picture.id)];
   }
+  
   showUpload(imagePath: string) {
     this.imageSrc = imagePath;
-    this.file = undefined;
+    this.pictureFile = undefined;
   }
+
   getFile(event: Event) {
     const inputElement = event.target as HTMLInputElement;
     if (inputElement.files && inputElement.files.length > 0)
-      this.file = inputElement.files[0];
+      this.pictureFile = inputElement.files[0];
   }
+
   onSubmit(form: NgForm) {
     let formData = new FormData();
-    if (this.file == undefined) {
-      this.errorMessage = 'Please choose a photo.';
-      return;
+    if (this.pictureFile == undefined) {
+      throw new Error('No file selected');
     }
-    formData.append('pictureFile', this.file);
+    formData.append('pictureFile', this.pictureFile);
     this.picturesService.uploadPicture(formData).subscribe({
       next: (response) => {
-        this.errorMessage = undefined;
         this.showUpload(response.data.picturePath);
         form.resetForm();
       },
       error: (error: HttpErrorResponse) => {
-        this.errorMessage = error.message;
+        this.notifier.notify('error', error.error.message);
       },
     });
   }
