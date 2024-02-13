@@ -19,7 +19,6 @@ public class MatchConnectionsService : IMatchConnectionsService
         _mapper = mapper;
         _logger = logger;
     }
-
     public async Task CreateMatchConnection(int userId, int matchId)
     {
 
@@ -36,7 +35,6 @@ public class MatchConnectionsService : IMatchConnectionsService
 
         await _matchConnectionsRepo.CreateAsync(matchConnection);
     }
-
     public async Task<bool> IsUserConnectedToMatch(int userId)
     {
         return await _matchConnectionsRepo.AnyAsync(mc => mc.UserId == userId);
@@ -60,7 +58,6 @@ public class MatchConnectionsService : IMatchConnectionsService
 
         await _matchConnectionsRepo.DeleteAsync(mc);
     }
-
     public async Task<int> GetMatchIdByUserId(int userId)
     {
         MatchConnection? mc = await _matchConnectionsRepo.GetAsync(mc => mc.UserId == userId);

@@ -169,7 +169,7 @@ public class MatchesController : ControllerBase
         {
             int userId = _sessionService.GetCurrentUserId();
             string userName = _sessionService.GetCurrentUserName();
-            await _matchesService.LeaveMatch(userId, matchId, userName);
+            await _matchesService.RemoveFromMatch(userId, matchId, userName);
 
             return Ok(response);
         }

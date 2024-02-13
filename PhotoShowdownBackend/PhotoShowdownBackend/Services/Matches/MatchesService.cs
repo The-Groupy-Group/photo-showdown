@@ -122,7 +122,7 @@ public class MatchesService : IMatchesService
         await _webSocketRoomManager.SendMessageToRoom(userId, matchId, wsMessage);
     }
 
-    public async Task LeaveMatch(int userId, int matchId, string userName)
+    public async Task RemoveFromMatch(int userId, int matchId, string userName)
     {
         await _matchConnectionsService.DeleteMatchConnection(userId, matchId);
 
