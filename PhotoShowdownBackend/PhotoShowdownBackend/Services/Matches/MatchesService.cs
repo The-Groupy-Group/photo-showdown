@@ -149,7 +149,7 @@ public class MatchesService : IMatchesService
     public async Task<CurrentMatchDTO> GetMatchByUserId(int userId)
     {
         int matchId = await _matchConnectionsService.GetMatchIdByUserId(userId);
-        Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ?? throw new NotFoundException("Invalid match Id");
+        Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId);
 
         CurrentMatchDTO matchDTO = new()
         {

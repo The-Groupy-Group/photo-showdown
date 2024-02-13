@@ -203,7 +203,7 @@ public class MatchesController : ControllerBase
             response.Data = match;
             return Ok(response);
         }
-        catch (NotFoundException ex)
+        catch (UserNotConnectedToMatchException ex)
         {
             return NotFound(response.ErrorResponse(ex.Message));
         }
