@@ -14,7 +14,7 @@ import { NotifierService } from 'angular-notifier';
 })
 export class PicturesPageComponent implements OnInit {
   usersPictures: Picture[] = [];
-  pictureFileToUpload?: File;
+  pictureFileToUpload?: File = undefined;
   pictureDisplayURL?: string;
   isDeletable: boolean = true;
 
@@ -29,7 +29,9 @@ export class PicturesPageComponent implements OnInit {
 
   removePicture(id: number) {
     this.usersPictures.find((picture) => picture.id === id);
-    this.usersPictures = [...this.usersPictures.filter((picture) => id !== picture.id)];
+    this.usersPictures = [
+      ...this.usersPictures.filter((picture) => id !== picture.id),
+    ];
   }
 
   showUpload(imagePath: string) {
@@ -59,6 +61,7 @@ export class PicturesPageComponent implements OnInit {
         form.resetForm();
       },
       error: (error: HttpErrorResponse) => {
+        console.error(error);
         this.notifier.notify('error', error.error.message);
       },
     });
