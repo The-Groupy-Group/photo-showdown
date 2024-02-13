@@ -13,15 +13,14 @@ import { NotifierService } from 'angular-notifier';
   styleUrls: ['./pictures-page.component.css'],
 })
 export class PicturesPageComponent implements OnInit {
-  pictures: Picture[] = [];
-  pictureFile?: File;
-  imageSrc?: string;
+  usersPictures: Picture[] = [];
+  pictureFileToUpload?: File;
+  pictureDisplayURL?: string;
   isDeletable: boolean = true;
 
   constructor(
     private readonly picturesService: PicturesService,
-    private readonly notifier: NotifierService,
-    private readonly router: Router
+    private readonly notifier: NotifierService
   ) {}
 
   ngOnInit(): void {
@@ -29,33 +28,33 @@ export class PicturesPageComponent implements OnInit {
   }
 
   removePicture(id: number) {
-    this.pictures.find((picture) => picture.id === id);
-    this.pictures = [...this.pictures.filter((picture) => id !== picture.id)];
+    this.usersPictures.find((picture) => picture.id === id);
+    this.usersPictures = [...this.usersPictures.filter((picture) => id !== picture.id)];
   }
 
   showUpload(imagePath: string) {
-    this.imageSrc = imagePath;
-    this.pictureFile = undefined;
+    this.pictureDisplayURL = imagePath;
+    this.pictureFileToUpload = undefined;
   }
 
   getFile(event: Event) {
     const inputElement = event.target as HTMLInputElement;
     if (inputElement.files && inputElement.files.length > 0) {
       this.showUpload(URL.createObjectURL(inputElement.files[0]));
-      this.pictureFile = inputElement.files[0];
+      this.pictureFileToUpload = inputElement.files[0];
     }
   }
 
   onSubmit(form: NgForm) {
     let formData = new FormData();
-    if (this.pictureFile == undefined) {
+    if (this.pictureFileToUpload == undefined) {
       throw new Error('No file selected');
     }
-    formData.append('pictureFile', this.pictureFile);
+    formData.append('pictureFile', this.pictureFileToUpload);
     this.picturesService.uploadPicture(formData).subscribe({
       next: () => {
-        this.imageSrc = undefined;
-        this.pictureFile = undefined;
+        this.pictureDisplayURL = undefined;
+        this.pictureFileToUpload = undefined;
         this.loadList();
         form.resetForm();
       },
@@ -66,11 +65,11 @@ export class PicturesPageComponent implements OnInit {
   }
 
   loadList() {
-    this.pictures = [];
+    this.usersPictures = [];
     this.picturesService.getMyPictures().subscribe({
       next: (response) => {
         response.data.forEach((picture) => {
-          this.pictures.push({ ...picture });
+          this.usersPictures.push({ ...picture });
         });
       },
     });

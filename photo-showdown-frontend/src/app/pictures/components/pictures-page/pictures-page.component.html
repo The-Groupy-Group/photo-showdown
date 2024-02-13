@@ -1,24 +1,46 @@
-
 <mat-card class="upload-menu">
-  <form class="form" (submit)="onSubmit(pictureForm)" enctype="multipart/form-data" #pictureForm="ngForm">
-      <input 
-      type="file" 
-      class="file-button"  
-      [accept]="'image/jpeg,image/png'"  
-      name="file" 
-      (change)="getFile($event)" 
-      ngModel 
-      required 
-      placeholder="Please choose a file">
-      <button mat-raised-button color="primary" type="submit" [disabled]="this.pictureFile == undefined">upload</button>
+  <form
+    class="form"
+    (submit)="onSubmit(pictureForm)"
+    enctype="multipart/form-data"
+    #pictureForm="ngForm"
+  >
+    <input
+      type="file"
+      class="file-button"
+      [accept]="'image/jpeg,image/png'"
+      name="file"
+      (change)="getFile($event)"
+      ngModel
+      required
+      placeholder="Please choose a file"
+    />
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="this.usersPictures == undefined"
+    >
+      upload
+    </button>
   </form>
-  </mat-card>
-  <div class="upload-container" *ngIf="imageSrc!=null">
-    <img mat-card-image name="uploaded-picture" class="uploaded-picture" #uploadedPicture [src]="imageSrc">
+  <div class="upload-container" *ngIf="pictureDisplayURL != null">
+    <img
+      mat-card-image
+      name="uploaded-picture"
+      class="uploaded-picture"
+      #uploadedPicture
+      [src]="pictureDisplayURL"
+    />
   </div>
-  <div class="pictures-container" *ngIf="pictures.length > 0">
-    <app-picture class="picture-item" *ngFor="let picture of this.pictures" [picture]="picture"
-      [allowDelete]="isDeletable"
-      (onDeletePicture)="removePicture($event)">
-    </app-picture>
-  </div>
+</mat-card>
+<div class="pictures-container" *ngIf="usersPictures.length > 0">
+  <app-picture
+    class="picture-item"
+    *ngFor="let picture of this.usersPictures"
+    [picture]="picture"
+    [allowDelete]="isDeletable"
+    (onDeletePicture)="removePicture($event)"
+  >
+  </app-picture>
+</div>
