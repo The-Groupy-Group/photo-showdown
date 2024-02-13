@@ -1,16 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Win32;
 using PhotoShowdownBackend.Dtos.Matches;
-using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
-using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Services.Matches;
 using PhotoShowdownBackend.Services.Session;
 using PhotoShowdownBackend.Services.Users;
 using PhotoShowdownBackend.Utils;
+using PhotoShowdownBackend.WebSockets;
+using PhotoShowdownBackend.WebSockets.Messages;
 
 namespace PhotoShowdownBackend.Controllers;
 
@@ -21,13 +19,20 @@ public class MatchesController : ControllerBase
 {
     private readonly IMatchesService _matchesService;
     private readonly IUsersService _usersService;
+    private readonly WebSocketRoomManager _webSocketManager;
     private readonly ISessionService _sessionService;
     private readonly ILogger<MatchesController> _logger;
 
-    public MatchesController(IMatchesService matchesService,IUsersService usersService, ISessionService sessionService, ILogger<MatchesController> logger)
+    public MatchesController(
+        IMatchesService matchesService,
+        IUsersService usersService,
+        WebSocketRoomManager webSocketManager,
+        ISessionService sessionService,
+        ILogger<MatchesController> logger)
     {
         _matchesService = matchesService;
         _usersService = usersService;
+        _webSocketManager = webSocketManager;
         _sessionService = sessionService;
         _logger = logger;
     }
@@ -97,14 +102,14 @@ public class MatchesController : ControllerBase
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetMatchById(int matchId)
     {
-        APIResponse <MatchDTO> response = new();
+        APIResponse<MatchDTO> response = new();
         try
         {
             var match = await _matchesService.GetMatchById(matchId);
             response.Data = match;
             return Ok(response);
         }
-        catch(NotFoundException ex)
+        catch (NotFoundException ex)
         {
             return NotFound(response.ErrorResponse(ex.Message));
         }
@@ -132,7 +137,7 @@ public class MatchesController : ControllerBase
                 return NotFound(response.ErrorResponse("Invalid user Id"));
             }
 
-            await _matchesService.JoinMatch(userId, matchId);
+            await _matchesService.JoinMatch(userId, matchId, _sessionService.GetCurrentUserName());
             return Ok(response);
         }
         catch (NotFoundException ex)
@@ -163,8 +168,9 @@ public class MatchesController : ControllerBase
         try
         {
             int userId = _sessionService.GetCurrentUserId();
-            await _matchesService.LeaveMatch(userId, matchId);
-           
+            string userName = _sessionService.GetCurrentUserName();
+            await _matchesService.LeaveMatch(userId, matchId, userName);
+
             return Ok(response);
         }
         catch (UserAlreadyConnectedException ex)
@@ -192,12 +198,12 @@ public class MatchesController : ControllerBase
         APIResponse<CurrentMatchDTO> response = new();
         try
         {
-            int userId = _sessionService.GetCurrentUserId();     
+            int userId = _sessionService.GetCurrentUserId();
             var match = await _matchesService.GetMatchByUserId(userId);
             response.Data = match;
             return Ok(response);
         }
-        catch (NotFoundException ex)
+        catch (UserNotConnectedToMatchException ex)
         {
             return NotFound(response.ErrorResponse(ex.Message));
         }
@@ -205,6 +211,20 @@ public class MatchesController : ControllerBase
         {
             _logger.LogError(ex, $"{nameof(GetCurrentMatch)} Error");
             return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
+        }
+    }
+
+    /// <summary>
+    /// This is the endpoint for the web socket
+    /// </summary>
+    [Route("/ws")]
+    [HttpGet]
+    [ProducesResponseType(typeof(PlayerJoinedWebSocketMessage), StatusCodes.Status200OK)]
+    public void WebSocket()
+    {
+        if (!HttpContext.WebSockets.IsWebSocketRequest)
+        {
+            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
         }
     }
 }

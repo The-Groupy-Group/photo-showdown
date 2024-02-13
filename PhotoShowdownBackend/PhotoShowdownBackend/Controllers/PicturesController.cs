@@ -10,6 +10,7 @@ using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Services.Pictures;
 using PhotoShowdownBackend.Services.Session;
 using PhotoShowdownBackend.Utils;
+using PhotoShowdownBackend.WebSockets.Messages;
 
 
 namespace PhotoShowdownBackend.Controllers;

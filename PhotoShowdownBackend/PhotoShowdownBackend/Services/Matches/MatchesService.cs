@@ -9,6 +9,9 @@ using PhotoShowdownBackend.Repositories.MatchConnections;
 using PhotoShowdownBackend.Repositories.Users;
 using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Utils;
+using PhotoShowdownBackend.WebSockets;
+using PhotoShowdownBackend.WebSockets.Messages;
+using System.Text.Json;
 
 
 namespace PhotoShowdownBackend.Services.Matches;
@@ -20,14 +23,21 @@ public class MatchesService : IMatchesService
 {
     private readonly IMatchesReporitory _matchesRepo;
     private readonly IMatchConnectionsService _matchConnectionsService;
+    private readonly WebSocketRoomManager _webSocketRoomManager;
     private readonly IMapper _mapper;
     private readonly ILogger<MatchesService> _logger;
 
 
-    public MatchesService(IMatchesReporitory matchesRepository, IMatchConnectionsService matchConnectionsService, IMapper mapper, ILogger<MatchesService> logger)
+    public MatchesService(
+        IMatchesReporitory matchesRepository,
+        IMatchConnectionsService matchConnectionsService,
+        WebSocketRoomManager webSocketRoomManager,
+        IMapper mapper,
+        ILogger<MatchesService> logger)
     {
         _matchesRepo = matchesRepository;
         _matchConnectionsService = matchConnectionsService;
+        _webSocketRoomManager = webSocketRoomManager;
         _mapper = mapper;
         _logger = logger;
     }
@@ -63,7 +73,7 @@ public class MatchesService : IMatchesService
         {
             var dto = _mapper.Map<MatchDTO>(match);
             dto.OwnerName = match.Owner.Username;
-            dto.UsersNames = match.MatchConnections.Select(mc => mc.User.Username).ToList();
+            dto.UserNames = match.MatchConnections.Select(mc => mc.User.Username).ToList();
             return dto;
         }).ToList();
 
@@ -94,12 +104,12 @@ public class MatchesService : IMatchesService
         {
             Id = matchId,
             OwnerName = match.Owner.Username,
-            UsersNames = match.MatchConnections.Select(mc => mc.User.Username).ToList()
+            UserNames = match.MatchConnections.Select(mc => mc.User.Username).ToList()
         };
         return matchDTO;
     }
 
-    public async Task JoinMatch(int userId, int matchId)
+    public async Task JoinMatch(int userId, int matchId, string userName)
     {
         if (!await DoesMatchExists(matchId))
         {
@@ -107,11 +117,18 @@ public class MatchesService : IMatchesService
         }
 
         await _matchConnectionsService.CreateMatchConnection(userId, matchId);
+
+        var wsMessage = new PlayerJoinedWebSocketMessage(userName);
+        await _webSocketRoomManager.SendMessage(userId, matchId, wsMessage);
     }
 
-    public async Task LeaveMatch(int userId, int matchId)
+    public async Task LeaveMatch(int userId, int matchId, string userName)
     {
         await _matchConnectionsService.DeleteMatchConnection(userId, matchId);
+
+        var wsMessage = new PlayerLeftWebSocketMessage(userName);
+        await _webSocketRoomManager.SendMessage(userId, matchId, wsMessage);
+        await _webSocketRoomManager.CloseConnection(userId, matchId);
 
         if (await _matchConnectionsService.IsMatchEmpty(matchId))
         {
@@ -132,13 +149,13 @@ public class MatchesService : IMatchesService
     public async Task<CurrentMatchDTO> GetMatchByUserId(int userId)
     {
         int matchId = await _matchConnectionsService.GetMatchIdByUserId(userId);
-        Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ?? throw new NotFoundException("Invalid match Id");
+        Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId);
 
         CurrentMatchDTO matchDTO = new()
         {
             Id = match.Id,
             OwnerName = match.Owner.Username,
-            UsersNames = match.MatchConnections.Select(mc => mc.User.Username).ToList(),
+            UserNames = match.MatchConnections.Select(mc => mc.User.Username).ToList(),
             HasStarted = match.StartDate != null && DateTime.UtcNow >= match.StartDate
         };
         return matchDTO;

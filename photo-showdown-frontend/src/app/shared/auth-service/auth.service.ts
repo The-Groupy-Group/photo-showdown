@@ -94,4 +94,8 @@ export class AuthService {
     }
     return jwt_decode(jwt);
   }
+
+  public getJwtToken(): string {
+    return localStorage.getItem('id_token') || '';
+  }
 }
