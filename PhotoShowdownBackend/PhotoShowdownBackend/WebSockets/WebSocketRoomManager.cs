@@ -1,9 +1,9 @@
 ﻿using PhotoShowdownBackend.Extentions;
+using PhotoShowdownBackend.WebSockets.Messages;
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace PhotoShowdownBackend.WebSockets;
 
@@ -20,14 +20,14 @@ public class WebSocketRoomManager
         WebSocketRoom room = GetOrCreateRoom(matchId);
         room.ConnectedUsers.TryRemove(userId, out _);
     }
-    public async Task SendMessage(int sendingUserId, int matchId, string message)
+    public async Task SendMessage(int sendingUserId, int matchId, WebSocketMessage message)
     {
         if (ChatRooms.TryGetValue(matchId, out var room))
         {
             foreach (var (userId, userSocket) in room.ConnectedUsers)
             {
                 if (userId != sendingUserId)
-                    await userSocket.SendMessageAsync(message);
+                    await userSocket.SendMessageAsync(message.ToString());
             }
         }
     }
@@ -47,6 +47,17 @@ public class WebSocketRoomManager
             if (result.MessageType == WebSocketMessageType.Close)
             {
                 await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                RemoveSocket(userId, matchId);
+            }
+        }
+    }
+    public async Task CloseConnection(int userId, int matchId)
+    {
+        if (ChatRooms.TryGetValue(matchId, out var room))
+        {
+            if (room.ConnectedUsers.TryGetValue(userId, out var socket))
+            {
+                await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "undfined", CancellationToken.None);
                 RemoveSocket(userId, matchId);
             }
         }

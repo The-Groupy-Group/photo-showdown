@@ -172,6 +172,6 @@ app.MapControllers();
 
 app.UseWebSockets();
 
-app.UseMiddleware<JwtMiddleware>();
+app.UseMiddleware<WebSocketHandlerMiddleware>();
 
 app.Run();

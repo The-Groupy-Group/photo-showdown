@@ -3,7 +3,11 @@ import { NotifierService } from 'angular-notifier';
 import { MatchesService } from '../../services/matches.service';
 import { Match } from '../../models/match.model';
 import { WebSocketService } from '../../services/web-socket.service';
-import { WebSocketMessageType } from '../../models/web-socket-message-type.enum';
+import {
+  PlayerJoinedWebSocketMessage,
+  PlayerLeftWebSocketMessage,
+  WebSocketMessageType,
+} from '../../models/web-socket-message.model';
 
 @Component({
   selector: 'app-pre-game-lobby',
@@ -27,10 +31,17 @@ export class PreGameLobbyComponent implements OnInit {
         this.match = response.data;
       },
     });
-    this.webSocketService.onWebSocketEvent(
+    this.webSocketService.onWebSocketEvent<PlayerJoinedWebSocketMessage>(
       WebSocketMessageType.playerJoined,
       (wsMessage) => {
-        this.match?.userNames.push(wsMessage.data);
+        this.match?.userNames.push(wsMessage.userName);
+      }
+    );
+    this.webSocketService.onWebSocketEvent<PlayerLeftWebSocketMessage>(
+      WebSocketMessageType.playerLeft,
+      (wsMessage) => {
+        const index = this.match?.userNames.indexOf(wsMessage.userName);
+        if (index != undefined) this.match?.userNames.splice(index, 1);
       }
     );
   }

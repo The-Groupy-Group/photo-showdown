@@ -1,22 +1,20 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace PhotoShowdownBackend.WebSockets;
+namespace PhotoShowdownBackend.WebSockets.Messages;
 
-public class WebSocketMessage
+public abstract class WebSocketMessage
 {
     public MessageType Type { get; set; }
-    public object Data { get; set; }
-    public WebSocketMessage(object date, MessageType type)
+    public WebSocketMessage(MessageType type)
     {
-        Data = date;
         Type = type;
     }
     override public string ToString()
     {
-        var res = JsonSerializer.Serialize(this, new JsonSerializerOptions
+        var res = JsonSerializer.Serialize((object)this, new JsonSerializerOptions
         {
-            Converters = { new JsonStringEnumConverter() },
+            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             WriteIndented = true // Optional: Set to true if you want an indented JSON string
         });
@@ -24,6 +22,7 @@ public class WebSocketMessage
     }
     public enum MessageType
     {
-        playerJoined,
+        PlayerJoined,
+        PlayerLeft,
     }
 }

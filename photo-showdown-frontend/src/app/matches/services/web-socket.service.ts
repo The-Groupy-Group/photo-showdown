@@ -7,7 +7,7 @@ import {
 import { Observable } from 'rxjs';
 import { AuthService } from 'src/app/shared/auth-service/auth.service';
 import { WebSocketMessage } from '../models/web-socket-message.model';
-import { WebSocketMessageType } from '../models/web-socket-message-type.enum';
+import { WebSocketMessageType } from '../models/web-socket-message.model';
 
 @Injectable({
   providedIn: 'root',
@@ -24,15 +24,14 @@ export class WebSocketService {
     this.socket$.next(message);
   }
 
-  receiveMessages(): Observable<WebSocketMessage> {
+  receiveMessages<T extends WebSocketMessage = WebSocketMessage>(): Observable<T> {
     return this.socket$.asObservable();
   }
-  onWebSocketEvent(
+  onWebSocketEvent<T extends WebSocketMessage = WebSocketMessage>(
     type: WebSocketMessageType,
-    f: (wsMessage: WebSocketMessage) => void
+    f: (wsMessage: T) => void
   ): void {
-    this.receiveMessages().subscribe((message) => {
-      console.log(JSON.stringify(message));
+    this.receiveMessages<T>().subscribe((message) => {
       if (message.type === type) {
         f(message);
       }

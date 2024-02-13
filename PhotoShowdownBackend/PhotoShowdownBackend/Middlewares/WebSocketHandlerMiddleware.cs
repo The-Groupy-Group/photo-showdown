@@ -12,12 +12,12 @@ using System.Threading.Tasks;
 namespace PhotoShowdownBackend.Middlewares;
 
 
-public class JwtMiddleware
+public class WebSocketHandlerMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly IConfiguration _configuration;
 
-    public JwtMiddleware(RequestDelegate next, IConfiguration configuration)
+    public WebSocketHandlerMiddleware(RequestDelegate next, IConfiguration configuration)
     {
         _next = next;
         _configuration = configuration;

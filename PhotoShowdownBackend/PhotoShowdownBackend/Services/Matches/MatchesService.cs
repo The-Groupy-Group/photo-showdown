@@ -10,6 +10,7 @@ using PhotoShowdownBackend.Repositories.Users;
 using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Utils;
 using PhotoShowdownBackend.WebSockets;
+using PhotoShowdownBackend.WebSockets.Messages;
 using System.Text.Json;
 
 
@@ -116,13 +117,18 @@ public class MatchesService : IMatchesService
         }
 
         await _matchConnectionsService.CreateMatchConnection(userId, matchId);
-        var wsMessage = new WebSocketMessage(userName, WebSocketMessage.MessageType.playerJoined);
-        await _webSocketRoomManager.SendMessage(userId, matchId, wsMessage.ToString());
+
+        var wsMessage = new PlayerJoinedWebSocketMessage(userName);
+        await _webSocketRoomManager.SendMessage(userId, matchId, wsMessage);
     }
 
-    public async Task LeaveMatch(int userId, int matchId)
+    public async Task LeaveMatch(int userId, int matchId, string userName)
     {
         await _matchConnectionsService.DeleteMatchConnection(userId, matchId);
+
+        var wsMessage = new PlayerLeftWebSocketMessage(userName);
+        await _webSocketRoomManager.SendMessage(userId, matchId, wsMessage);
+        await _webSocketRoomManager.CloseConnection(userId, matchId);
 
         if (await _matchConnectionsService.IsMatchEmpty(matchId))
         {

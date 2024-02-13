@@ -1,6 +1,16 @@
-import { WebSocketMessageType } from './web-socket-message-type.enum';
-
 export interface WebSocketMessage {
   type: WebSocketMessageType;
-  data: any;
+}
+
+export interface PlayerJoinedWebSocketMessage extends WebSocketMessage {
+  userName: string;
+}
+
+export interface PlayerLeftWebSocketMessage extends WebSocketMessage {
+  userName: string;
+}
+
+export enum WebSocketMessageType {
+  playerJoined = 'playerJoined',
+  playerLeft = 'playerLeft',
 }
