@@ -116,17 +116,35 @@ public class MatchesService : IMatchesService
         await _webSocketRoomManager.SendMessageToRoom(user.Id, matchId, wsMessage);
     }
 
-    public async Task RemoveUserFromMatch(UserPublicDetailsDTO user, int matchId)
+    public async Task RemoveUserFromMatch(UserPublicDetailsDTO userToRemove, int matchId)
     {
-        await _matchConnectionsService.DeleteMatchConnection(user.Id, matchId);
+        // Delete the connection
+        await _matchConnectionsService.DeleteMatchConnection(userToRemove.Id, matchId);
 
-        var wsMessage = new PlayerLeftWebSocketMessage(user);
-        await _webSocketRoomManager.SendMessageToRoom(user.Id, matchId, wsMessage);
-        await _webSocketRoomManager.CloseConnection(user.Id, matchId);
-
+        // If the match is empty, delete it
         if (await _matchConnectionsService.IsMatchEmpty(matchId))
         {
             await DeleteMatch(matchId);
+            return;
+        }
+
+        // Send a message to the room
+        var playerLeftWsMessage = new PlayerLeftWebSocketMessage(userToRemove);
+        await _webSocketRoomManager.SendMessageToRoom(userToRemove.Id, matchId, playerLeftWsMessage);
+        await _webSocketRoomManager.CloseConnection(userToRemove.Id, matchId);
+
+        Match match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId))!;
+        // If the leaving user is the owner, assign a new owner
+        if (match.OwnerId == userToRemove.Id)
+        {
+            var newOwner = match.MatchConnections.First().User;
+            match.OwnerId = newOwner.Id;
+            await _matchesRepo.UpdateAsync(match);
+
+            // Send a message to the room
+            var newOwnerWsMessage = new NewOwnerWebSocketMessage(_mapper.Map<UserPublicDetailsDTO>(newOwner));
+            await _webSocketRoomManager.SendMessageToRoom(userToRemove.Id, matchId, newOwnerWsMessage);
+            await _webSocketRoomManager.CloseConnection(userToRemove.Id, matchId);
         }
     }
 

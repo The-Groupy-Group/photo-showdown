@@ -4,6 +4,7 @@ import { MatchesService } from '../../services/matches.service';
 import { Match } from '../../models/match.model';
 import { WebSocketService } from '../../services/web-socket.service';
 import {
+  NewOwnerWebSocketMessage,
   PlayerJoinedWebSocketMessage,
   PlayerLeftWebSocketMessage,
   WebSocketMessageType,
@@ -26,23 +27,35 @@ export class PreGameLobbyComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Get the match details
     this.matchesService.getMatchById(this.matchId).subscribe({
       next: (response) => {
         this.match = response.data;
       },
     });
+    // Listen for player joined events
     this.webSocketService.onWebSocketEvent<PlayerJoinedWebSocketMessage>(
       WebSocketMessageType.playerJoined,
       (wsMessage) => {
         this.match?.users.push(wsMessage.user);
       }
     );
+    // Listen for player left events
     this.webSocketService.onWebSocketEvent<PlayerLeftWebSocketMessage>(
       WebSocketMessageType.playerLeft,
       (wsMessage) => {
         const newUserLists = this.match?.users.filter(u => u.id !== wsMessage.user.id);
         if (this.match) {
           this.match.users = newUserLists || [];
+        }
+      }
+    );
+    // Listen for new owner events
+    this.webSocketService.onWebSocketEvent<NewOwnerWebSocketMessage>(
+      WebSocketMessageType.newOwner,
+      (wsMessage) => {
+        if (this.match) {
+          this.match.owner = wsMessage.user;
         }
       }
     );

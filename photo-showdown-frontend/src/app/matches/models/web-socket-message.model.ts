@@ -12,7 +12,12 @@ export interface PlayerLeftWebSocketMessage extends WebSocketMessage {
   user: UserPublicDetails;
 }
 
+export interface NewOwnerWebSocketMessage extends WebSocketMessage {
+  user: UserPublicDetails;
+}
+
 export enum WebSocketMessageType {
   playerJoined = 'playerJoined',
   playerLeft = 'playerLeft',
+  newOwner = 'newOwner',
 }
