@@ -3,6 +3,10 @@ using System.Text.Json.Serialization;
 
 namespace PhotoShowdownBackend.WebSockets.Messages;
 
+/// <summary>
+/// Base class for all web socket messages
+/// Inherit this class and set the type of the message
+/// </summary>
 public abstract class WebSocketMessage
 {
     public MessageType Type { get; set; }

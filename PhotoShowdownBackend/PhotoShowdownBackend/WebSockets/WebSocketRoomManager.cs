@@ -7,14 +7,20 @@ using System.Text.Json;
 
 namespace PhotoShowdownBackend.WebSockets;
 
+/// <summary>
+/// Singletone class that manages web socket connections
+/// </summary>
 public class WebSocketRoomManager
 {
+    // Private fields
     private readonly ConcurrentDictionary<int, WebSocketRoom> ChatRooms = new();
     private readonly ILogger<WebSocketRoomManager> _logger;
+    // Constructor
     public WebSocketRoomManager(ILogger<WebSocketRoomManager> logger)
     {
         _logger = logger;
     }
+    // Public methods
     public void AddSocket(int userId, int matchId, WebSocket socket)
     {
         WebSocketRoom room = GetOrCreateRoom(matchId);
@@ -25,7 +31,7 @@ public class WebSocketRoomManager
         WebSocketRoom room = GetOrCreateRoom(matchId);
         room.ConnectedUsers.TryRemove(userId, out _);
     }
-    public async Task SendMessageToRoom(int sendingUserId, int matchId, WebSocketMessage message, bool sendToAll = false)
+    public async Task SendMessageToRoom(int? sendingUserId, int matchId, WebSocketMessage message)
     {
         _logger.LogInformation("Sending web socket message by user {userId} to match {matchId}: {message}", sendingUserId, matchId, message);
         if (ChatRooms.TryGetValue(matchId, out var room))
@@ -72,6 +78,7 @@ public class WebSocketRoomManager
             }
         }
     }
+    // Private methods
     private WebSocketRoom GetOrCreateRoom(int matchId)
     {
         return ChatRooms.GetOrAdd(matchId, id => new WebSocketRoom(id));

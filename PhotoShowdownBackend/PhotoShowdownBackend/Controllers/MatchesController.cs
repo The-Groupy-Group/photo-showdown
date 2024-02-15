@@ -190,11 +190,12 @@ public class MatchesController : ControllerBase
     /// <summary>
     /// This is the endpoint for the web socket
     /// </summary>
+    /// <param name="jwt">JWT Auth Token</param>
     [Route("/ws")]
     [HttpGet]
     [ProducesResponseType(typeof(PlayerJoinedWebSocketMessage), StatusCodes.Status101SwitchingProtocols)]
     [ProducesResponseType(typeof(PlayerLeftWebSocketMessage), StatusCodes.Status101SwitchingProtocols)]
-    public void WebSocket()
+    public void WebSocket(string jwt)
     {
         if (!HttpContext.WebSockets.IsWebSocketRequest)
         {
