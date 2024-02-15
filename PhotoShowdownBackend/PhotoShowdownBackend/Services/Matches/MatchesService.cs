@@ -72,8 +72,6 @@ public class MatchesService : IMatchesService
         List<MatchDTO> matches = allMatches.Select(match =>
         {
             var dto = _mapper.Map<MatchDTO>(match);
-            dto.OwnerName = match.Owner.Username;
-            dto.UserNames = match.MatchConnections.Select(mc => mc.User.Username).ToList();
             return dto;
         }).ToList();
 
@@ -100,16 +98,11 @@ public class MatchesService : IMatchesService
     public async Task<MatchDTO> GetMatchById(int matchId)
     {
         Match? match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ?? throw new NotFoundException("Invalid match Id");
-        MatchDTO matchDTO = new()
-        {
-            Id = matchId,
-            OwnerName = match.Owner.Username,
-            UserNames = match.MatchConnections.Select(mc => mc.User.Username).ToList()
-        };
+        MatchDTO matchDTO = _mapper.Map<MatchDTO>(match);
         return matchDTO;
     }
 
-    public async Task JoinMatch(int userId, int matchId, string userName)
+    public async Task AddUserToMatch(int userId, int matchId, string userName)
     {
         if (!await DoesMatchExists(matchId))
         {
@@ -122,7 +115,7 @@ public class MatchesService : IMatchesService
         await _webSocketRoomManager.SendMessageToRoom(userId, matchId, wsMessage);
     }
 
-    public async Task RemoveFromMatch(int userId, int matchId, string userName)
+    public async Task RemoveUserFromMatch(int userId, int matchId, string userName)
     {
         await _matchConnectionsService.DeleteMatchConnection(userId, matchId);
 
@@ -146,18 +139,12 @@ public class MatchesService : IMatchesService
         await _matchConnectionsService.CreateMatchConnection(userId, matchId);
     }
 
-    public async Task<CurrentMatchDTO> GetMatchByUserId(int userId)
+    public async Task<MatchDTO> GetMatchByUserId(int userId)
     {
         int matchId = await _matchConnectionsService.GetMatchIdByUserId(userId);
-        Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId);
+        Match match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId))!;
 
-        CurrentMatchDTO matchDTO = new()
-        {
-            Id = match.Id,
-            OwnerName = match.Owner.Username,
-            UserNames = match.MatchConnections.Select(mc => mc.User.Username).ToList(),
-            HasStarted = match.StartDate != null && DateTime.UtcNow >= match.StartDate
-        };
+        MatchDTO matchDTO = _mapper.Map<MatchDTO>(match);
         return matchDTO;
     }
 }

@@ -2,11 +2,11 @@
   <div class="inner-container">
   <h2>pre-lobby</h2>
   <p>match id: {{match?.id}}</p>
-  <p>owner name: {{match?.ownerName}}</p>
+  <p>owner name: {{match?.owner?.username}}</p>
   <div>
     <h2>Users:</h2>
     <div class="users-container">
-      <div *ngFor="let userName of match?.userNames">{{ userName }}</div>
+      <div *ngFor="let user of match?.users">{{ user.username }}</div>
     </div>
     <button class="disconnect" color="warn" mat-raised-button (click)="disconnect()">Disconnect</button>
   </div>

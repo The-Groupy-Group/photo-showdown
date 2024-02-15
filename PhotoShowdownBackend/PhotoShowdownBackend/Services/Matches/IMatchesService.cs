@@ -13,10 +13,10 @@ public interface IMatchesService
     Task<List<MatchDTO>> GetAllOpenMatches();
     Task<bool> DoesMatchExists(int matchId);
     Task<MatchDTO> GetMatchById(int matchId);
-    Task JoinMatch(int userId, int matchId, string userName);
-    Task RemoveFromMatch(int userId, int matchId, string userName);
+    Task AddUserToMatch(int userId, int matchId, string userName);
+    Task RemoveUserFromMatch(int userId, int matchId, string userName);
     Task<bool> IsUserConnectedToMatch(int userId);
     Task CreateMatchConnection(int userId, int matchId);
-    Task<CurrentMatchDTO> GetMatchByUserId(int userId);
+    Task<MatchDTO> GetMatchByUserId(int userId);
     
 }

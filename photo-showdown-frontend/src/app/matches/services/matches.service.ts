@@ -7,7 +7,6 @@ import {
 import { Match } from '../models/match.model';
 import { Observable } from 'rxjs';
 import { Entity } from 'src/app/shared/models/entity.model';
-import { CurrentMatch } from '../models/current-match.model';
 
 @Injectable({
   providedIn: 'root',
@@ -77,8 +76,8 @@ export class MatchesService {
       this.httpOptions
     );
   }
-  getCurrentMatch(): Observable<APIResponse<CurrentMatch>> {
-    return this.http.get<APIResponse<CurrentMatch>>(
+  getCurrentMatch(): Observable<APIResponse<Match>> {
+    return this.http.get<APIResponse<Match>>(
       this.apiURL + '/GetCurrentMatch',
       this.httpOptions
     );

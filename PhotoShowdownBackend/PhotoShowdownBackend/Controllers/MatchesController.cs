@@ -137,7 +137,7 @@ public class MatchesController : ControllerBase
                 return NotFound(response.ErrorResponse("Invalid user Id"));
             }
 
-            await _matchesService.JoinMatch(userId, matchId, _sessionService.GetCurrentUserName());
+            await _matchesService.AddUserToMatch(userId, matchId, _sessionService.GetCurrentUserName());
             return Ok(response);
         }
         catch (NotFoundException ex)
@@ -169,7 +169,7 @@ public class MatchesController : ControllerBase
         {
             int userId = _sessionService.GetCurrentUserId();
             string userName = _sessionService.GetCurrentUserName();
-            await _matchesService.RemoveFromMatch(userId, matchId, userName);
+            await _matchesService.RemoveUserFromMatch(userId, matchId, userName);
 
             return Ok(response);
         }
@@ -189,13 +189,13 @@ public class MatchesController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(APIResponse<CurrentMatchDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(APIResponse<MatchDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetCurrentMatch()
     {
-        APIResponse<CurrentMatchDTO> response = new();
+        APIResponse<MatchDTO> response = new();
         try
         {
             int userId = _sessionService.GetCurrentUserId();

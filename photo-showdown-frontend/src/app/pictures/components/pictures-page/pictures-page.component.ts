@@ -61,7 +61,6 @@ export class PicturesPageComponent implements OnInit {
         form.resetForm();
       },
       error: (error: HttpErrorResponse) => {
-        console.error(error);
         this.notifier.notify('error', error.error.message);
       },
     });

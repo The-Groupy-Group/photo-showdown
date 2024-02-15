@@ -10,19 +10,22 @@ namespace PhotoShowdownBackend.Utils;
 /// Configuration class for AutoMapper.
 /// Used to map between DTOs and Models
 /// </summary>
-public class MappingConfig: Profile
+public class MappingConfig : Profile
 {
     public MappingConfig()
     {
         // Users
         CreateMap<RegisterationRequestDTO, User>();
         CreateMap<UserDTO, User>().ReverseMap();
+        CreateMap<UserPublicDetailsDTO, User>().ReverseMap();
 
         // Pictures
         CreateMap<Picture, PictureDTO>();
 
         // Matches
-        CreateMap<Match, MatchDTO>();
+        CreateMap<Match, MatchDTO>()
+            .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.MatchConnections.Select(mc => mc.User)))
+            .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner));
         CreateMap<Match, MatchCreationResponseDTO>();
     }
 }

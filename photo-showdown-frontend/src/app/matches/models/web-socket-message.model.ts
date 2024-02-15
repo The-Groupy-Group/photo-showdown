@@ -1,13 +1,15 @@
+import { UserPublicDetails } from "src/app/users/models/user-public-details.model";
+
 export interface WebSocketMessage {
   type: WebSocketMessageType;
 }
 
 export interface PlayerJoinedWebSocketMessage extends WebSocketMessage {
-  userName: string;
+  user: UserPublicDetails;
 }
 
 export interface PlayerLeftWebSocketMessage extends WebSocketMessage {
-  userName: string;
+  user: UserPublicDetails;
 }
 
 export enum WebSocketMessageType {
