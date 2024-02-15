@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../../../shared/auth-service/auth.service';
+import { AuthService } from '../../../shared/services/auth-service/auth.service';
 import { Router } from '@angular/router';
 @Component({
   selector: 'app-header',
@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent {
-  username:string|undefined;
+  username: string | undefined;
   isLoggedIn: boolean = false;
 
   constructor(
@@ -27,6 +27,8 @@ export class HeaderComponent {
 
   setStatus(): void {
     this.isLoggedIn = this.authService.isLoggedIn();
-    this.username = this.isLoggedIn ? this.authService.getUsername(): undefined;
+    this.username = this.isLoggedIn
+      ? this.authService.getUsername()
+      : undefined;
   }
 }

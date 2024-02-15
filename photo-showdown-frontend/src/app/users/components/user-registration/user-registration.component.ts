@@ -5,7 +5,7 @@ import { UsersService } from '../../services/users/users.service';
 import { User } from 'src/app/users/models/user.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { AuthService } from 'src/app/shared/auth-service/auth.service';
+import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
 
 @Component({
   selector: 'app-user-registration',
@@ -18,7 +18,7 @@ export class UserRegistrationComponent {
 
   constructor(
     private readonly usersService: UsersService,
-    private readonly authService: AuthService,
+    private readonly authService: AuthService
   ) {}
   onSubmit(form: NgForm) {
     const userToCreate: User = {
@@ -34,14 +34,16 @@ export class UserRegistrationComponent {
       next: (response) => {
         this.errorMessage = undefined;
         // Log in the user
-        this.authService.login(userToCreate.username, userToCreate.password!).subscribe({
-          next: (response) => {
-            this.errorMessage = undefined;
-          },
-          error: (error: HttpErrorResponse) => {
-            this.errorMessage = error.error.message;
-          },
-        });
+        this.authService
+          .login(userToCreate.username, userToCreate.password!)
+          .subscribe({
+            next: (response) => {
+              this.errorMessage = undefined;
+            },
+            error: (error: HttpErrorResponse) => {
+              this.errorMessage = error.error.message;
+            },
+          });
       },
       error: (error: HttpErrorResponse) => {
         this.errorMessage = error.error.message;

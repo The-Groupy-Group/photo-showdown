@@ -1,11 +1,11 @@
-import { LoginResponse } from '../../users/models/login-response.model';
+import { LoginResponse } from '../../../users/models/login-response.model';
 import { Injectable } from '@angular/core';
 import jwt_decode from 'jwt-decode';
 import { Observable, shareReplay, tap } from 'rxjs';
 import { APIResponse } from 'src/app/shared/models/api-response.model';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { JwtPayload } from '../models/jwt-payload.model';
+import { JwtPayload } from '../../models/jwt-payload.model';
 
 @Injectable({
   providedIn: 'root',

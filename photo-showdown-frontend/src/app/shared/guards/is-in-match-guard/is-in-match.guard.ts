@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthService } from '../auth-service/auth.service';
+import { AuthService } from '../../services/auth-service/auth.service';
 import { MatchesService } from 'src/app/matches/services/matches.service';
 
 export const isInMatchGuard: CanActivateFn = (route, state) => {

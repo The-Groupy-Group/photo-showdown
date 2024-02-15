@@ -5,7 +5,7 @@ import {
   WebSocketSubjectConfig,
 } from 'rxjs/webSocket';
 import { Observable } from 'rxjs';
-import { AuthService } from 'src/app/shared/auth-service/auth.service';
+import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
 import { WebSocketMessage } from '../models/web-socket-message.model';
 import { WebSocketMessageType } from '../models/web-socket-message.model';
 
@@ -24,7 +24,9 @@ export class WebSocketService {
     this.socket$.next(message);
   }
 
-  receiveMessages<T extends WebSocketMessage = WebSocketMessage>(): Observable<T> {
+  receiveMessages<
+    T extends WebSocketMessage = WebSocketMessage
+  >(): Observable<T> {
     return this.socket$.asObservable();
   }
   onWebSocketEvent<T extends WebSocketMessage = WebSocketMessage>(

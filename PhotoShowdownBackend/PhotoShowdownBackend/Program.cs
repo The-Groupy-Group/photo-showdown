@@ -35,7 +35,7 @@ Log.Logger = new LoggerConfiguration()
         "Logs\\log.txt",
         rollingInterval: RollingInterval.Day,
         restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information,
-        retainedFileCountLimit:7)
+        retainedFileCountLimit: 7)
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -104,7 +104,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 
 // Configure Swagger
-builder.Services.AddSwaggerGen(options=>
+builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1",
             new OpenApiInfo
@@ -132,7 +132,7 @@ builder.Services.AddSwaggerGen(options=>
 });
 
 // Add authentication
-builder.Services.AddAuthentication().AddJwtBearer(options=>
+builder.Services.AddAuthentication().AddJwtBearer(options =>
 {
     // Configure JWT bearer options
     options.TokenValidationParameters = new TokenValidationParameters

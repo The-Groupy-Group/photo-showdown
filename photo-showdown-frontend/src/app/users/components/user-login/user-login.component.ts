@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AuthService } from '../../../shared/auth-service/auth.service';
+import { AuthService } from '../../../shared/services/auth-service/auth.service';
 import { Router } from '@angular/router';
 @Component({
   selector: 'app-user-login',

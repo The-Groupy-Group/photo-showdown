@@ -12,7 +12,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { UserRegistrationComponent } from './users/components/user-registration/user-registration.component';
 import { UserLoginComponent } from './users/components/user-login/user-login.component';
-import { TokenInterceptor } from './shared/token-interceptor/token.interceptor';
+import { TokenInterceptor } from './shared/interceptors/token-interceptor/token.interceptor';
 import { HeaderComponent } from './header/components/header/header.component';
 import { HomepageComponent } from './homepage/homepage/homepage.component';
 import { PicturesPageComponent } from './pictures/components/pictures-page/pictures-page.component';
