@@ -1,4 +1,7 @@
 <mat-card>
+  <div class="registration-title">
+    <h2>Log In</h2>
+  </div>
   <form *ngIf="!isLoading" class="form" (submit)="onSubmit(userForm)" #userForm="ngForm">
     <mat-form-field>
       <input  matInput type="text"  name="username" #username="ngModel" ngModel required placeholder="Enter your username">

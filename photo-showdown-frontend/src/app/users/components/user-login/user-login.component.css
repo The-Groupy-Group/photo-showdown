@@ -2,10 +2,21 @@
   min-width: 150px;
   max-width: 250px;
   width: 100%;
+  margin: auto;
+  
 }
 
 mat-card{
   margin: auto;
-  width: 50%;
+  width: fit-content;
   margin-top: 10%;
+}
+
+.registration-title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.registration-title h2 {
+  margin: 0;
 }
