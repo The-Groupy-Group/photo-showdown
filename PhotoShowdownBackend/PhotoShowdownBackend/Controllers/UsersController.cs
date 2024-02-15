@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PhotoShowdownBackend.Attributes;
 using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
@@ -16,6 +17,7 @@ namespace PhotoShowdownBackend.Controllers;
 [Route("api/[controller]/[action]")]
 [ApiController]
 [Authorize]
+[HandleException]
 public class UsersController : ControllerBase
 {
     private readonly IUsersService _usersService;
@@ -53,11 +55,6 @@ public class UsersController : ControllerBase
         {
             return BadRequest(response.ErrorResponse(ex.Message));
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"{nameof(Register)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
-        }
     }
 
     /// <summary>
@@ -85,11 +82,6 @@ public class UsersController : ControllerBase
         catch (InvalidLoginException ex)
         {
             return BadRequest(response.ErrorResponse(ex.Message));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"{nameof(Login)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }
 
@@ -123,11 +115,6 @@ public class UsersController : ControllerBase
         catch( NotFoundException ex)
         {
             return NotFound(response.ErrorResponse(ex.Message));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"{nameof(GetUser)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
+using PhotoShowdownBackend.Attributes;
 using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.PicturesDto;
 using PhotoShowdownBackend.Dtos.Users;
@@ -18,6 +19,7 @@ namespace PhotoShowdownBackend.Controllers;
 [Route("api/[controller]/[action]")]
 [ApiController]
 [Authorize]
+[HandleException]
 public class PicturesController : ControllerBase
 {
     private readonly IPicturesService _picturesService;
@@ -44,26 +46,19 @@ public class PicturesController : ControllerBase
     public async Task<IActionResult> UploadPicture(IFormFile pictureFile)
     {
         var response = new APIResponse<PictureDTO>();
-        try
-        {
-            if (!pictureFile.ContentType.Contains("image"))
-                return BadRequest(response.ErrorResponse("Uploaded file is not a image"));
 
-            var currentUserId = _sessionService.GetCurrentUserId();
-            var picture = await _picturesService.UploadPicture(pictureFile, currentUserId);
+        if (!pictureFile.ContentType.Contains("image"))
+            return BadRequest(response.ErrorResponse("Uploaded file is not a image"));
 
-            // Append base path to picture path
-            picture.PicturePath = GetPictureBaseBath() + picture.PicturePath;
+        var currentUserId = _sessionService.GetCurrentUserId();
+        var picture = await _picturesService.UploadPicture(pictureFile, currentUserId);
 
-            response.Data = picture;
+        // Append base path to picture path
+        picture.PicturePath = GetPictureBaseBath() + picture.PicturePath;
 
-            return StatusCode(StatusCodes.Status201Created, response);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"{nameof(UploadPicture)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
-        }
+        response.Data = picture;
+
+        return StatusCode(StatusCodes.Status201Created, response);
     }
 
     /// <summary>
@@ -76,26 +71,19 @@ public class PicturesController : ControllerBase
     public async Task<IActionResult> GetMyPictures()
     {
         var response = new APIResponse<IEnumerable<PictureDTO>>();
-        try
-        {
-            var currentUserId = _sessionService.GetCurrentUserId();
-            var pictures = await _picturesService.GetUserPicture(currentUserId);
 
-            // Append base path to picture path
-            var basePath = GetPictureBaseBath();
-            foreach (var pic in pictures)
-            {
-                pic.PicturePath = basePath + pic.PicturePath;
-            }
+        var currentUserId = _sessionService.GetCurrentUserId();
+        var pictures = await _picturesService.GetUserPicture(currentUserId);
 
-            response.Data = pictures;
-            return Ok(response);
-        }
-        catch (Exception ex)
+        // Append base path to picture path
+        var basePath = GetPictureBaseBath();
+        foreach (var pic in pictures)
         {
-            _logger.LogError(ex, $"{nameof(GetMyPictures)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
+            pic.PicturePath = basePath + pic.PicturePath;
         }
+
+        response.Data = pictures;
+        return Ok(response);
     }
 
     /// <summary>
@@ -126,11 +114,6 @@ public class PicturesController : ControllerBase
         catch (NotFoundException)
         {
             return NotFound(response.ErrorResponse(Messages.PictureNotFound));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"{nameof(DeletePicture)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }
 

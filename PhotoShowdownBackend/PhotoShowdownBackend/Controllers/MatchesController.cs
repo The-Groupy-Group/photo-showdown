@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PhotoShowdownBackend.Attributes;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
@@ -16,6 +17,7 @@ namespace PhotoShowdownBackend.Controllers;
 [Route("api/[controller]/[action]")]
 [ApiController]
 [Authorize]
+[HandleException]
 public class MatchesController : ControllerBase
 {
     private readonly IMatchesService _matchesService;
@@ -61,11 +63,6 @@ public class MatchesController : ControllerBase
             _logger.LogError(ex, $"{nameof(CreateNewMatch)} Error");
             return BadRequest(response.ErrorResponse(ex.Message));
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"{nameof(CreateNewMatch)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
-        }
     }
 
 
@@ -79,17 +76,10 @@ public class MatchesController : ControllerBase
     public async Task<IActionResult> GetAllOpenMatches()
     {
         APIResponse<List<MatchDTO>> response = new();
-        try
-        {
-            var allMatches = await _matchesService.GetAllOpenMatches();
-            response.Data = allMatches;
-            return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"{nameof(GetAllOpenMatches)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
-        }
+
+        var allMatches = await _matchesService.GetAllOpenMatches();
+        response.Data = allMatches;
+        return Ok(response);
     }
 
 
@@ -113,11 +103,6 @@ public class MatchesController : ControllerBase
         catch (NotFoundException ex)
         {
             return NotFound(response.ErrorResponse(ex.Message));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"{nameof(GetMatchById)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }
 
@@ -152,11 +137,6 @@ public class MatchesController : ControllerBase
             _logger.LogError(ex, $"{nameof(JoinMatch)} Error");
             return BadRequest(response.ErrorResponse(ex.Message));
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"{nameof(JoinMatch)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
-        }
     }
 
     [HttpDelete("{matchId:int}")]
@@ -184,11 +164,6 @@ public class MatchesController : ControllerBase
         {
             return NotFound(response.ErrorResponse(ex.Message));
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"{nameof(LeaveMatch)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
-        }
     }
 
     [HttpGet]
@@ -209,11 +184,6 @@ public class MatchesController : ControllerBase
         catch (UserNotConnectedToMatchException ex)
         {
             return NotFound(response.ErrorResponse(ex.Message));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"{nameof(GetCurrentMatch)} Error");
-            return StatusCode(StatusCodes.Status500InternalServerError, APIResponse.ServerError);
         }
     }
 
