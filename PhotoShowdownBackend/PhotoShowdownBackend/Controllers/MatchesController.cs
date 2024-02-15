@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PhotoShowdownBackend.Dtos.Matches;
+using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Services.Matches;
@@ -131,13 +132,14 @@ public class MatchesController : ControllerBase
         try
         {
             int userId = _sessionService.GetCurrentUserId();
+            UserPublicDetailsDTO user = await _usersService.GetUserPublicDetails(userId);
 
             if (!await _usersService.DoesUserExist(userId))
             {
                 return NotFound(response.ErrorResponse("Invalid user Id"));
             }
 
-            await _matchesService.AddUserToMatch(userId, matchId, _sessionService.GetCurrentUserName());
+            await _matchesService.AddUserToMatch(user, matchId);
             return Ok(response);
         }
         catch (NotFoundException ex)
@@ -168,8 +170,9 @@ public class MatchesController : ControllerBase
         try
         {
             int userId = _sessionService.GetCurrentUserId();
-            string userName = _sessionService.GetCurrentUserName();
-            await _matchesService.RemoveUserFromMatch(userId, matchId, userName);
+            UserPublicDetailsDTO user = await _usersService.GetUserPublicDetails(userId);
+
+            await _matchesService.RemoveUserFromMatch(user, matchId);
 
             return Ok(response);
         }

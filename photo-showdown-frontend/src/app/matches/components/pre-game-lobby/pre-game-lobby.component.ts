@@ -34,16 +34,16 @@ export class PreGameLobbyComponent implements OnInit {
     this.webSocketService.onWebSocketEvent<PlayerJoinedWebSocketMessage>(
       WebSocketMessageType.playerJoined,
       (wsMessage) => {
-        //this.match?.users.push(wsMessage.userName);
+        this.match?.users.push(wsMessage.user);
       }
     );
     this.webSocketService.onWebSocketEvent<PlayerLeftWebSocketMessage>(
       WebSocketMessageType.playerLeft,
       (wsMessage) => {
-        //const index = this.match?.users.indexOf(wsMessage.userName);
-        // if (index != undefined) {
-        //   this.match?.users.splice(index, 1);
-        // }
+        const newUserLists = this.match?.users.filter(u => u.id !== wsMessage.user.id);
+        if (this.match) {
+          this.match.users = newUserLists || [];
+        }
       }
     );
   }

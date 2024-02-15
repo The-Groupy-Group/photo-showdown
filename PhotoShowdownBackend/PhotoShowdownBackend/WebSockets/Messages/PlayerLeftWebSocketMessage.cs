@@ -1,10 +1,12 @@
-﻿namespace PhotoShowdownBackend.WebSockets.Messages;
+﻿using PhotoShowdownBackend.Dtos.Users;
+
+namespace PhotoShowdownBackend.WebSockets.Messages;
 
 public class PlayerLeftWebSocketMessage : WebSocketMessage
 {
-    public string UserName { get; set; }
-    public PlayerLeftWebSocketMessage(string userName) : base(MessageType.PlayerLeft)
+    public UserPublicDetailsDTO User { get; set; }
+    public PlayerLeftWebSocketMessage(UserPublicDetailsDTO user) : base(MessageType.PlayerLeft)
     {
-        UserName = userName;
+        User = user;
     }
 }

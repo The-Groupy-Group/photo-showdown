@@ -25,7 +25,7 @@ public class WebSocketRoomManager
         WebSocketRoom room = GetOrCreateRoom(matchId);
         room.ConnectedUsers.TryRemove(userId, out _);
     }
-    public async Task SendMessageToRoom(int sendingUserId, int matchId, WebSocketMessage message)
+    public async Task SendMessageToRoom(int sendingUserId, int matchId, WebSocketMessage message, bool sendToAll = false)
     {
         _logger.LogInformation("Sending web socket message by user {userId} to match {matchId}: {message}", sendingUserId, matchId, message);
         if (ChatRooms.TryGetValue(matchId, out var room))

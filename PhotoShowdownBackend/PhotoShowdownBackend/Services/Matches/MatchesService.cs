@@ -2,6 +2,7 @@
 using Azure;
 using Microsoft.AspNetCore.Mvc;
 using PhotoShowdownBackend.Dtos.Matches;
+using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Models;
@@ -102,26 +103,26 @@ public class MatchesService : IMatchesService
         return matchDTO;
     }
 
-    public async Task AddUserToMatch(int userId, int matchId, string userName)
+    public async Task AddUserToMatch(UserPublicDetailsDTO user, int matchId)
     {
         if (!await DoesMatchExists(matchId))
         {
             throw new NotFoundException(matchId);
         }
 
-        await _matchConnectionsService.CreateMatchConnection(userId, matchId);
+        await _matchConnectionsService.CreateMatchConnection(user.Id, matchId);
 
-        var wsMessage = new PlayerJoinedWebSocketMessage(userName);
-        await _webSocketRoomManager.SendMessageToRoom(userId, matchId, wsMessage);
+        var wsMessage = new PlayerJoinedWebSocketMessage(user);
+        await _webSocketRoomManager.SendMessageToRoom(user.Id, matchId, wsMessage);
     }
 
-    public async Task RemoveUserFromMatch(int userId, int matchId, string userName)
+    public async Task RemoveUserFromMatch(UserPublicDetailsDTO user, int matchId)
     {
-        await _matchConnectionsService.DeleteMatchConnection(userId, matchId);
+        await _matchConnectionsService.DeleteMatchConnection(user.Id, matchId);
 
-        var wsMessage = new PlayerLeftWebSocketMessage(userName);
-        await _webSocketRoomManager.SendMessageToRoom(userId, matchId, wsMessage);
-        await _webSocketRoomManager.CloseConnection(userId, matchId);
+        var wsMessage = new PlayerLeftWebSocketMessage(user);
+        await _webSocketRoomManager.SendMessageToRoom(user.Id, matchId, wsMessage);
+        await _webSocketRoomManager.CloseConnection(user.Id, matchId);
 
         if (await _matchConnectionsService.IsMatchEmpty(matchId))
         {
