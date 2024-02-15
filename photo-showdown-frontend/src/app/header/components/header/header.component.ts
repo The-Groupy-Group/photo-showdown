@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../../../shared/services/auth-service/auth.service';
 import { Router } from '@angular/router';
+import { MatchesService } from 'src/app/matches/services/matches.service';
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -12,7 +13,7 @@ export class HeaderComponent {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly router: Router
+    private readonly matchesService: MatchesService //private readonly router: Router
   ) {}
 
   ngOnInit(): void {
@@ -20,8 +21,16 @@ export class HeaderComponent {
   }
 
   logout() {
-    this.authService.logout();
-    window.location.reload();
+    // Leave match if user is in a match that has not started
+    this.matchesService.getCurrentMatch().subscribe((response) => {
+      if (response.data?.hasStarted === false) {
+        this.matchesService.leaveMatch(response.data.id).subscribe(() => {
+          this.authService.logout();
+          window.location.reload();
+        });
+      }
+    });
+
     // this.setStatus();
     // this.router.navigate(['/login']);
   }
