@@ -18,6 +18,11 @@ export class UserLoginComponent {
     private readonly authService: AuthService,
     private readonly router: Router
   ) {}
+  ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['/']);
+    }
+  }
 
   onSubmit(form: NgForm) {
     this.username = form.value.username;

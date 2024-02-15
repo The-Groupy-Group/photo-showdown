@@ -21,8 +21,9 @@ export class HeaderComponent {
 
   logout() {
     this.authService.logout();
-    this.setStatus();
-    this.router.navigate(['/login']);
+    window.location.reload();
+    // this.setStatus();
+    // this.router.navigate(['/login']);
   }
 
   setStatus(): void {
