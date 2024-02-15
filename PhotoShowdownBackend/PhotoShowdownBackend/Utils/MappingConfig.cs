@@ -2,6 +2,7 @@
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.PicturesDto;
 using PhotoShowdownBackend.Dtos.Users;
+using PhotoShowdownBackend.Extentions;
 using PhotoShowdownBackend.Models;
 
 namespace PhotoShowdownBackend.Utils;
@@ -25,7 +26,8 @@ public class MappingConfig : Profile
         // Matches
         CreateMap<Match, MatchDTO>()
             .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.MatchConnections.Select(mc => mc.User)))
-            .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner));
+            .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner))
+            .ForMember(dest => dest.HasStarted, opt => opt.MapFrom(src => src.HasMatchStarted()));
         CreateMap<Match, MatchCreationResponseDTO>();
     }
 }
