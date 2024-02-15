@@ -16,10 +16,12 @@ public class HandleExceptionAttribute : TypeFilterAttribute
     private class ExceptionFilter : IExceptionFilter
     {
         private readonly ILogger<ExceptionFilter> _logger;
+        private readonly IHostEnvironment _environment;
 
-        public ExceptionFilter(ILogger<ExceptionFilter> logger)
+        public ExceptionFilter(ILogger<ExceptionFilter> logger, IHostEnvironment environment)
         {
             _logger = logger;
+            _environment = environment;
         }
 
         public void OnException(ExceptionContext context)
@@ -27,8 +29,11 @@ public class HandleExceptionAttribute : TypeFilterAttribute
             // Log the exception with class and method name
             _logger.LogError(context.Exception, "Error at: {errorLocation}", context.ActionDescriptor.DisplayName);
 
-            // You can customize the response content here if needed
-            context.Result = new ObjectResult(APIResponse.ServerError)
+            // Set the response
+            APIResponse response = _environment.IsDevelopment()
+                ? new APIResponse().ErrorResponse(context.Exception.Message + context.Exception.StackTrace)
+                : APIResponse.ServerError;
+            context.Result = new ObjectResult(response)
             {
                 StatusCode = 500,
             };
