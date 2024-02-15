@@ -4,7 +4,6 @@ import { NgForm } from '@angular/forms';
 import { UsersService } from '../../services/users/users.service';
 import { User } from 'src/app/users/models/user.model';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
 import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
 
 @Component({
