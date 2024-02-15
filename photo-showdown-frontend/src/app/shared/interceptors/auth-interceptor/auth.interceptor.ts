@@ -5,13 +5,18 @@ import {
   HttpEvent,
   HttpInterceptor,
   HttpErrorResponse,
+  HttpStatusCode,
 } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
+import { NotifierService } from 'angular-notifier';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private readonly notifier: NotifierService
+  ) {}
 
   intercept(
     request: HttpRequest<any>,
@@ -23,13 +28,15 @@ export class AuthInterceptor implements HttpInterceptor {
         headers: request.headers.set('Authorization', 'Bearer ' + idToken),
       });
     }
-    // Handle the request nad redirect to login if the user is not authenticated
+    // Handle the request
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
+        if (error.status === HttpStatusCode.Unauthorized) {
           // Redirect to login page
           localStorage.removeItem('id_token');
           this.router.navigate(['/login']);
+        } else if (error.status === HttpStatusCode.InternalServerError) {
+          this.notifier.notify('error', error.error.message);
         }
         return throwError(() => error);
       })
