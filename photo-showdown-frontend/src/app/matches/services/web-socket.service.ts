@@ -8,13 +8,14 @@ import { Observable } from 'rxjs';
 import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
 import { WebSocketMessage } from '../models/web-socket-message.model';
 import { WebSocketMessageType } from '../models/web-socket-message.model';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WebSocketService {
   private socket$: WebSocketSubject<any>;
-  readonly wsURL = 'wss://localhost:7222';
+  readonly wsURL = environment.apiUrl.replace('http', 'ws') + '/ws';
   constructor(readonly authService: AuthService) {
     let token = authService.getJwtToken();
     this.socket$ = new WebSocketSubject(this.wsURL + '?jwt=' + token);

@@ -6,12 +6,13 @@ import {
   EmptyAPIResponse,
 } from 'src/app/shared/models/api-response.model';
 import { Picture } from '../models/picture.model';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PicturesService {
-  readonly apiURL = 'https://localhost:7222/api/Pictures';
+  readonly apiURL = environment.apiUrl + '/Pictures';
   constructor(private http: HttpClient) {}
   httpOptions = {
     headers: new HttpHeaders({

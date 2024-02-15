@@ -7,12 +7,13 @@ import {
 import { Match } from '../models/match.model';
 import { Observable } from 'rxjs';
 import { Entity } from 'src/app/shared/models/entity.model';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MatchesService {
-  readonly apiURL = 'https://localhost:7222/api/Matches';
+  readonly apiURL = environment.apiUrl + '/Matches';
   constructor(private http: HttpClient) {}
   httpOptions = {
     headers: new HttpHeaders({

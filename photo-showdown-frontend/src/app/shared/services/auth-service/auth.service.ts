@@ -6,6 +6,7 @@ import { APIResponse } from 'src/app/shared/models/api-response.model';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { JwtPayload } from '../../models/jwt-payload.model';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +16,7 @@ import { JwtPayload } from '../../models/jwt-payload.model';
  */
 export class AuthService {
   constructor(private http: HttpClient, private readonly router: Router) {}
-  readonly apiURL = 'https://localhost:7222/api/Users';
+  readonly apiURL = environment.apiUrl + '/Users';
   readonly localStorageTokenKey = 'id_token';
   httpOptions = {
     headers: new HttpHeaders({
