@@ -1,4 +1,7 @@
-﻿ALTER TABLE Users
+﻿USE PhotoShowdownDB;
+GO
+
+ALTER TABLE Users
 DROP CONSTRAINT FK_Users_MatchConnections;
 
 ALTER TABLE Users

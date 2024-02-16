@@ -22,7 +22,9 @@ using PhotoShowdownBackend.Middlewares;
 using System.Text.Json;
 using PhotoShowdownBackend.Repositories.Rounds;
 using PhotoShowdownBackend.Services.Rounds;
-
+using PhotoShowdownBackend.Services.CustomSentences;
+using PhotoShowdownBackend.Models;
+using PhotoShowdownBackend.Repositories.CustomSentences;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +80,7 @@ builder.Services.AddScoped<IMatchesService, MatchesService>();
 builder.Services.AddScoped<IMatchConnectionsService, MatchConnectionsService>();
 builder.Services.AddScoped<IRoundsService, RoundsService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
+builder.Services.AddScoped<ICustomSentencesService,CustomSentencesService>();
 
 // Add repositories
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
@@ -85,6 +88,7 @@ builder.Services.AddScoped<IPicturesRepository, PicturesRepository>();
 builder.Services.AddScoped<IMatchesReporitory, MatchesReporitory>();
 builder.Services.AddScoped<IMatchConnectionsRepository, MatchConnectionsRepository>();
 builder.Services.AddScoped<IRoundsRepository, RoundsRepository>();
+builder.Services.AddScoped<ICustomSentencesRepository, CustomSentencesRepository>();
 
 // Add WebSocketManager
 builder.Services.AddSingleton<WebSocketRoomManager>();
