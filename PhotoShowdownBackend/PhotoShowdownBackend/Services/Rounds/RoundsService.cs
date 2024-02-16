@@ -35,7 +35,7 @@ public class RoundsService: IRoundsService
         };
 
         var roundDto = _mapper.Map<RoundDTO>(round);
-
+        await _roundsRepo.CreateAsync(round);
         return roundDto;
     }
 
