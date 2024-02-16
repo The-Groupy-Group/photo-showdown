@@ -59,6 +59,20 @@
                   "with": "src/environments/environment.development.ts"
                 }
               ]
+            },
+            "tunnel":{
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.tunnel.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -71,6 +85,9 @@
             },
             "development": {
               "browserTarget": "photo-showdown-frontend:build:development"
+            },
+            "tunnel": {
+              "browserTarget": "photo-showdown-frontend:build:tunnel"
             }
           },
           "defaultConfiguration": "development"

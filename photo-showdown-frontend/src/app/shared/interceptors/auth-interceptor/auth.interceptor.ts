@@ -10,6 +10,7 @@ import {
 import { Observable, catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { NotifierService } from 'angular-notifier';
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -28,6 +29,14 @@ export class AuthInterceptor implements HttpInterceptor {
         headers: request.headers.set('Authorization', 'Bearer ' + idToken),
       });
     }
+    // if (environment.tunnelKey) {
+    //   request = request.clone({
+    //     headers: request.headers.set(
+    //       'X-Tunnel-Authorization',
+    //       'tunnel ' + environment.tunnelKey
+    //     ),
+    //   });
+    // }
     // Handle the request
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
