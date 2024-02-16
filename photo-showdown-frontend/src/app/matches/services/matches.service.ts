@@ -8,6 +8,7 @@ import { Match } from '../models/match.model';
 import { Observable } from 'rxjs';
 import { Entity } from 'src/app/shared/models/entity.model';
 import { environment } from 'src/environments/environment';
+import { MatchSettings } from '../models/match-settings.model';
 
 @Injectable({
   providedIn: 'root',
@@ -77,9 +78,31 @@ export class MatchesService {
       this.httpOptions
     );
   }
+  /**
+   *
+   * starts the match
+   * @param matchId the matches being joined id
+   * @returns failed/worked
+   */
   getCurrentMatch(): Observable<APIResponse<Match>> {
     return this.http.get<APIResponse<Match>>(
       this.apiURL + '/GetCurrentMatch',
+      this.httpOptions
+    );
+  }
+  /**
+   *
+   * starts the match
+   * @param matchId the matches being joined id
+   * @returns failed/worked
+   */
+  startMatch(
+    matchId: number,
+    matchSettings: MatchSettings
+  ): Observable<EmptyAPIResponse> {
+    return this.http.post<EmptyAPIResponse>(
+      this.apiURL + `/StartMatch/${matchId}`,
+      matchSettings,
       this.httpOptions
     );
   }
