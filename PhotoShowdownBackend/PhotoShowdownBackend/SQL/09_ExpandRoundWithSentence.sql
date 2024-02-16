@@ -1,0 +1,2 @@
+﻿USE PhotoShowdownDB; GO
+ALTER TABLE Rounds ADD Sentence NVARCHAR(256) NOT NULL; GO

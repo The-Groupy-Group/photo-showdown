@@ -80,7 +80,7 @@ builder.Services.AddScoped<IMatchesService, MatchesService>();
 builder.Services.AddScoped<IMatchConnectionsService, MatchConnectionsService>();
 builder.Services.AddScoped<IRoundsService, RoundsService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
-builder.Services.AddScoped<ICustomSentencesService,CustomSentencesService>();
+builder.Services.AddScoped<ISentencesService,SentencesService>();
 
 // Add repositories
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
