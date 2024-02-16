@@ -20,7 +20,7 @@ public abstract class WebSocketMessage
         {
             Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = true // Optional: Set to true if you want an indented JSON string
+            WriteIndented = true
         });
         return res;
     }
@@ -29,5 +29,14 @@ public abstract class WebSocketMessage
         PlayerJoined,
         PlayerLeft,
         NewOwner,
+    }
+}
+
+public abstract class WebSocketMessage<T> : WebSocketMessage
+{
+    public T Data { get; set; }
+    protected WebSocketMessage(T data, MessageType type) : base(type)
+    {
+        Data = data;
     }
 }

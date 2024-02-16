@@ -2,11 +2,9 @@
 
 namespace PhotoShowdownBackend.WebSockets.Messages;
 
-public class PlayerJoinedWebSocketMessage : WebSocketMessage
+public class PlayerJoinedWebSocketMessage : WebSocketMessage<UserPublicDetailsDTO>
 {
-    public UserPublicDetailsDTO User { get; set; }
-    public PlayerJoinedWebSocketMessage(UserPublicDetailsDTO userName) : base(MessageType.PlayerJoined)
+    public PlayerJoinedWebSocketMessage(UserPublicDetailsDTO user) : base(user, MessageType.PlayerJoined)
     {
-        User = userName;
     }
 }

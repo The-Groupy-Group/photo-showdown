@@ -1,19 +1,17 @@
-import { UserPublicDetails } from "src/app/users/models/user-public-details.model";
+import { UserPublicDetails } from 'src/app/users/models/user-public-details.model';
 
-export interface WebSocketMessage {
+/**
+ * This interface represents a message sent over a WebSocket connection.
+ */
+export interface EmptyWebSocketMessage {
   type: WebSocketMessageType;
 }
 
-export interface PlayerJoinedWebSocketMessage extends WebSocketMessage {
-  user: UserPublicDetails;
-}
-
-export interface PlayerLeftWebSocketMessage extends WebSocketMessage {
-  user: UserPublicDetails;
-}
-
-export interface NewOwnerWebSocketMessage extends WebSocketMessage {
-  user: UserPublicDetails;
+/**
+ * This interface represents a message sent over a WebSocket connection.
+ */
+export interface WebSocketMessage<T> extends EmptyWebSocketMessage {
+  data: T;
 }
 
 export enum WebSocketMessageType {

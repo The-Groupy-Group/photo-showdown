@@ -2,11 +2,10 @@
 
 namespace PhotoShowdownBackend.WebSockets.Messages;
 
-public class NewOwnerWebSocketMessage : WebSocketMessage
+public class NewOwnerWebSocketMessage : WebSocketMessage<UserPublicDetailsDTO>
 {
-    public UserPublicDetailsDTO User { get; set; }
-    public NewOwnerWebSocketMessage(UserPublicDetailsDTO user) : base(MessageType.NewOwner)
+
+    public NewOwnerWebSocketMessage(UserPublicDetailsDTO user) : base(user, MessageType.NewOwner)
     {
-        User = user;
     }
 }

@@ -25,7 +25,7 @@ export class AuthService {
   };
 
   /**
-   *this function logs in the user
+   * this function logs in the user
    * @param username username to log in
    * @param password password to log in
    * @returns Observable with APIResponse with the given token
@@ -55,6 +55,7 @@ export class AuthService {
   public logout() {
     localStorage.removeItem(this.localStorageTokenKey);
   }
+  
   public isLoggedIn(): boolean {
     return (
       localStorage.getItem(this.localStorageTokenKey) != undefined &&
@@ -66,7 +67,7 @@ export class AuthService {
   }
 
   /**
-   *decodes the token_id from local storage
+   * decodes the token_id from local storage
    * @returns string of the user's id
    */
   public getUserId(): number {
