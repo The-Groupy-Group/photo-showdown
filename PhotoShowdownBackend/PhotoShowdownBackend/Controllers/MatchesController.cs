@@ -5,6 +5,7 @@ using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
+using PhotoShowdownBackend.Exceptions.Matches;
 using PhotoShowdownBackend.Services.Matches;
 using PhotoShowdownBackend.Services.Session;
 using PhotoShowdownBackend.Services.Users;
@@ -129,12 +130,14 @@ public class MatchesController : ControllerBase
         }
         catch (NotFoundException ex)
         {
-            _logger.LogError(ex, $"{nameof(JoinMatch)} Error");
             return NotFound(response.ErrorResponse(ex.Message));
         }
         catch (UserAlreadyConnectedException ex)
         {
-            _logger.LogError(ex, $"{nameof(JoinMatch)} Error");
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+        catch(MatchAlreadyStartedException ex)
+        {
             return BadRequest(response.ErrorResponse(ex.Message));
         }
     }

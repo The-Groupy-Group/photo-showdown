@@ -5,6 +5,8 @@ using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
+using PhotoShowdownBackend.Exceptions.Matches;
+using PhotoShowdownBackend.Extentions;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.MatchConnections;
 using PhotoShowdownBackend.Repositories.Users;
@@ -109,6 +111,11 @@ public class MatchesService : IMatchesService
         {
             throw new NotFoundException(matchId);
         }
+        bool hasMatchStarted = await _matchesRepo.AnyAsync(m=>m.Id == matchId && m.HasMatchStarted());
+        if (hasMatchStarted)
+        {
+            throw new MatchAlreadyStartedException();
+        }
 
         await _matchConnectionsService.CreateMatchConnection(user.Id, matchId);
 
@@ -166,4 +173,5 @@ public class MatchesService : IMatchesService
         MatchDTO matchDTO = _mapper.Map<MatchDTO>(match);
         return matchDTO;
     }
+
 }
