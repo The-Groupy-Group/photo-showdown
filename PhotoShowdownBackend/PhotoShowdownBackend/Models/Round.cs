@@ -5,12 +5,10 @@ namespace PhotoShowdownBackend.Models;
 
 public class Round
 {
-    [Key]
-    [Column(Order = 0)]
+    //[Key, Column(Order = 0)]
     public int MatchId { get; set; }
 
-    [Key]
-    [Column(Order = 1)]
+    //[Key, Column(Order = 1)]
     public int RoundId { get; set; }
 
     public int? WinnerId { get; set; }
