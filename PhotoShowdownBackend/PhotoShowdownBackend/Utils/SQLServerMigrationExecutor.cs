@@ -58,7 +58,7 @@ public class SQLServerMigrationExecutor
             string scriptName = Path.GetFileName(scriptFile);
 
             // Check if the script is already in DBScripts table
-            if (!IsScriptInDBScriptsTable(connection, scriptBatch))
+            if (!IsScriptInDBScriptsTable(connection, scriptBatch, scriptName))
             {
                 if (execute)
                 {
@@ -111,9 +111,9 @@ public class SQLServerMigrationExecutor
         throw new Exception($"SQL File named {fileName} has invalid name (no batch).");
     }
 
-    private static bool IsScriptInDBScriptsTable(SqlConnection connection, int scriptBatch)
+    private static bool IsScriptInDBScriptsTable(SqlConnection connection, int scriptBatch,string scriptName)
     {
-        var query = $"SELECT COUNT(*) FROM DBScripts WHERE ScriptBatch = {scriptBatch}";
+        var query = $"SELECT COUNT(*) FROM DBScripts WHERE ScriptBatch = {scriptBatch} AND ScriptName = '{scriptName}'";
         using var command = new SqlCommand(query, connection);
         return (int)command.ExecuteScalar() > 0;
     }

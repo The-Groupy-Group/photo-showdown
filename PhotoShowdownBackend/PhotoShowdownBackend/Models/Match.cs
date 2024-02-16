@@ -24,4 +24,6 @@ public class Match
 
     [InverseProperty("Match")]
     public virtual ICollection<CustomSentence> CustomSentences { get; set; } = new List<CustomSentence>();
+
+    public virtual ICollection<Round> Rounds { get; set; } = new List<Round>();
 }

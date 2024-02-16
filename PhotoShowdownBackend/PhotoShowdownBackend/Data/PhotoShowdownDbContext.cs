@@ -14,4 +14,6 @@ public class PhotoShowdownDbContext : DbContext
     public DbSet<Picture> Pictures { get; set; } = null!;
     public DbSet<Match> Matches { get; set; } = null!;
     public DbSet<MatchConnection> MatchConnections { get; set; } = null!;
+    public DbSet<Round> Rounds { get; set; } = null!;
+    public DbSet<CustomSentence> CustomSentences { get; set; } = null!;
 }
