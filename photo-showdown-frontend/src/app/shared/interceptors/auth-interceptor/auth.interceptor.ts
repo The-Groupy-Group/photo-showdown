@@ -29,14 +29,14 @@ export class AuthInterceptor implements HttpInterceptor {
         headers: request.headers.set('Authorization', 'Bearer ' + idToken),
       });
     }
-    if (environment.tunnelKey) {
-      request = request.clone({
-        headers: request.headers.set(
-          'X-Tunnel-Authorization',
-          'tunnel ' + environment.tunnelKey
-        ),
-      });
-    }
+    // if (environment.tunnelKey) {
+    //   request = request.clone({
+    //     headers: request.headers.set(
+    //       'X-Tunnel-Authorization',
+    //       'tunnel ' + environment.tunnelKey
+    //     ),
+    //   });
+    // }
     // Handle the request
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
