@@ -21,4 +21,7 @@ public class Match
     public virtual ICollection<MatchConnection> MatchConnections { get; set; } = new List<MatchConnection>();
 
     public virtual User Owner { get; set; } = null!;
+
+    [InverseProperty("Match")]
+    public virtual ICollection<CustomSentence> CustomSentences { get; set; } = new List<CustomSentence>();
 }
