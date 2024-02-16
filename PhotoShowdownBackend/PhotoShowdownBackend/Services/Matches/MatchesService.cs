@@ -17,6 +17,7 @@ using PhotoShowdownBackend.WebSockets.Messages;
 using System.Text.Json;
 
 
+
 namespace PhotoShowdownBackend.Services.Matches;
 
 /// <summary>
@@ -111,7 +112,9 @@ public class MatchesService : IMatchesService
         {
             throw new NotFoundException(matchId);
         }
-        bool hasMatchStarted = await _matchesRepo.AnyAsync(m=>m.Id == matchId && m.HasMatchStarted());
+        // TODO: Swap with m.HasMatchStarted if possible
+        bool hasMatchStarted = await _matchesRepo
+            .AnyAsync(m => m.Id == matchId && m.StartDate != null && DateTime.UtcNow >= m.StartDate);
         if (hasMatchStarted)
         {
             throw new MatchAlreadyStartedException();
