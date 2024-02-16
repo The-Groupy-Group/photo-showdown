@@ -21,4 +21,6 @@ public class Match
     public virtual ICollection<MatchConnection> MatchConnections { get; set; } = new List<MatchConnection>();
 
     public virtual User Owner { get; set; } = null!;
+
+    public virtual ICollection<Round> Rounds { get; set; } = new List<Round>();
 }
