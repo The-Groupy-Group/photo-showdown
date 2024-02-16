@@ -1,0 +1,6 @@
+export const environment = {
+  production: false,
+  apiUrl: 'https://fprrs19d-7222.uks1.devtunnels.ms/api',
+  tunnelKey:
+    'eyJhbGciOiJFUzI1NiIsImtpZCI6IjNGRkVFNzgyNzFBODE1MTc1MzYyNEVCODNCMDBBODIyMkRDODYxRDYiLCJ0eXAiOiJKV1QifQ.eyJjbHVzdGVySWQiOiJ1a3MxIiwidHVubmVsSWQiOiJmcHJyczE5ZCIsInNjcCI6ImNvbm5lY3QiLCJleHAiOjE3MDgxNjYwNTksImlzcyI6Imh0dHBzOi8vdHVubmVscy5hcGkudmlzdWFsc3R1ZGlvLmNvbS8iLCJuYmYiOjE3MDgwNzg3NTl9.HBgCKglrJKhvmdDBiO1irQ0LM4wwjgpbvUQXegMDBnOSi5wbfVtgt2APZKsDoxuuNzEhejpbgr0-hinfVEG9wg',
+};
