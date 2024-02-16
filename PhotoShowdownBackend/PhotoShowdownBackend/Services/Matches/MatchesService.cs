@@ -151,7 +151,6 @@ public class MatchesService : IMatchesService
             // Send a message to the room
             var newOwnerWsMessage = new NewOwnerWebSocketMessage(_mapper.Map<UserPublicDetailsDTO>(newOwner));
             await _webSocketRoomManager.SendMessageToRoom(userToRemove.Id, matchId, newOwnerWsMessage);
-            await _webSocketRoomManager.CloseConnection(userToRemove.Id, matchId);
         }
     }
 
