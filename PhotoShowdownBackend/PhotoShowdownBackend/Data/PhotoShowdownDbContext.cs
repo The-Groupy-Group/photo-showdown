@@ -16,4 +16,10 @@ public class PhotoShowdownDbContext : DbContext
     public DbSet<MatchConnection> MatchConnections { get; set; } = null!;
     public DbSet<Round> Rounds { get; set; } = null!;
     public DbSet<CustomSentence> CustomSentences { get; set; } = null!;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Round>()
+            .HasKey(nameof(Round.RoundIndex), nameof(Round.MatchId));
+    }
 }
