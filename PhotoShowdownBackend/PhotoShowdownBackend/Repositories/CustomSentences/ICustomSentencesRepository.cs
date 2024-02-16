@@ -5,4 +5,5 @@ namespace PhotoShowdownBackend.Repositories.CustomSentences;
 
 public interface ICustomSentencesRepository : IRepository<CustomSentence>
 {
+
 }
