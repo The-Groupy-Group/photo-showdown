@@ -19,7 +19,7 @@ import { MatchSettings } from '../../models/match-settings.model';
 export class PreGameLobbyComponent implements OnInit {
   match?: Match;
   isOwner = false;
-  matchSettings: MatchSettings = {};
+  matchSettings: MatchSettings = { sentences: [] };
   @Input() matchId!: number;
   @Output() onDisconnect: EventEmitter<undefined> = new EventEmitter();
 
