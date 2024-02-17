@@ -1,20 +1,15 @@
 ﻿using AutoMapper;
-using Azure;
-using Microsoft.AspNetCore.Mvc;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Exceptions.Matches;
-using PhotoShowdownBackend.Extentions;
 using PhotoShowdownBackend.Models;
-using PhotoShowdownBackend.Repositories.MatchConnections;
 using PhotoShowdownBackend.Repositories.Users;
 using PhotoShowdownBackend.Services.MatchConnections;
-using PhotoShowdownBackend.Utils;
 using PhotoShowdownBackend.WebSockets;
 using PhotoShowdownBackend.WebSockets.Messages;
-using System.Text.Json;
+
 
 
 namespace PhotoShowdownBackend.Services.Matches;
@@ -111,7 +106,9 @@ public class MatchesService : IMatchesService
         {
             throw new NotFoundException(matchId);
         }
-        bool hasMatchStarted = await _matchesRepo.AnyAsync(m=>m.Id == matchId && m.HasMatchStarted());
+        // TODO: Swap with m.HasMatchStarted if possible
+        bool hasMatchStarted = await _matchesRepo
+            .AnyAsync(m => m.Id == matchId && m.StartDate != null && DateTime.UtcNow >= m.StartDate);
         if (hasMatchStarted)
         {
             throw new MatchAlreadyStartedException();
@@ -159,7 +156,7 @@ public class MatchesService : IMatchesService
         return await _matchConnectionsService.IsUserConnectedToMatch(userId);
     }
 
-    public async Task CreateMatchConnection(int userId, int matchId)
+    public async Task ConnectUserToMatch(int userId, int matchId)
     {
         await _matchConnectionsService.CreateMatchConnection(userId, matchId);
     }

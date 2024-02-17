@@ -13,12 +13,14 @@ public class Picture
     public int Id { get; set; }
 
     [Required] // Not nullable
+    [ForeignKey("User")]
     public int UserId { get; set; }
 
     [Required]
     [MaxLength(128)]
     public string PicturePath { get; set; } = string.Empty;
-
+    
+    [ForeignKey("UserId")]
     public virtual User User { get; set; } = null!;
 
     [NotMapped]

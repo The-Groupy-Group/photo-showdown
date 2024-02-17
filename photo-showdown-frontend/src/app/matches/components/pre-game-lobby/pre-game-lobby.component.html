@@ -1,14 +1,90 @@
 <mat-card class="lobby-container">
   <div class="inner-container">
-  <h2>pre-lobby</h2>
-  <p>match id: {{match?.id}}</p>
-  <p>owner name: {{match?.owner?.username}}</p>
-  <div>
-    <h2>Users:</h2>
-    <div class="users-container">
-      <div *ngFor="let user of match?.users">{{ user.username }}</div>
+    <h2>pre-lobby</h2>
+    <p>match id: {{ match?.id }}</p>
+    <p>owner name: {{ match?.owner?.username }}</p>
+
+    <!-- Match Settings Form -->
+    <div *ngIf="isOwner">
+      <h2>Match Settings:</h2>
+      <form>
+        <div class="form-group">
+          <label for="sentences">Sentences (comma-separated):</label>
+          <input
+            type="text"
+            id="sentences"
+            [(ngModel)]="matchSettings.sentences"
+            name="sentences"
+            rows="5"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="pictureSelectionTime"
+            >Picture Selection Time (seconds):</label
+          >
+          <input
+            type="number"
+            id="pictureSelectionTime"
+            [(ngModel)]="matchSettings.pictureSelectionTimeSeconds"
+            name="pictureSelectionTime"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="voteTime">Vote Time (seconds):</label>
+          <input
+            type="number"
+            id="voteTime"
+            [(ngModel)]="matchSettings.voteTimeSeconds"
+            name="voteTime"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="numOfVotesToWin">Number of Votes to Win:</label>
+          <input
+            type="number"
+            id="numOfVotesToWin"
+            [(ngModel)]="matchSettings.numOfVotesToWin"
+            name="numOfVotesToWin"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="numOfRounds">Number of Rounds:</label>
+          <input
+            type="number"
+            id="numOfRounds"
+            [(ngModel)]="matchSettings.numOfRounds"
+            name="numOfRounds"
+          />
+        </div>
+      </form>
+      <button
+        class="start"
+        color="primary"
+        mat-raised-button
+        (click)="startMatch()"
+      >
+        Start
+      </button>
     </div>
-    <button class="disconnect" color="warn" mat-raised-button (click)="disconnect()">Disconnect</button>
+
+    <!-- Users List -->
+    <div>
+      <h2>Users:</h2>
+      <div class="users-container">
+        <div *ngFor="let user of match?.users">{{ user.username }}</div>
+      </div>
+      <button
+        class="disconnect"
+        color="warn"
+        mat-raised-button
+        (click)="disconnect()"
+      >
+        Disconnect
+      </button>
+    </div>
   </div>
-</div>
 </mat-card>

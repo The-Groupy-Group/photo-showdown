@@ -11,6 +11,7 @@ public class MatchConnection
     [ForeignKey("User")]
     public int UserId { get; set; }
 
+    [ForeignKey("Match")]
     public int MatchId { get; set; }
 
     [ForeignKey("UserId")]
@@ -18,5 +19,4 @@ public class MatchConnection
 
     [ForeignKey("MatchId")]
     public virtual Match Match { get; set; } = null!;
-
 }

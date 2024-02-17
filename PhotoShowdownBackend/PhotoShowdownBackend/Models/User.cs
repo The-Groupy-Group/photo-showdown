@@ -36,5 +36,6 @@ public class User
     [InverseProperty("User")]
     public virtual ICollection<Picture> Pictures { get; set; } = new List<Picture>();
 
+    [InverseProperty("User")]
     public virtual MatchConnection? MatchConnection { get; set; }
 }
