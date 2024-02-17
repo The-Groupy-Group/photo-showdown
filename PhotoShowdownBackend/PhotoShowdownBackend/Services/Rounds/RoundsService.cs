@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using PhotoShowdownBackend.Dtos.Rounds;
+using PhotoShowdownBackend.Exceptions;
+using PhotoShowdownBackend.Exceptions.Rounds;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.Pictures;
 using PhotoShowdownBackend.Repositories.Rounds;
@@ -8,14 +10,14 @@ using PhotoShowdownBackend.Services.Pictures;
 
 namespace PhotoShowdownBackend.Services.Rounds;
 
-public class RoundsService: IRoundsService
+public class RoundsService : IRoundsService
 {
     private readonly IRoundsRepository _roundsRepo;
     private readonly IMapper _mapper;
     private readonly ILogger<RoundsService> _logger;
     private readonly ISentencesService _sentencesService;
 
-    public RoundsService(IRoundsRepository roundsRepo,IMapper mapper,ILogger<RoundsService> logger,ISentencesService customSentencesService)
+    public RoundsService(IRoundsRepository roundsRepo, IMapper mapper, ILogger<RoundsService> logger, ISentencesService customSentencesService)
     {
         _roundsRepo = roundsRepo;
         _mapper = mapper;
@@ -23,24 +25,39 @@ public class RoundsService: IRoundsService
         _sentencesService = customSentencesService;
     }
 
-    public async Task<RoundDTO> StartRound(int matchId,int roundIndex)
+    public async Task<RoundDTO> StartRound(int matchId, int roundIndex)
     {
+        var sentence = await _sentencesService.FetchSentence(matchId) ??
+            throw new CantFetchSentenceException();
 
         var round = new Round()
         {
             MatchId = matchId,
             RoundIndex = roundIndex,
             StartDate = DateTime.UtcNow,
-            Sentence = await _sentencesService.FetchSentence(matchId)
+            RoundState = Round.RoundStates.PictureSelection,
+            Sentence = sentence
         };
 
-        var roundDto = _mapper.Map<RoundDTO>(round);
         await _roundsRepo.CreateAsync(round);
-        return roundDto;
+
+        return _mapper.Map<RoundDTO>(round);
     }
 
-    public async Task<RoundDTO> EndRound(int matchId)
+    public async Task<RoundDTO> EndRound(int matchId, int roundIndex)
     {
-        return null; 
+        var round = await _roundsRepo.GetAsync(r => r.MatchId == matchId && r.RoundIndex == roundIndex);
+
+        if (round == null)
+        {
+            throw new NotFoundException("Round not found");
+        }
+
+        round.RoundState = Round.RoundStates.Ended;
+        round.EndDate = DateTime.UtcNow;
+
+        await _roundsRepo.UpdateAsync(round);
+
+        return _mapper.Map<RoundDTO>(round);
     }
 }
