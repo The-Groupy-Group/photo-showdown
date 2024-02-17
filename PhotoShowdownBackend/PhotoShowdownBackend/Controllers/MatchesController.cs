@@ -5,6 +5,7 @@ using PhotoShowdownBackend.Dtos;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Messages;
 using PhotoShowdownBackend.Dtos.Users;
+using PhotoShowdownBackend.Dtos.WebSocketMessages;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Exceptions.Matches;
@@ -191,6 +192,34 @@ public class MatchesController : ControllerBase
         }
     }
 
+    [HttpPost]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> StartMatch([FromBody] StartMatchDTO startMatchDTO)
+    {
+        APIResponse response = new();
+        try
+        {
+            int userId = _sessionService.GetCurrentUserId();
+            await _matchesService.StartMatch(userId, startMatchDTO);
+            return Ok(response);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ErrorResponse(ex.Message));
+        }
+        catch (MatchAlreadyStartedException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+        catch (UserIsNotMatchOwnerException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+    }
+
     /// <summary>
     /// This is the endpoint for the web socket
     /// </summary>
@@ -200,6 +229,7 @@ public class MatchesController : ControllerBase
     [ProducesResponseType(typeof(PlayerJoinedWebSocketMessage), StatusCodes.Status101SwitchingProtocols)]
     [ProducesResponseType(typeof(PlayerLeftWebSocketMessage), StatusCodes.Status101SwitchingProtocols)]
     [ProducesResponseType(typeof(NewOwnerWebSocketMessage), StatusCodes.Status101SwitchingProtocols)]
+    [ProducesResponseType(typeof(NewRoundStartedWebSocketMessage), StatusCodes.Status101SwitchingProtocols)]
     public void WebSocket(string jwt)
     {
         if (!HttpContext.WebSockets.IsWebSocketRequest)

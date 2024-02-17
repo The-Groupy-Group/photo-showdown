@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using PhotoShowdownBackend.Dtos.Matches;
-using PhotoShowdownBackend.Dtos.PicturesDto;
+using PhotoShowdownBackend.Dtos.Pictures;
 using PhotoShowdownBackend.Dtos.Rounds;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Extentions;

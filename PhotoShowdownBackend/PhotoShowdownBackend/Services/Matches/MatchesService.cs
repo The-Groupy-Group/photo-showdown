@@ -1,13 +1,16 @@
 ﻿using AutoMapper;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Messages;
+using PhotoShowdownBackend.Dtos.Rounds;
 using PhotoShowdownBackend.Dtos.Users;
+using PhotoShowdownBackend.Dtos.WebSocketMessages;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Exceptions.Matches;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.Users;
 using PhotoShowdownBackend.Services.MatchConnections;
+using PhotoShowdownBackend.Services.Rounds;
 using PhotoShowdownBackend.WebSockets;
 
 
@@ -21,20 +24,23 @@ public class MatchesService : IMatchesService
 {
     private readonly IMatchesReporitory _matchesRepo;
     private readonly IMatchConnectionsService _matchConnectionsService;
+    private readonly IRoundsService _roundsService;
     private readonly WebSocketRoomManager _webSocketRoomManager;
     private readonly IMapper _mapper;
     private readonly ILogger<MatchesService> _logger;
-
+    private const int ROUND_WINNER_DISPLAY_SECONDS = 15;
 
     public MatchesService(
         IMatchesReporitory matchesRepository,
         IMatchConnectionsService matchConnectionsService,
+        IRoundsService roundsService,
         WebSocketRoomManager webSocketRoomManager,
         IMapper mapper,
         ILogger<MatchesService> logger)
     {
         _matchesRepo = matchesRepository;
         _matchConnectionsService = matchConnectionsService;
+        _roundsService = roundsService;
         _webSocketRoomManager = webSocketRoomManager;
         _mapper = mapper;
         _logger = logger;
@@ -169,4 +175,76 @@ public class MatchesService : IMatchesService
         return matchDTO;
     }
 
+    public async Task StartMatch(int userId, StartMatchDTO startMatchDTO)
+    {
+        Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == startMatchDTO.MatchId) ??
+            throw new NotFoundException();
+
+        if (match.OwnerId != userId)
+        {
+            throw new UserIsNotMatchOwnerException();
+        }
+
+        if (match.StartDate != null)
+        {
+            throw new MatchAlreadyStartedException();
+        }
+
+        // Map the request to update the Match object
+        match.StartDate = DateTime.UtcNow;
+        if (startMatchDTO.PictureSelectionTimeSeconds.HasValue)
+        {
+            match.PictureSelectionTimeSeconds = startMatchDTO.PictureSelectionTimeSeconds.Value;
+        }
+        if (startMatchDTO.VoteTimeSeconds.HasValue)
+        {
+            match.VoteTimeSeconds = startMatchDTO.VoteTimeSeconds.Value;
+        }
+        if (startMatchDTO.NumOfVotesToWin.HasValue)
+        {
+            match.NumOfVotesToWin = startMatchDTO.NumOfVotesToWin.Value;
+        }
+        if (startMatchDTO.NumOfRounds.HasValue)
+        {
+            match.NumOfRounds = startMatchDTO.NumOfRounds.Value;
+        }
+        // Update the match
+        await _matchesRepo.UpdateAsync(match);
+
+        // Start the match logic
+        // Get the match from the database to avoid concurrency issues
+        match = (await _matchesRepo.GetAsync(m => m.Id == startMatchDTO.MatchId, tracked: false))!;
+
+        _ = Task.Run(() => ExecuteMatchLogic(match));
+    }
+
+    private async void ExecuteMatchLogic(Match match)
+    {
+        int roundIndex = 0;
+        while (!(false/*match.NumOfRounds == roundIndex || match.NumOfVotesToWin == userWithMaxVotes*/)) // Check winning condition
+        {
+            // ------- Start a new round ------- //
+            //var roundDto = _roundsService.StartRound(match.Id, roundIndex);
+            var roundDto = new RoundDTO()
+            {
+                MatchId = match.Id,
+                RoundIndex = 0,
+                RoundState = Round.RoundStates.PictureSelection,
+                StartDate = DateTime.UtcNow,
+                Sentence = "PITOM DONFIL HEFLITZ TUUUM TUUUM TUTUUTUTUMMM " + roundIndex
+            };
+            NewRoundStartedWebSocketMessage newRoundWsMessage = new(roundDto);
+            await _webSocketRoomManager.SendMessageToRoom(null, match.Id, newRoundWsMessage);
+            Thread.Sleep(match.PictureSelectionTimeSeconds * 1000);
+
+            // ------- Start voting phase ------- //
+            Thread.Sleep(match.VoteTimeSeconds * 1000);
+            // TODO: Implement voting logic
+
+            // ------- Ending a round ------- //
+            //roundDto = _roundsService.EndRound(match.Id, roundIndex);
+            Thread.Sleep(ROUND_WINNER_DISPLAY_SECONDS * 1000);
+            roundIndex++;
+        }
+    }
 }

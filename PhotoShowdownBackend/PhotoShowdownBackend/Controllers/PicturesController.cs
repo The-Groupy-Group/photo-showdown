@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PhotoShowdownBackend.Attributes;
 using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos;
-using PhotoShowdownBackend.Dtos.PicturesDto;
+using PhotoShowdownBackend.Dtos.Pictures;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Services.Pictures;
 using PhotoShowdownBackend.Services.Session;

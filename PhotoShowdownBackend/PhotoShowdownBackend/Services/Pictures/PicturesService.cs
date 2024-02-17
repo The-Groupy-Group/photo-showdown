@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using PhotoShowdownBackend.Dtos.PicturesDto;
+using PhotoShowdownBackend.Dtos.Pictures;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.Pictures;
