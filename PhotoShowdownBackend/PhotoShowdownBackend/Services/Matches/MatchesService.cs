@@ -1,20 +1,14 @@
 ﻿using AutoMapper;
-using Azure;
-using Microsoft.AspNetCore.Mvc;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Exceptions.Matches;
-using PhotoShowdownBackend.Extentions;
 using PhotoShowdownBackend.Models;
-using PhotoShowdownBackend.Repositories.MatchConnections;
 using PhotoShowdownBackend.Repositories.Users;
 using PhotoShowdownBackend.Services.MatchConnections;
-using PhotoShowdownBackend.Utils;
 using PhotoShowdownBackend.WebSockets;
 using PhotoShowdownBackend.WebSockets.Messages;
-using System.Text.Json;
 
 
 

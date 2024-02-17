@@ -29,13 +29,7 @@ internal class TestUtils
     // Get IMapper from automapper profile
     public static IMapper GetMapper()
     {
-        //var config = new MapperConfiguration(cfg =>
-        //{
-        //    cfg.AddProfile<MappingConfig>();
-        //});
-
-        //return config.CreateMapper();
-
-        return new MapperConfiguration(cfg => cfg.AddMaps(typeof(MappingConfig).Assembly)).CreateMapper();
+        return new MapperConfiguration(cfg => cfg.AddMaps(typeof(MappingConfig).Assembly))
+            .CreateMapper();
     }
 }

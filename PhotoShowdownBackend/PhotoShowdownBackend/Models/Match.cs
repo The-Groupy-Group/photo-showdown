@@ -11,6 +11,7 @@ public class Match
     public int Id { get; set; }
 
     [Required] // Not nullable
+    [ForeignKey("Owner")]
     public int OwnerId { get; set; }
 
     public DateTime? StartDate { get; set; }
@@ -32,10 +33,12 @@ public class Match
     [InverseProperty("Match")]
     public virtual ICollection<MatchConnection> MatchConnections { get; set; } = new List<MatchConnection>();
 
+    [ForeignKey("OwnerId")]
     public virtual User Owner { get; set; } = null!;
 
     [InverseProperty("Match")]
     public virtual ICollection<CustomSentence> CustomSentences { get; set; } = new List<CustomSentence>();
 
+    [InverseProperty("Match")]
     public virtual ICollection<Round> Rounds { get; set; } = new List<Round>();
 }
