@@ -220,9 +220,8 @@ public class MatchesService : IMatchesService
 
     private async void ExecuteMatchLogic(Match match)
     {
-        bool winningConditionMet = false;
         int roundIndex = 0;
-        while (!winningConditionMet)
+        while (!(false/*match.NumOfRounds == roundIndex || match.NumOfVotesToWin == userWithMaxVotes*/)) // Check winning condition
         {
             // ------- Start a new round ------- //
             //var roundDto = _roundsService.StartRound(match.Id, roundIndex);

@@ -24,10 +24,10 @@ public class Match
     [Range(0, 60)]
     public int VoteTimeSeconds { get; set; } = 35;
 
-    [Range(0, 100)]
+    [Range(1, 100)]
     public int NumOfVotesToWin { get; set; } = 100;
 
-    [Range(0, 500)]
+    [Range(1, 500)]
     public int NumOfRounds { get; set; } = 500;
 
     [InverseProperty("Match")]
