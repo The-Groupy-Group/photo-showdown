@@ -7,6 +7,10 @@
     *ngSwitchCase="GameState.InLobby"
     [matchId]="matchId!"
     (onDisconnect)="disconnect()"
+    (onMatchStart)="redirectToMatch()"
   ></app-pre-game-lobby>
   <p *ngSwitchCase="GameState.InMatch">In Match lol xD</p>
+  <app-in-match
+    *ngSwitchCase="GameState.InMatch"
+    (onDisconnect)="disconnect()"></app-in-match>
 </div>

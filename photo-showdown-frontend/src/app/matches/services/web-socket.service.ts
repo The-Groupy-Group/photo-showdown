@@ -19,6 +19,7 @@ export class WebSocketService {
   constructor(readonly authService: AuthService) {
     let token = authService.getJwtToken();
     this.socket$ = new WebSocketSubject(this.wsURL + '?jwt=' + token);
+    console.log('WebSocketService: constructor');
   }
 
   sendMessage(message: any): void {
@@ -39,5 +40,10 @@ export class WebSocketService {
         f(message);
       }
     });
+  }
+
+  closeConnection(): void {
+    this.socket$.complete();
+    console.log('WebSocketService: closeConnection');
   }
 }

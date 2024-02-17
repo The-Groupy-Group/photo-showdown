@@ -3,6 +3,7 @@ import { GameState } from 'src/app/shared/models/game-state.enum';
 import { MatchesService } from '../../services/matches.service';
 import { HttpStatusCode } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
+import { Round } from '../../models/round.model';
 
 @Component({
   selector: 'app-game',
@@ -10,13 +11,13 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./game.component.css'],
 })
 export class GameComponent {
+  readonly GameState = GameState;
+
   gameState: GameState = GameState.NotStarted;
-  GameState = GameState;
-  matchId: number | undefined;
+  matchId?: number;
 
   constructor(
     private matchesService: MatchesService,
-    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -28,8 +29,7 @@ export class GameComponent {
     this.gameState = GameState.InLobby;
   }
 
-  redirectToMatch(matchId: number) {
-    this.matchId = matchId;
+  redirectToMatch() {
     this.gameState = GameState.InMatch;
   }
 
@@ -41,8 +41,9 @@ export class GameComponent {
   private handleIsInMatch() {
     this.matchesService.getCurrentMatch().subscribe({
       next: (response) => {
+        this.matchId = response.data.id;
         if (response.data.hasStarted) {
-          this.redirectToMatch(response.data.id);
+          this.redirectToMatch();// TODO: fetch first round
         }
         this.redirectToLobby(response.data.id);
       },

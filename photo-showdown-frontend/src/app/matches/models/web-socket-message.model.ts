@@ -14,8 +14,13 @@ export interface WebSocketMessage<T> extends EmptyWebSocketMessage {
   data: T;
 }
 
+/**
+ * This enum represents the different types of messages that can be sent over a WebSocket connection.
+ */
 export enum WebSocketMessageType {
   playerJoined = 'playerJoined',
   playerLeft = 'playerLeft',
   newOwner = 'newOwner',
+  matchStarted = 'matchStarted',
+  newRoundStarted = 'newRoundStarted',
 }

@@ -97,11 +97,10 @@ export class MatchesService {
    * @returns failed/worked
    */
   startMatch(
-    matchId: number,
     matchSettings: MatchSettings
   ): Observable<EmptyAPIResponse> {
     return this.http.post<EmptyAPIResponse>(
-      this.apiURL + `/StartMatch/${matchId}`,
+      this.apiURL + `/StartMatch`,
       matchSettings,
       this.httpOptions
     );

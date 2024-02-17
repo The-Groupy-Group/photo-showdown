@@ -4,12 +4,14 @@ import { MatchesService } from '../../services/matches.service';
 import { Match } from '../../models/match.model';
 import { WebSocketService } from '../../services/web-socket.service';
 import {
+  EmptyWebSocketMessage,
   WebSocketMessage,
   WebSocketMessageType,
 } from '../../models/web-socket-message.model';
 import { UserPublicDetails } from 'src/app/users/models/user-public-details.model';
 import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
 import { MatchSettings } from '../../models/match-settings.model';
+import { Round } from '../../models/round.model';
 
 @Component({
   selector: 'app-pre-game-lobby',
@@ -19,9 +21,10 @@ import { MatchSettings } from '../../models/match-settings.model';
 export class PreGameLobbyComponent implements OnInit {
   match?: Match;
   isOwner = false;
-  matchSettings: MatchSettings = { sentences: [] };
+  matchSettings: MatchSettings = { matchId: 0, sentences: [] };
   @Input() matchId!: number;
   @Output() onDisconnect: EventEmitter<undefined> = new EventEmitter();
+  @Output() onMatchStart: EventEmitter<undefined> = new EventEmitter();
 
   constructor(
     private readonly notifier: NotifierService,
@@ -35,6 +38,7 @@ export class PreGameLobbyComponent implements OnInit {
     this.matchesService.getMatchById(this.matchId).subscribe({
       next: (response) => {
         this.match = response.data;
+        this.matchSettings.matchId = this.match.id;
         this.isOwner = this.match.owner.id === this.authService.getUserId();
       },
     });
@@ -66,6 +70,13 @@ export class PreGameLobbyComponent implements OnInit {
         }
       }
     );
+    // Listen for match start events
+    this.webSocketService.onWebSocketEvent<EmptyWebSocketMessage>(
+      WebSocketMessageType.matchStarted,
+      (wsMessage) => {
+        this.onMatchStart.emit();
+      }
+    );
   }
 
   startMatch() {
@@ -73,7 +84,7 @@ export class PreGameLobbyComponent implements OnInit {
       return;
     }
     this.matchesService
-      .startMatch(this.match.id, this.matchSettings)
+      .startMatch(this.matchSettings)
       .subscribe();
   }
 

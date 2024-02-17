@@ -24,6 +24,7 @@ import { NotifierModule } from 'angular-notifier';
 import { PreGameLobbyComponent } from './matches/components/pre-game-lobby/pre-game-lobby.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { GameComponent } from './matches/components/game/game.component';
+import { InMatchComponent } from './matches/components/in-match/in-match.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import { GameComponent } from './matches/components/game/game.component';
     MatchListItemComponent,
     PreGameLobbyComponent,
     GameComponent,
+    InMatchComponent,
   ],
   imports: [
     BrowserModule,

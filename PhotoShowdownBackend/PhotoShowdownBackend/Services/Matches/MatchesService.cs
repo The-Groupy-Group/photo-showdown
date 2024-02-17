@@ -191,7 +191,7 @@ public class MatchesService : IMatchesService
         }
 
         // Map the request to update the Match object
-        match.StartDate = DateTime.UtcNow;
+        //match.StartDate = DateTime.UtcNow;
         if (startMatchDTO.PictureSelectionTimeSeconds.HasValue)
         {
             match.PictureSelectionTimeSeconds = startMatchDTO.PictureSelectionTimeSeconds.Value;
@@ -215,6 +215,8 @@ public class MatchesService : IMatchesService
         // Get the match from the database to avoid concurrency issues
         match = (await _matchesRepo.GetAsync(m => m.Id == startMatchDTO.MatchId, tracked: false))!;
 
+        MatchStartedWebSocketMessage matchStartedWsMessage = new();
+        await _webSocketRoomManager.SendMessageToRoom(null, match.Id, matchStartedWsMessage);
         _ = Task.Run(() => ExecuteMatchLogic(match));
     }
 
