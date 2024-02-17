@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.PicturesDto;
+using PhotoShowdownBackend.Dtos.Rounds;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Extentions;
 using PhotoShowdownBackend.Models;
@@ -29,5 +30,8 @@ public class MappingConfig : Profile
             .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner))
             .ForMember(dest => dest.HasStarted, opt => opt.MapFrom(src => src.HasMatchStarted()));
         CreateMap<Match, MatchCreationResponseDTO>();
+
+        // Rounds
+        CreateMap<Round, RoundDTO>();
     }
 }

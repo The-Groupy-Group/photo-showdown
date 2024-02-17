@@ -18,6 +18,8 @@ public class Round
 
     [ForeignKey("Winner")]
     public int? WinnerId { get; set; }
+    
+    public string Sentence { get; set; } = string.Empty;
 
     public DateTime? StartDate { get; set; }
 

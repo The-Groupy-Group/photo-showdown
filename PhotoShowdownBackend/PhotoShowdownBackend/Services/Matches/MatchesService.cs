@@ -53,7 +53,6 @@ public class MatchesService : IMatchesService
             OwnerId = ownerId
         };
 
-
         // Create the match
         await _matchesRepo.CreateAsync(match);
 
