@@ -13,7 +13,11 @@ namespace PhotoShowdownBackend.Services.CustomSentences
         private readonly ICustomSentencesRepository _customSentencesRepo;
         private readonly IMapper _mapper;
         private readonly ILogger<SentencesService> _logger;
-        private static ConcurrentDictionary<int,List<string>> _defaultSentences = new();
+        private static readonly ConcurrentDictionary<int, ConcurrentBag<string>> _defaultSentencesRepo = new();
+        private static readonly List<string> _defaultSentences = new()
+        {
+            "Diat from tomorrow",
+        };
 
         public SentencesService(ICustomSentencesRepository customSentencesRepo, IMapper mapper, ILogger<SentencesService> logger)
         {
@@ -22,35 +26,30 @@ namespace PhotoShowdownBackend.Services.CustomSentences
             _logger = logger;
         }
 
-        public async Task<string> FetchSentence(int matchId)
+        public async Task<string?> FetchSentence(int matchId)
         {
-    
+
             var customSentence = await _customSentencesRepo.GetAsync(cs => cs.MatchId == matchId);
 
             if (customSentence == null)
             {
-                List<string> SentencesListForMatch = _defaultSentences.GetOrAdd(matchId, matchId => InitDefaultSentencesForMatch());
-                var defaultSentence = SentencesListForMatch.FirstOrDefault();
-                SentencesListForMatch.Remove(defaultSentence);
-                return defaultSentence ?? ""; //todo - throw error if there are no more sentences, and end match bamyadit.
+                ConcurrentBag<string> SentencesListForMatch = _defaultSentencesRepo.GetOrAdd(matchId, matchId => InitDefaultSentencesForMatch());
+                SentencesListForMatch.TryTake(out string? defaultSentence);
+                return defaultSentence;
             }
             else
             {
                 await _customSentencesRepo.DeleteAsync(customSentence);
                 return customSentence.Sentence;
             }
-            
         }
 
-        private List<string> InitDefaultSentencesForMatch()
+        private static ConcurrentBag<string> InitDefaultSentencesForMatch()
         {
-            List<string> sentences = new()
-            {
-                "",
-            };
             Random rnd = new();
-            return sentences.OrderBy(s => rnd.Next(int.MaxValue)).ToList();
+            ConcurrentBag<string> sentences = new();
+            _defaultSentences.OrderBy(x => rnd.Next()).ToList().ForEach(sentences.Add);
+            return sentences;
         }
-
     }
 }

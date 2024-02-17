@@ -2,6 +2,6 @@
 {
     public interface ISentencesService
     {
-         Task<string> FetchSentence(int matchId);
+         Task<string?> FetchSentence(int matchId);
     }
 }
