@@ -53,11 +53,12 @@ public class MatchesController : ControllerBase
             int ownerId = _sessionService.GetCurrentUserId();
 
             var newMatchDetails = await _matchesService.CreateNewMatch(ownerId);
-            await _matchesService.CreateMatchConnection(ownerId, newMatchDetails.Id);
+            await _matchesService.ConnectUserToMatch(ownerId, newMatchDetails.Id);
 
             response.Data = newMatchDetails;
             //return StatusCode(StatusCodes.Status201Created, response);
-            return CreatedAtAction(nameof(GetMatchById), new { id = newMatchDetails.Id }, response);
+
+            return CreatedAtAction(nameof(this.GetMatchById), new { matchId = newMatchDetails.Id }, response);
         }
         catch (UserAlreadyConnectedException ex)
         {

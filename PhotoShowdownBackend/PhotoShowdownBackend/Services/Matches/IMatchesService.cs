@@ -17,6 +17,6 @@ public interface IMatchesService
     Task AddUserToMatch(UserPublicDetailsDTO user, int matchId);
     Task RemoveUserFromMatch(UserPublicDetailsDTO user, int matchId);
     Task<bool> IsUserConnectedToMatch(int userId);
-    Task CreateMatchConnection(int userId, int matchId);
+    Task ConnectUserToMatch(int userId, int matchId);
     Task<MatchDTO> GetMatchByUserId(int userId);
 }

@@ -156,7 +156,7 @@ public class MatchesService : IMatchesService
         return await _matchConnectionsService.IsUserConnectedToMatch(userId);
     }
 
-    public async Task CreateMatchConnection(int userId, int matchId)
+    public async Task ConnectUserToMatch(int userId, int matchId)
     {
         await _matchConnectionsService.CreateMatchConnection(userId, matchId);
     }
