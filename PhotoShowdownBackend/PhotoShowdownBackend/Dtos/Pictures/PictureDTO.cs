@@ -1,4 +1,4 @@
-﻿namespace PhotoShowdownBackend.Dtos.PicturesDto;
+﻿namespace PhotoShowdownBackend.Dtos.Pictures;
 
 public class PictureDTO
 {

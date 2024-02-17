@@ -1,4 +1,4 @@
-﻿using PhotoShowdownBackend.Dtos.PicturesDto;
+﻿using PhotoShowdownBackend.Dtos.Pictures;
 
 namespace PhotoShowdownBackend.Services.Pictures;
 
