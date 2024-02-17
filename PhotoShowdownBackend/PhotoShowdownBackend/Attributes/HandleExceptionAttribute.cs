@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
-using PhotoShowdownBackend.Utils;
+using PhotoShowdownBackend.Dtos;
 
 namespace PhotoShowdownBackend.Attributes;
 

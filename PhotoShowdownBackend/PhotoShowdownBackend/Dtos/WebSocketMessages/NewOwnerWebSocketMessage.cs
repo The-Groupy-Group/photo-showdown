@@ -1,6 +1,7 @@
-﻿using PhotoShowdownBackend.Dtos.Users;
+﻿using PhotoShowdownBackend.Dtos;
+using PhotoShowdownBackend.Dtos.Users;
 
-namespace PhotoShowdownBackend.WebSockets.Messages;
+namespace PhotoShowdownBackend.Dtos.Messages;
 
 public class NewOwnerWebSocketMessage : WebSocketMessage<UserPublicDetailsDTO>
 {

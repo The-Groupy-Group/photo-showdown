@@ -1,5 +1,5 @@
-﻿using PhotoShowdownBackend.Extentions;
-using PhotoShowdownBackend.WebSockets.Messages;
+﻿using PhotoShowdownBackend.Dtos;
+using PhotoShowdownBackend.Extentions;
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;

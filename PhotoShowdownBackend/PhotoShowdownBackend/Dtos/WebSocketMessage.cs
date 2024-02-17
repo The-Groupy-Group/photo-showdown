@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace PhotoShowdownBackend.WebSockets.Messages;
+namespace PhotoShowdownBackend.Dtos;
 
 /// <summary>
 /// Base class for all web socket messages

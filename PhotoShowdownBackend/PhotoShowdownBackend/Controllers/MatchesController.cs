@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PhotoShowdownBackend.Attributes;
+using PhotoShowdownBackend.Dtos;
 using PhotoShowdownBackend.Dtos.Matches;
+using PhotoShowdownBackend.Dtos.Messages;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
@@ -9,9 +11,7 @@ using PhotoShowdownBackend.Exceptions.Matches;
 using PhotoShowdownBackend.Services.Matches;
 using PhotoShowdownBackend.Services.Session;
 using PhotoShowdownBackend.Services.Users;
-using PhotoShowdownBackend.Utils;
 using PhotoShowdownBackend.WebSockets;
-using PhotoShowdownBackend.WebSockets.Messages;
 
 namespace PhotoShowdownBackend.Controllers;
 

@@ -1,17 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Win32;
 using PhotoShowdownBackend.Attributes;
 using PhotoShowdownBackend.Consts;
+using PhotoShowdownBackend.Dtos;
 using PhotoShowdownBackend.Dtos.PicturesDto;
-using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Services.Pictures;
 using PhotoShowdownBackend.Services.Session;
-using PhotoShowdownBackend.Utils;
-using PhotoShowdownBackend.WebSockets.Messages;
 
 
 namespace PhotoShowdownBackend.Controllers;

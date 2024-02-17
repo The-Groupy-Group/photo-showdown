@@ -1,19 +1,11 @@
 using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PhotoShowdownBackend.Controllers;
+using PhotoShowdownBackend.Dtos;
 using PhotoShowdownBackend.Dtos.Users;
-using PhotoShowdownBackend.Repositories.Repository;
-using PhotoShowdownBackend.Repositories.Users;
 using PhotoShowdownBackend.Services.Session;
 using PhotoShowdownBackend.Services.Users;
-using PhotoShowdownBackend.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PhotoShowdownBackend.Tests.Controllers;
 

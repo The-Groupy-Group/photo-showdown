@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using PhotoShowdownBackend.Dtos.Matches;
+using PhotoShowdownBackend.Dtos.Messages;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
@@ -8,7 +9,6 @@ using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.Users;
 using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.WebSockets;
-using PhotoShowdownBackend.WebSockets.Messages;
 
 
 

@@ -1,4 +1,4 @@
-﻿namespace PhotoShowdownBackend.Utils;
+﻿namespace PhotoShowdownBackend.Dtos;
 
 public class APIResponse<T> : APIResponse
 {

@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PhotoShowdownBackend.Attributes;
 using PhotoShowdownBackend.Consts;
+using PhotoShowdownBackend.Dtos;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.Users;
 using PhotoShowdownBackend.Services.Session;
 using PhotoShowdownBackend.Services.Users;
-using PhotoShowdownBackend.Utils;
 using System.Net;
 
 namespace PhotoShowdownBackend.Controllers;
