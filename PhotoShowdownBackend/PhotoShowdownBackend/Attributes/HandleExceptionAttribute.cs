@@ -31,13 +31,14 @@ public class HandleExceptionAttribute : TypeFilterAttribute
 
             // Set the response
             APIResponse response = _environment.IsDevelopment()
-                ? new APIResponse<Exception>()
+                ? new APIResponse<string>()
                 {
-                    Data = context.Exception,
+                    Data = context.Exception.StackTrace,
                     IsSuccess = false,
                     Message = context.Exception.Message,
                 }
                 : APIResponse.ServerError;
+
             context.Result = new ObjectResult(response)
             {
                 StatusCode = 500,
