@@ -22,9 +22,6 @@ public class Round
     
     public string Sentence { get; set; } = string.Empty;
 
-    [ForeignKey("WinnerId")]
-    public User? Winner { get; set; }
-
     public DateTime? StartDate { get; set; }
 
     public DateTime? EndDate { get; set; }
