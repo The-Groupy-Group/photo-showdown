@@ -29,6 +29,7 @@ public abstract class WebSocketMessage
         PlayerJoined,
         PlayerLeft,
         NewOwner,
+        NewRoundStarted,
     }
 }
 

@@ -19,4 +19,5 @@ public interface IMatchesService
     Task<bool> IsUserConnectedToMatch(int userId);
     Task ConnectUserToMatch(int userId, int matchId);
     Task<MatchDTO> GetMatchByUserId(int userId);
+    Task StartMatch(int userId, StartMatchDTO startMatchDTO);
 }
