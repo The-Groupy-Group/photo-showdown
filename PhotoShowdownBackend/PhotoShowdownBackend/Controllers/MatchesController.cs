@@ -14,6 +14,7 @@ using PhotoShowdownBackend.Services.Matches;
 using PhotoShowdownBackend.Services.Session;
 using PhotoShowdownBackend.Services.Users;
 using PhotoShowdownBackend.WebSockets;
+using System.Net.WebSockets;
 
 namespace PhotoShowdownBackend.Controllers;
 
@@ -218,24 +219,6 @@ public class MatchesController : ControllerBase
         catch (UserIsNotMatchOwnerException ex)
         {
             return BadRequest(response.ErrorResponse(ex.Message));
-        }
-    }
-
-    /// <summary>
-    /// This is the endpoint for the web socket
-    /// </summary>
-    /// <param name="jwt">JWT Auth Token</param>
-    [Route("/ws")]
-    [HttpGet]
-    [ProducesResponseType(typeof(PlayerJoinedWebSocketMessage), 600)]
-    [ProducesResponseType(typeof(PlayerLeftWebSocketMessage), 601)]
-    [ProducesResponseType(typeof(NewOwnerWebSocketMessage), 602)]
-    [ProducesResponseType(typeof(NewRoundStartedWebSocketMessage), 603)]
-    public void WebSocket(string jwt)
-    {
-        if (!HttpContext.WebSockets.IsWebSocketRequest)
-        {
-            HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
         }
     }
 }
