@@ -59,7 +59,6 @@ public class MatchesController : ControllerBase
             await _matchesService.ConnectUserToMatch(ownerId, newMatchDetails.Id);
 
             response.Data = newMatchDetails;
-            //return StatusCode(StatusCodes.Status201Created, response);
 
             return CreatedAtAction(nameof(this.GetMatchById), new { matchId = newMatchDetails.Id }, response);
         }

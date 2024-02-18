@@ -38,7 +38,7 @@ public class WebSocketRoomManager
         {
             foreach (var (userId, userSocket) in room.ConnectedUsers)
             {
-                if (userId != sendingUserId)
+                if (userId != sendingUserId && userSocket.State == WebSocketState.Open)
                     await userSocket.SendMessageAsync(message.ToString());
             }
         }
