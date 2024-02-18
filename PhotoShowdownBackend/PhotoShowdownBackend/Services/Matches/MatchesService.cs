@@ -118,11 +118,13 @@ public class MatchesService : IMatchesService
 
     public async Task RemoveUserFromMatch(UserPublicDetailsDTO userToRemove, int matchId)
     {
+        Match match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId))!;
+
         // Delete the connection
         await _matchConnectionsService.DeleteMatchConnection(userToRemove.Id, matchId);
 
-        // If the match is empty, delete it
-        if (await _matchConnectionsService.IsMatchEmpty(matchId))
+        // If the match is empty and hasent started, delete it
+        if (match.StartDate < DateTime.UtcNow && await _matchConnectionsService.IsMatchEmpty(matchId))
         {
             await DeleteMatch(matchId);
             return;
@@ -133,7 +135,7 @@ public class MatchesService : IMatchesService
         await _webSocketRoomManager.SendMessageToRoom(userToRemove.Id, matchId, playerLeftWsMessage);
         await _webSocketRoomManager.CloseConnection(userToRemove.Id, matchId);
 
-        Match match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId))!;
+
         // If the leaving user is the owner, assign a new owner
         if (match.OwnerId == userToRemove.Id)
         {
@@ -240,6 +242,7 @@ public class MatchesService : IMatchesService
             Thread.Sleep(ROUND_WINNER_DISPLAY_SECONDS * 1000);
             roundIndex++;
         }
+        // TODO: Implement match end logic (send a message to the room, remove all connection)
     }
 
     private async Task DeleteMatch(int matchId)
