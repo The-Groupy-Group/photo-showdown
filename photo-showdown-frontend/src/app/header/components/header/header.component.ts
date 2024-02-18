@@ -25,13 +25,11 @@ export class HeaderComponent {
     // Leave match if user is in a match that has not started
     this.matchesService.getCurrentMatch().subscribe((response) => {
       if (response.data?.matchState === MatchStates.notStarted) {
-        this.matchesService.leaveMatch(response.data.id).subscribe(() => {
-          this.authService.logout();
-          window.location.reload();
-        });
+        this.matchesService.leaveMatch(response.data.id).subscribe();
       }
     });
-
+    this.authService.logout();
+    window.location.reload();
     // this.setStatus();
     // this.router.navigate(['/login']);
   }

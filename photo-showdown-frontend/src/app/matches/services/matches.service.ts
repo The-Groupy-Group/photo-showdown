@@ -42,10 +42,7 @@ export class MatchesService {
     if (state) {
       url += `?state=${state}`;
     }
-    return this.http.get<APIResponse<Match[]>>(
-      url,
-      this.httpOptions
-    );
+    return this.http.get<APIResponse<Match[]>>(url, this.httpOptions);
   }
   /**
    *Use match id to get match details
