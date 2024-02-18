@@ -4,7 +4,7 @@ import {
   APIResponse,
   EmptyAPIResponse,
 } from 'src/app/shared/models/api-response.model';
-import { Match } from '../models/match.model';
+import { Match, MatchStates } from '../models/match.model';
 import { Observable } from 'rxjs';
 import { Entity } from 'src/app/shared/models/entity.model';
 import { environment } from 'src/environments/environment';
@@ -37,9 +37,13 @@ export class MatchesService {
    *
    * @returns all open matches id's their owners and users
    */
-  getAllOpenMatches(): Observable<APIResponse<Match[]>> {
+  getAllMatches(state?: MatchStates): Observable<APIResponse<Match[]>> {
+    let url = this.apiURL + '/GetAllMatches';
+    if (state) {
+      url += `?state=${state}`;
+    }
     return this.http.get<APIResponse<Match[]>>(
-      this.apiURL + '/GetAllOpenMatches',
+      url,
       this.httpOptions
     );
   }
@@ -96,9 +100,7 @@ export class MatchesService {
    * @param matchId the matches being joined id
    * @returns failed/worked
    */
-  startMatch(
-    matchSettings: MatchSettings
-  ): Observable<EmptyAPIResponse> {
+  startMatch(matchSettings: MatchSettings): Observable<EmptyAPIResponse> {
     return this.http.post<EmptyAPIResponse>(
       this.apiURL + `/StartMatch`,
       matchSettings,

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PhotoShowdownBackend.Attributes;
+using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Messages;
@@ -76,11 +77,11 @@ public class MatchesController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(APIResponse<List<MatchDTO>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAllOpenMatches()
+    public async Task<IActionResult> GetAllMatches(MatchStates? state)
     {
         APIResponse<List<MatchDTO>> response = new();
 
-        var allMatches = await _matchesService.GetAllOpenMatches();
+        var allMatches = await _matchesService.GetAllMatches(state);
         response.Data = allMatches;
         return Ok(response);
     }
@@ -226,10 +227,10 @@ public class MatchesController : ControllerBase
     /// <param name="jwt">JWT Auth Token</param>
     [Route("/ws")]
     [HttpGet]
-    [ProducesResponseType(typeof(PlayerJoinedWebSocketMessage), StatusCodes.Status101SwitchingProtocols)]
-    [ProducesResponseType(typeof(PlayerLeftWebSocketMessage), StatusCodes.Status101SwitchingProtocols)]
-    [ProducesResponseType(typeof(NewOwnerWebSocketMessage), StatusCodes.Status101SwitchingProtocols)]
-    [ProducesResponseType(typeof(NewRoundStartedWebSocketMessage), StatusCodes.Status101SwitchingProtocols)]
+    [ProducesResponseType(typeof(PlayerJoinedWebSocketMessage), 600)]
+    [ProducesResponseType(typeof(PlayerLeftWebSocketMessage), 601)]
+    [ProducesResponseType(typeof(NewOwnerWebSocketMessage), 602)]
+    [ProducesResponseType(typeof(NewRoundStartedWebSocketMessage), 603)]
     public void WebSocket(string jwt)
     {
         if (!HttpContext.WebSockets.IsWebSocketRequest)

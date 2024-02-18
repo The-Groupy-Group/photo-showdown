@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { MatchesService } from '../../services/matches.service';
-import { Match } from '../../models/match.model';
+import { Match, MatchStates } from '../../models/match.model';
 import { Router } from '@angular/router';
 import { NotifierService } from 'angular-notifier';
 
@@ -38,7 +38,7 @@ export class MatchListComponent implements OnInit {
 
   loadMatches() {
     this.matches = [];
-    this.matchesService.getAllOpenMatches().subscribe({
+    this.matchesService.getAllMatches(MatchStates.notStarted).subscribe({
       next: (response) => {
         this.matches = response.data;
       },

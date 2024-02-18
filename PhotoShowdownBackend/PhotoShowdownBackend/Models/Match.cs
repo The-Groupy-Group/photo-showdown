@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PhotoShowdownBackend.Consts;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PhotoShowdownBackend.Models;
@@ -42,3 +43,4 @@ public class Match
     [InverseProperty("Match")]
     public virtual ICollection<Round> Rounds { get; set; } = new List<Round>();
 }
+

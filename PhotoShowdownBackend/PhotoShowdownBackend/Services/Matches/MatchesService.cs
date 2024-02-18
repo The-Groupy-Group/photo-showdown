@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Messages;
 using PhotoShowdownBackend.Dtos.Rounds;
@@ -68,15 +69,17 @@ public class MatchesService : IMatchesService
         return response;
     }
 
-    public async Task<List<MatchDTO>> GetAllOpenMatches()
+    public async Task<List<MatchDTO>> GetAllMatches(MatchStates? state)
     {
-        List<Match> allMatches = await _matchesRepo.GetAllWithUsersAsync(match => match.StartDate == null);
+        List<Match> allMatches = await _matchesRepo
+            .GetAllWithUsersAsync(match =>
+                (state.HasValue &&
+                (state == MatchStates.Ended && match.EndDate >= DateTime.UtcNow) ||
+                (state == MatchStates.InProgress && match.StartDate >= DateTime.UtcNow && !match.EndDate.HasValue) ||
+                (state == MatchStates.NotStarted && (!match.StartDate.HasValue || match.StartDate > DateTime.UtcNow))));
 
-        List<MatchDTO> matches = allMatches.Select(match =>
-        {
-            var dto = _mapper.Map<MatchDTO>(match);
-            return dto;
-        }).ToList();
+
+        List<MatchDTO> matches = allMatches.Select(_mapper.Map<MatchDTO>).ToList();
 
         return matches;
     }

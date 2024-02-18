@@ -16,9 +16,7 @@ export class GameComponent {
   gameState: GameState = GameState.NotStarted;
   matchId?: number;
 
-  constructor(
-    private matchesService: MatchesService,
-  ) {}
+  constructor(private matchesService: MatchesService) {}
 
   ngOnInit(): void {
     this.handleIsInMatch();
@@ -42,8 +40,8 @@ export class GameComponent {
     this.matchesService.getCurrentMatch().subscribe({
       next: (response) => {
         this.matchId = response.data.id;
-        if (response.data.hasStarted) {
-          this.redirectToMatch();// TODO: fetch first round
+        if (response.data.matchState) {
+          this.redirectToMatch(); // TODO: fetch first round
         }
         this.redirectToLobby(response.data.id);
       },

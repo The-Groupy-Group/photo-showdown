@@ -2,7 +2,13 @@ import { UserPublicDetails } from 'src/app/users/models/user-public-details.mode
 
 export interface Match {
   id: number;
-  hasStarted: boolean;
+  matchState: MatchStates;
   owner: UserPublicDetails;
   users: UserPublicDetails[];
+}
+
+export enum MatchStates {
+  notStarted = 'notStarted',
+  inProgress = 'inProgress',
+  ended = 'ended',
 }

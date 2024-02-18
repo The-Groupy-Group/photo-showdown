@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Pictures;
 using PhotoShowdownBackend.Dtos.Rounds;
@@ -28,7 +29,10 @@ public class MappingConfig : Profile
         CreateMap<Match, MatchDTO>()
             .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.MatchConnections.Select(mc => mc.User)))
             .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner))
-            .ForMember(dest => dest.HasStarted, opt => opt.MapFrom(src => src.HasMatchStarted()));
+            .ForMember(dest => dest.MatchState, opt => opt.MapFrom(src => 
+                src.EndDate > DateTime.UtcNow ? MatchStates.Ended : 
+                src.StartDate > DateTime.UtcNow ? MatchStates.InProgress : 
+                MatchStates.NotStarted));
         CreateMap<Match, MatchCreationResponseDTO>();
 
         // Rounds

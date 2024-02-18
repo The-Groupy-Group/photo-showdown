@@ -1,4 +1,5 @@
-﻿using PhotoShowdownBackend.Dtos.Matches;
+﻿using PhotoShowdownBackend.Consts;
+using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Exceptions;
 
@@ -11,7 +12,7 @@ public interface IMatchesService
 {
     Task DeleteMatch(int matchId);
     Task<MatchCreationResponseDTO> CreateNewMatch(int ownerId);
-    Task<List<MatchDTO>> GetAllOpenMatches();
+    Task<List<MatchDTO>> GetAllMatches(MatchStates? state);
     Task<bool> DoesMatchExists(int matchId);
     Task<MatchDTO> GetMatchById(int matchId);
     Task AddUserToMatch(UserPublicDetailsDTO user, int matchId);
