@@ -22,6 +22,8 @@ export class PreGameLobbyComponent implements OnInit {
   match?: Match;
   isOwner = false;
   matchSettings: MatchSettings = { matchId: 0, sentences: [] };
+  allSentences = '';
+  errorMessage = '';
   @Input() matchId!: number;
   @Output() onDisconnect: EventEmitter<undefined> = new EventEmitter();
   @Output() onMatchStart: EventEmitter<undefined> = new EventEmitter();
@@ -83,9 +85,12 @@ export class PreGameLobbyComponent implements OnInit {
     if (!this.match || !this.isOwner) {
       return;
     }
-    this.matchesService
-      .startMatch(this.matchSettings)
-      .subscribe();
+    this.matchSettings.sentences = this.allSentences.split('\n');
+    this.matchesService.startMatch(this.matchSettings).subscribe({
+      error: (response) => {
+        this.errorMessage = response.error.message;
+      },
+    });
   }
 
   disconnect() {

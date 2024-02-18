@@ -1,65 +1,127 @@
 <mat-card class="lobby-container">
   <div class="inner-container">
-    <h2>pre-lobby</h2>
+    <h1>pre-lobby</h1>
     <p>match id: {{ match?.id }}</p>
     <p>owner name: {{ match?.owner?.username }}</p>
 
     <!-- Match Settings Form -->
-    <div *ngIf="isOwner">
+    <div *ngIf="isOwner" id="matchSettingsForm" class="match-settings-form">
       <h2>Match Settings:</h2>
       <form>
         <div class="form-group">
-          <label for="sentences">Sentences (comma-separated):</label>
-          <input
-            type="text"
-            id="sentences"
-            [(ngModel)]="matchSettings.sentences"
-            name="sentences"
-            rows="5"
-          />
+          <mat-form-field>
+            <textarea
+              type="text"
+              id="sentences"
+              matInput
+              name="sentences"
+              #sentences="ngModel"
+              ngModel
+              [(ngModel)]="allSentences"
+              placeholder="Sentences (new line separated)"
+              [rows]="7"
+            ></textarea>
+            <mat-error
+              *ngIf="
+                sentences.invalid && (sentences.dirty || sentences.touched)
+              "
+            >
+              {{ sentences.errors ? "Sentences are required" : "" }}
+            </mat-error>
+          </mat-form-field>
         </div>
 
         <div class="form-group">
-          <label for="pictureSelectionTime"
-            >Picture Selection Time (seconds):</label
-          >
-          <input
-            type="number"
-            id="pictureSelectionTime"
-            [(ngModel)]="matchSettings.pictureSelectionTimeSeconds"
-            name="pictureSelectionTime"
-          />
+          <mat-form-field>
+            <input
+              type="number"
+              id="pictureSelectionTime"
+              matInput
+              name="pictureSelectionTime"
+              #pictureSelectionTime="ngModel"
+              ngModel
+              [(ngModel)]="matchSettings.pictureSelectionTimeSeconds"
+              placeholder="Picture Selection Time (seconds)"
+            />
+            <mat-error
+              *ngIf="
+                pictureSelectionTime.invalid &&
+                (pictureSelectionTime.dirty || pictureSelectionTime.touched)
+              "
+            >
+              {{ pictureSelectionTime.errors ? "Pictures error" : "" }}
+            </mat-error>
+          </mat-form-field>
         </div>
 
         <div class="form-group">
-          <label for="voteTime">Vote Time (seconds):</label>
-          <input
-            type="number"
-            id="voteTime"
-            [(ngModel)]="matchSettings.voteTimeSeconds"
-            name="voteTime"
-          />
+          <mat-form-field>
+            <input
+              type="number"
+              id="voteTime"
+              matInput
+              name="voteTime"
+              #voteTime="ngModel"
+              ngModel
+              [(ngModel)]="matchSettings.voteTimeSeconds"
+              placeholder="Vote Time (seconds)"
+            />
+            <mat-error
+              *ngIf="voteTime.invalid && (voteTime.dirty || voteTime.touched)"
+            >
+              {{ voteTime.errors ? "Vote Time error" : "" }}
+            </mat-error>
+          </mat-form-field>
         </div>
 
         <div class="form-group">
-          <label for="numOfVotesToWin">Number of Votes to Win:</label>
-          <input
-            type="number"
-            id="numOfVotesToWin"
-            [(ngModel)]="matchSettings.numOfVotesToWin"
-            name="numOfVotesToWin"
-          />
+          <mat-form-field>
+            <input
+              type="number"
+              id="numOfVotesToWin"
+              matInput
+              name="numOfVotesToWin"
+              #numOfVotesToWin="ngModel"
+              ngModel
+              [(ngModel)]="matchSettings.numOfVotesToWin"
+              placeholder="Number of Votes to Win"
+            />
+            <mat-error
+              *ngIf="
+                numOfVotesToWin.invalid &&
+                (numOfVotesToWin.dirty || numOfVotesToWin.touched)
+              "
+            >
+              {{ numOfVotesToWin.errors ? "Number of Votes error" : "" }}
+            </mat-error>
+          </mat-form-field>
         </div>
 
         <div class="form-group">
-          <label for="numOfRounds">Number of Rounds:</label>
-          <input
-            type="number"
-            id="numOfRounds"
-            [(ngModel)]="matchSettings.numOfRounds"
-            name="numOfRounds"
-          />
+          <mat-form-field>
+            <input
+              type="number"
+              id="numOfRounds"
+              matInput
+              name="numOfRounds"
+              #numOfRounds="ngModel"
+              ngModel
+              [(ngModel)]="matchSettings.numOfRounds"
+              placeholder="Number of Rounds to Win"
+            />
+            <mat-error
+              *ngIf="
+                numOfRounds.invalid &&
+                (numOfRounds.dirty || numOfRounds.touched)
+              "
+            >
+              {{ numOfRounds.errors ? "Number of Rounds to Win error" : "" }}
+            </mat-error>
+          </mat-form-field>
         </div>
+        <mat-error *ngIf="errorMessage">
+          {{ errorMessage }}
+        </mat-error>
       </form>
       <button
         class="start"
@@ -77,14 +139,14 @@
       <div class="users-container">
         <div *ngFor="let user of match?.users">{{ user.username }}</div>
       </div>
-      <button
-        class="disconnect"
-        color="warn"
-        mat-raised-button
-        (click)="disconnect()"
-      >
-        Disconnect
-      </button>
     </div>
+    <button
+      class="disconnect-button"
+      color="warn"
+      mat-raised-button
+      (click)="disconnect()"
+    >
+      Disconnect
+    </button>
   </div>
 </mat-card>

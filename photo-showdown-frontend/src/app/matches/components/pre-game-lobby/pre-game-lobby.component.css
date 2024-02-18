@@ -1,29 +1,52 @@
-.lobby-container
-{
-  margin-left:  10%;
+.lobby-container {
+  margin-left: 10%;
   margin-right: 10%;
   margin-top: 2%;
   text-align: center;
-  height: 50vh;
-
+  min-height: 50vh;
+  border: 20px solid #f3f3f3;
+  position: fixed;
+  left: 0;
+  right: 0;
 }
 
 li {
   margin-left: 0;
   padding-left: 0;
 }
-.users-container
-{
+
+.users-container {
   list-style: none;
   padding: 0;
-
 }
-h2
-{
+
+h1 {
   max-height: 300px;
   margin-bottom: 0;
 }
-.inner-container
-{
+
+h2 {
+  max-height: 300px;
+  margin-bottom: 0;
+}
+
+.inner-container {
   padding-top: 2%;
+}
+
+.match-settings-form {
+  float: right;
+  margin: 10px;
+}
+
+.disconnect-button {
+  margin: 10px;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+mat-form-field {
+  min-width: 30vh;
 }
