@@ -1,4 +1,5 @@
-<mat-card class="upload-menu">
+<mat-card>
+  <h2>Upload your pictures</h2>
   <form
     class="form"
     (submit)="onSubmit(pictureForm)"
@@ -21,7 +22,7 @@
       type="submit"
       [disabled]="this.pictureFileToUpload == undefined"
     >
-      upload
+      Upload
     </button>
   </form>
   <div class="upload-container" *ngIf="pictureDisplayURL != null">
@@ -33,14 +34,15 @@
       [src]="pictureDisplayURL"
     />
   </div>
+  <div class="pictures-container" *ngIf="usersPictures.length > 0">
+    <h2>Your pictures</h2>
+    <app-picture-grid-item
+      *ngFor="let picture of this.usersPictures"
+      [picture]="picture"
+      [allowDelete]="isDeletable"
+      (onDeletePicture)="removePicture($event)"
+    >
+    </app-picture-grid-item>
+  </div>
+  
 </mat-card>
-<div class="pictures-container" *ngIf="usersPictures.length > 0">
-  <app-picture
-    class="picture-item"
-    *ngFor="let picture of this.usersPictures"
-    [picture]="picture"
-    [allowDelete]="isDeletable"
-    (onDeletePicture)="removePicture($event)"
-  >
-  </app-picture>
-</div>

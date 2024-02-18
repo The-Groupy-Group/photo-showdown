@@ -1,13 +1,13 @@
-import { PicturesService } from './../../services/pictures.service';
-import { Picture } from './../../models/picture.model';
+import { PicturesService } from '../../services/pictures.service';
+import { Picture } from '../../models/picture.model';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
-  selector: 'app-picture',
-  templateUrl: './picture.component.html',
-  styleUrls: ['./picture.component.css'],
+  selector: 'app-picture-grid-item',
+  templateUrl: './picture-grid-item.component.html',
+  styleUrls: ['./picture-grid-item.component.css'],
 })
-export class PictureComponent {
+export class PictureGridItemComponent {
   @Input() picture!: Picture;
   @Input() allowDelete: boolean = true;
   @Output() onDeletePicture: EventEmitter<number> = new EventEmitter();

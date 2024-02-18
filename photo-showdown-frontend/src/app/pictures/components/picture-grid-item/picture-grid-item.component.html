@@ -1,9 +1,8 @@
-
-<mat-card class="picture-container" *ngIf="picture!=null">
+<mat-card class="picture-container" *ngIf="picture != null">
   <mat-card-header>
     <mat-card-title-group>
-      <img mat-card-md-image [src]="picture.picturePath">
-      <div class="overlay" *ngIf="allowDelete===true">
+      <img mat-card-md-image [src]="picture.picturePath" />
+      <div class="overlay" *ngIf="allowDelete === true">
         <span class="close-icon" (click)="onDelete()">X</span>
       </div>
     </mat-card-title-group>

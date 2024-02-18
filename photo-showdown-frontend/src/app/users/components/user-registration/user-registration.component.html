@@ -100,7 +100,7 @@
       mat-raised-button
       color="primary"
       type="submit"
-      [disabled]="userForm.invalid"
+      [disabled]="userForm.invalid || isLoading"
     >
       Submit
     </button>

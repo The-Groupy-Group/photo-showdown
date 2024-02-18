@@ -5,24 +5,23 @@
   height: 100%;
 }
 
-mat-card{
+mat-card {
   margin: auto;
   width: 50%;
   margin-top: 2%;
-
 }
-.uploaded-picture
-{
+
+.uploaded-picture {
   max-width: 500px;
   max-height: 500px;
   margin: auto;
 }
-.file-button
-{
-  padding-bottom: 10px
+
+.file-button {
+  padding-bottom: 10px;
 }
-.upload-container
-{
+
+.upload-container {
   padding-top: 20px;
   margin: auto;
   width: 50%;
@@ -31,4 +30,3 @@ mat-card{
   justify-content: center;
   align-items: center;
 }
-

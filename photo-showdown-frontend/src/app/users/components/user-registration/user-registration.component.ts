@@ -13,6 +13,7 @@ import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
 })
 export class UserRegistrationComponent {
   user?: User;
+  isLoading = false;
   errorMessage?: string;
 
   constructor(

@@ -17,7 +17,7 @@ import { HeaderComponent } from './header/components/header/header.component';
 import { HomepageComponent } from './homepage/homepage/homepage.component';
 import { PicturesPageComponent } from './pictures/components/pictures-page/pictures-page.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { PictureComponent } from './pictures/components/picture/picture.component';
+import { PictureGridItemComponent } from './pictures/components/picture-grid-item/picture-grid-item.component';
 import { MatchListComponent } from './matches/components/match-list/match-list.component';
 import { MatchListItemComponent } from './matches/components/match-list-item/match-list-item.component';
 import { NotifierModule } from 'angular-notifier';
@@ -25,6 +25,7 @@ import { PreGameLobbyComponent } from './matches/components/pre-game-lobby/pre-g
 import { MatDialogModule } from '@angular/material/dialog';
 import { GameComponent } from './matches/components/game/game.component';
 import { InMatchComponent } from './matches/components/in-match/in-match.component';
+import { PictureItemComponent } from './pictures/components/picture-item/picture-item.component';
 
 @NgModule({
   declarations: [
@@ -34,12 +35,13 @@ import { InMatchComponent } from './matches/components/in-match/in-match.compone
     HeaderComponent,
     HomepageComponent,
     PicturesPageComponent,
-    PictureComponent,
+    PictureGridItemComponent,
     MatchListComponent,
     MatchListItemComponent,
     PreGameLobbyComponent,
     GameComponent,
     InMatchComponent,
+    PictureItemComponent,
   ],
   imports: [
     BrowserModule,
