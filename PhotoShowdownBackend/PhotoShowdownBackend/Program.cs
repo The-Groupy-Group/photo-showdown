@@ -57,6 +57,7 @@ catch (Exception ex)
     throw;
 }
 
+
 // Add services to the container.
 builder.Services.AddDbContext<PhotoShowdownDbContext>(options =>
     {
@@ -66,6 +67,12 @@ builder.Services.AddDbContext<PhotoShowdownDbContext>(options =>
         options.UseSqlServer(connectionString);
     }
 );
+
+// Init the DB by ending all in progress matches (In case the server was restarted)
+DbContextOptions<PhotoShowdownDbContext> options = new DbContextOptionsBuilder<PhotoShowdownDbContext>()
+    .UseSqlServer(connectionString)
+    .Options;
+DatabaseInitializer.Initialize(new(options));
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -79,8 +86,7 @@ builder.Services.AddScoped<IPicturesService, PicturesService>();
 builder.Services.AddScoped<IMatchesService, MatchesService>();
 builder.Services.AddScoped<IMatchConnectionsService, MatchConnectionsService>();
 builder.Services.AddScoped<IRoundsService, RoundsService>();
-builder.Services.AddScoped<ISessionService, SessionService>();
-builder.Services.AddScoped<ISentencesService,SentencesService>();
+builder.Services.AddScoped<ISentencesService, SentencesService>();
 
 // Add repositories
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
@@ -89,6 +95,9 @@ builder.Services.AddScoped<IMatchesReporitory, MatchesReporitory>();
 builder.Services.AddScoped<IMatchConnectionsRepository, MatchConnectionsRepository>();
 builder.Services.AddScoped<IRoundsRepository, RoundsRepository>();
 builder.Services.AddScoped<ICustomSentencesRepository, CustomSentencesRepository>();
+
+// Add SessionService
+builder.Services.AddScoped<ISessionService, SessionService>();
 
 // Add WebSocketManager
 builder.Services.AddSingleton<WebSocketRoomManager>();

@@ -10,7 +10,6 @@ namespace PhotoShowdownBackend.Services.Matches;
 /// </summary>
 public interface IMatchesService
 {
-    Task DeleteMatch(int matchId);
     Task<MatchCreationResponseDTO> CreateNewMatch(int ownerId);
     Task<List<MatchDTO>> GetAllMatches(MatchStates? state);
     Task<bool> DoesMatchExists(int matchId);

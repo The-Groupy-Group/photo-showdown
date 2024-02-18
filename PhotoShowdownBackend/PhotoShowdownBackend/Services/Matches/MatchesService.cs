@@ -89,18 +89,6 @@ public class MatchesService : IMatchesService
         return await _matchesRepo.AnyAsync(match => match.Id == matchId);
     }
 
-    public async Task DeleteMatch(int matchId)
-    {
-        Match? m = await _matchesRepo.GetAsync(m => m.Id == matchId);
-
-        if (m == null)
-        {
-            throw new NotFoundException("Match not found");
-        }
-
-        await _matchesRepo.DeleteAsync(m);
-    }
-
     public async Task<MatchDTO> GetMatchById(int matchId)
     {
         Match? match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ?? throw new NotFoundException("Invalid match Id");
@@ -194,7 +182,7 @@ public class MatchesService : IMatchesService
         }
 
         // Map the request to update the Match object
-        //match.StartDate = DateTime.UtcNow;
+        match.StartDate = DateTime.UtcNow;
         if (startMatchDTO.PictureSelectionTimeSeconds.HasValue)
         {
             match.PictureSelectionTimeSeconds = startMatchDTO.PictureSelectionTimeSeconds.Value;
@@ -223,6 +211,7 @@ public class MatchesService : IMatchesService
         _ = Task.Run(() => ExecuteMatchLogic(match));
     }
 
+    // ------------ Private methods ------------ //
     private async void ExecuteMatchLogic(Match match)
     {
         int roundIndex = 0;
@@ -251,5 +240,17 @@ public class MatchesService : IMatchesService
             Thread.Sleep(ROUND_WINNER_DISPLAY_SECONDS * 1000);
             roundIndex++;
         }
+    }
+
+    private async Task DeleteMatch(int matchId)
+    {
+        Match? m = await _matchesRepo.GetAsync(m => m.Id == matchId);
+
+        if (m == null)
+        {
+            throw new NotFoundException("Match not found");
+        }
+
+        await _matchesRepo.DeleteAsync(m);
     }
 }

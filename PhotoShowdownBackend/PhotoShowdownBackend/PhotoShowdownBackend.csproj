@@ -42,6 +42,7 @@
     <None Remove="SQL\07_CreateRoundsTable.sql" />
     <None Remove="SQL\08_AddMatchSettingsToMatch.sql" />
     <None Remove="SQL\09_RoundsSentencesFixes.sql" />
+    <None Remove="SQL\10_DateToDateTime.sql" />
   </ItemGroup>
 
 </Project>
