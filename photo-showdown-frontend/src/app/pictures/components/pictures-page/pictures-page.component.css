@@ -11,12 +11,6 @@ mat-card {
   margin-top: 2%;
 }
 
-.uploaded-picture {
-  max-width: 500px;
-  max-height: 500px;
-  margin: auto;
-}
-
 .file-button {
   padding-bottom: 10px;
 }

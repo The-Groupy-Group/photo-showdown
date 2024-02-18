@@ -24,25 +24,25 @@
     >
       Upload
     </button>
+    <button
+      mat-raised-button
+      color="warn"
+      (onClick)="this.pictureFileToUpload = undefined"
+      [hidden]="this.pictureFileToUpload == undefined"
+    >Cancel</button>
   </form>
   <div class="upload-container" *ngIf="pictureDisplayURL != null">
-    <img
-      mat-card-image
-      name="uploaded-picture"
-      class="uploaded-picture"
-      #uploadedPicture
-      [src]="pictureDisplayURL"
-    />
+    <app-picture-item
+      [picture]="{ id: 0, picturePath: pictureDisplayURL }"
+    ></app-picture-item>
   </div>
-  <div class="pictures-container" *ngIf="usersPictures.length > 0">
+  <div *ngIf="usersPictures.length > 0">
     <h2>Your pictures</h2>
     <app-picture-grid-item
       *ngFor="let picture of this.usersPictures"
       [picture]="picture"
       [allowDelete]="isDeletable"
       (onDeletePicture)="removePicture($event)"
-    >
-    </app-picture-grid-item>
+    />
   </div>
-  
 </mat-card>

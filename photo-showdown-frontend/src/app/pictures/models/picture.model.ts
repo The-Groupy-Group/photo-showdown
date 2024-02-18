@@ -1,5 +1,4 @@
-export interface Picture
-{
-  id:number;
-  picturePath:string;
+export interface Picture {
+  id: number;
+  picturePath: string;
 }
