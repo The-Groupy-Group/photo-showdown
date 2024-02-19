@@ -4,7 +4,6 @@ import { AuthService } from '../../services/auth-service/auth.service';
 import { MatchesService } from 'src/app/matches/services/matches.service';
 
 export const isInMatchGuard: CanActivateFn = (route, state) => {
-  return true;
   const matchesService = inject(MatchesService);
   const router = inject(Router);
   const previousUrl = router.routerState.snapshot.url;

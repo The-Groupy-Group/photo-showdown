@@ -12,7 +12,7 @@ const routes: Routes = [
   {
     component: HomepageComponent,
     path: '',
-    canActivate: [authGuard, isInMatchGuard],
+    canActivate: [authGuard],
   },
   {
     component: UserLoginComponent,
@@ -26,12 +26,11 @@ const routes: Routes = [
   {
     component: PicturesPageComponent,
     path: 'pictures',
-    canActivate: [authGuard, isInMatchGuard],
+    canActivate: [authGuard],
   },
   {
     component: UserRegistrationComponent,
     path: 'register',
-    canActivate: [isInMatchGuard],
   },
 ];
 
