@@ -30,8 +30,8 @@ public class MappingConfig : Profile
             .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.MatchConnections.Select(mc => mc.User)))
             .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner))
             .ForMember(dest => dest.MatchState, opt => opt.MapFrom(src => 
-                src.EndDate > DateTime.UtcNow ? MatchStates.Ended : 
-                src.StartDate > DateTime.UtcNow ? MatchStates.InProgress : 
+                DateTime.UtcNow > src.EndDate ? MatchStates.Ended : 
+                DateTime.UtcNow > src.StartDate ? MatchStates.InProgress : 
                 MatchStates.NotStarted));
         CreateMap<Match, MatchCreationResponseDTO>();
 
