@@ -124,7 +124,7 @@ public class MatchesService : IMatchesService
         await _matchConnectionsService.DeleteMatchConnection(userToRemove.Id, matchId);
 
         // If the match is empty and hasent started, delete it
-        if (match.StartDate < DateTime.UtcNow && await _matchConnectionsService.IsMatchEmpty(matchId))
+        if (!(match.StartDate > DateTime.UtcNow) && await _matchConnectionsService.IsMatchEmpty(matchId))
         {
             await DeleteMatch(matchId);
             return;
