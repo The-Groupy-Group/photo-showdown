@@ -1,11 +1,14 @@
 <div class="in-match-container" [ngSwitch]="currentRound?.roundState">
-  <h2>Current Round Details:</h2>
-  <p>Match Id: {{ this.currentRound?.matchId }}</p>
-  <p>Round Index: {{ this.currentRound?.roundIndex }}</p>
-  <p>Round State: {{ this.currentRound?.roundState }}</p>
   <h2>
     Sentence:<strong> {{ this.currentRound?.sentence }}</strong>
   </h2>
+  <mat-card class="round-details">
+    <h2>Current Round Details:</h2>
+    <p>Match Id: {{ this.currentRound?.matchId }}</p>
+    <p>Round Index: {{ this.currentRound?.roundIndex }}</p>
+    <p>Round State: {{ this.currentRound?.roundState }}</p>
+  </mat-card>
+
   <app-in-match-picture-selection
     *ngSwitchCase="RoundStates.pictureSelection"
     [pictures]="this.usersPictures"
