@@ -227,7 +227,7 @@ public class MatchesService : IMatchesService
             var roundDto = new RoundDTO()
             {
                 MatchId = match.Id,
-                RoundIndex = 0,
+                RoundIndex = roundIndex,
                 RoundState = Round.RoundStates.PictureSelection,
                 StartDate = DateTime.UtcNow,
                 Sentence = "PITOM DONFIL HEFLITZ TUUUM TUUUM TUTUUTUTUMMM " + roundIndex
