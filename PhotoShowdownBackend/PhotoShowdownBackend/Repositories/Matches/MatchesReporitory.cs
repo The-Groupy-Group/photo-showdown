@@ -13,7 +13,11 @@ public class MatchesReporitory : Repository<Match>, IMatchesReporitory
 {
     public MatchesReporitory(PhotoShowdownDbContext _db) : base(_db) { }
 
-    virtual public async Task<List<Match>> GetAllWithUsersAsync(Expression<Func<Match, bool>>? filter = null, bool tracked = false, int? pageNumber = null, int? pageSize = null)
+    virtual public async Task<List<Match>> GetAllWithUsersAsync(
+        Expression<Func<Match, bool>>? filter = null, 
+        bool tracked = true, 
+        int? pageNumber = null, 
+        int? pageSize = null)
     {
         IQueryable<Match> query = _dbSet;
         query = query
@@ -24,7 +28,9 @@ public class MatchesReporitory : Repository<Match>, IMatchesReporitory
         return await GetAllFromQueryAsync<Match>(query, filter,null, tracked, pageNumber, pageSize);
     }
 
-    virtual public async Task<Match?> GetWithUsersAsync(Expression<Func<Match, bool>> filter, bool tracked = false)
+    virtual public async Task<Match?> GetWithUsersAsync(
+        Expression<Func<Match, bool>> filter, 
+        bool tracked = true)
     {
         IQueryable<Match> query = _dbSet;
         if (!tracked)

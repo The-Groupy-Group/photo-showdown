@@ -9,6 +9,12 @@ namespace PhotoShowdownBackend.Repositories.Users;
 /// </summary>
 public interface IMatchesReporitory : IRepository<Match>
 {
-    Task<List<Match>> GetAllWithUsersAsync(Expression<Func<Match, bool>>? filter = null, bool tracked = false, int? pageNumber = null, int? pageSize = null);
-    Task<Match?> GetWithUsersAsync(Expression<Func<Match, bool>> filter, bool tracked = false);
+    Task<List<Match>> GetAllWithUsersAsync(
+        Expression<Func<Match, bool>>? filter = null, 
+        bool tracked = true, 
+        int? pageNumber = null, 
+        int? pageSize = null);
+    Task<Match?> GetWithUsersAsync(
+        Expression<Func<Match, bool>> filter, 
+        bool tracked = true);
 }

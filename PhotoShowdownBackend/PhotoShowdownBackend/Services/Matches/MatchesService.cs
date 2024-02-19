@@ -76,7 +76,8 @@ public class MatchesService : IMatchesService
                 (state.HasValue &&
                 (state == MatchStates.Ended && match.EndDate >= DateTime.UtcNow) ||
                 (state == MatchStates.InProgress && match.StartDate >= DateTime.UtcNow && !match.EndDate.HasValue) ||
-                (state == MatchStates.NotStarted && (!match.StartDate.HasValue || match.StartDate > DateTime.UtcNow))));
+                (state == MatchStates.NotStarted && (!match.StartDate.HasValue || match.StartDate > DateTime.UtcNow))),
+                tracked: true);
 
 
         List<MatchDTO> matches = allMatches.Select(_mapper.Map<MatchDTO>).ToList();
@@ -91,7 +92,9 @@ public class MatchesService : IMatchesService
 
     public async Task<MatchDTO> GetMatchById(int matchId)
     {
-        Match? match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ?? throw new NotFoundException("Invalid match Id");
+        Match? match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId, tracked: false) ?? 
+            throw new NotFoundException("Invalid match Id");
+
         MatchDTO matchDTO = _mapper.Map<MatchDTO>(match);
         return matchDTO;
     }
@@ -118,7 +121,7 @@ public class MatchesService : IMatchesService
 
     public async Task RemoveUserFromMatch(UserPublicDetailsDTO userToRemove, int matchId)
     {
-        Match match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId))!;
+        Match match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId, tracked: true))!;
 
         // Delete the connection
         await _matchConnectionsService.DeleteMatchConnection(userToRemove.Id, matchId);
@@ -162,7 +165,7 @@ public class MatchesService : IMatchesService
     public async Task<MatchDTO> GetMatchByUserId(int userId)
     {
         int matchId = await _matchConnectionsService.GetMatchIdByUserId(userId);
-        Match match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId))!;
+        Match match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId, tracked: false))!;
 
         MatchDTO matchDTO = _mapper.Map<MatchDTO>(match);
         return matchDTO;
