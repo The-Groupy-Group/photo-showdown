@@ -27,9 +27,9 @@ export class HeaderComponent {
       if (response.data?.matchState === MatchStates.notStarted) {
         this.matchesService.leaveMatch(response.data.id).subscribe();
       }
+      this.authService.logout();
+      window.location.reload();
     });
-    this.authService.logout();
-    window.location.reload();
     // this.setStatus();
     // this.router.navigate(['/login']);
   }
