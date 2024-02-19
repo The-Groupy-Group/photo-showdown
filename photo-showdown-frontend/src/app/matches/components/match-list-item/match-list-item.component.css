@@ -1,10 +1,7 @@
-.match-container
-{
-  margin-right:40px;
-  margin-top: 10px;
+.match-container {
+  margin: 3%;
 }
 
-.enterMatchButton
-{
+.enter-match-button {
   float: right;
 }
