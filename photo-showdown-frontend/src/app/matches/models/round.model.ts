@@ -1,7 +1,7 @@
 export interface Round {
   matchId: number;
   roundIndex: number;
-  roundState: roundStates;
+  roundState: RoundStates;
   startDate: Date;
   sentence: string;
 }
@@ -9,7 +9,7 @@ export interface Round {
 /**
  * The possible states of a round
  */
-export enum roundStates {
+export enum RoundStates {
   notStarted = 'notStarted',
   pictureSelection = 'pictureSelection',
   voting = 'voting',

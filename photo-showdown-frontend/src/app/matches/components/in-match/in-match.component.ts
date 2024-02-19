@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Round } from '../../models/round.model';
+import { Round, RoundStates } from '../../models/round.model';
 import { WebSocketService } from '../../services/web-socket.service';
 import { NotifierService } from 'angular-notifier';
 import { MatchesService } from '../../services/matches.service';
@@ -8,6 +8,7 @@ import {
   WebSocketMessageType,
 } from '../../models/web-socket-message.model';
 import { PicturesService } from 'src/app/pictures/services/pictures.service';
+import { Picture } from 'src/app/pictures/models/picture.model';
 
 @Component({
   selector: 'app-in-match',
@@ -15,7 +16,9 @@ import { PicturesService } from 'src/app/pictures/services/pictures.service';
   styleUrls: ['./in-match.component.css'],
 })
 export class InMatchComponent {
+  readonly RoundStates = RoundStates;
   currentRound!: Round;
+  usersPictures: Picture[] = [];
 
   /**
    *
@@ -28,6 +31,12 @@ export class InMatchComponent {
   ) {}
 
   ngOnInit() {
+    // Get all pictures for the current user
+    this.picturesService.getMyPictures().subscribe((response) => {
+      this.usersPictures = response.data;
+    });
+
+    // Listen for new round started
     this.webSocketService.onWebSocketEvent<WebSocketMessage<Round>>(
       WebSocketMessageType.newRoundStarted,
       (wsMessage) => {

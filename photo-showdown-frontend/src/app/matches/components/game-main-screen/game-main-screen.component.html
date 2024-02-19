@@ -1,16 +1,16 @@
-<div [ngSwitch]="gameState">
+<div [ngSwitch]="matchState">
   <app-match-list
-    *ngSwitchCase="GameState.NotStarted"
+    *ngSwitchCase="undefined"
     (onJoinMatch)="redirectToLobby($event)"
   ></app-match-list>
   <app-pre-match-lobby
-    *ngSwitchCase="GameState.InLobby"
+    *ngSwitchCase="MatchStates.notStarted"
     [matchId]="matchId!"
     (onDisconnect)="disconnect()"
     (onMatchStart)="redirectToMatch()"
   ></app-pre-match-lobby>
-  <p *ngSwitchCase="GameState.InMatch">In Match lol xD</p>
   <app-in-match
-    *ngSwitchCase="GameState.InMatch"
-    (onDisconnect)="disconnect()"></app-in-match>
+    *ngSwitchCase="MatchStates.inProgress"
+    (onDisconnect)="disconnect()"
+  ></app-in-match>
 </div>

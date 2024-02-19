@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
-import { GameState } from 'src/app/shared/models/game-state.enum';
 import { MatchesService } from '../../services/matches.service';
 import { HttpStatusCode } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
-import { Round } from '../../models/round.model';
+import { MatchStates } from '../../models/match.model';
 
 @Component({
   selector: 'app-game-main-screen',
@@ -11,9 +9,9 @@ import { Round } from '../../models/round.model';
   styleUrls: ['./game-main-screen.component.css'],
 })
 export class GameMainScreenComponent {
-  readonly GameState = GameState;
+  readonly MatchStates = MatchStates;
 
-  gameState: GameState = GameState.NotStarted;
+  matchState?: MatchStates = undefined;
   matchId?: number;
 
   constructor(private matchesService: MatchesService) {}
@@ -24,32 +22,35 @@ export class GameMainScreenComponent {
 
   redirectToLobby(matchId: number) {
     this.matchId = matchId;
-    this.gameState = GameState.InLobby;
+    this.matchState = MatchStates.notStarted;
   }
 
   redirectToMatch() {
-    this.gameState = GameState.InMatch;
+    this.matchState = MatchStates.inProgress;
   }
 
   disconnect() {
     this.matchId = undefined;
-    this.gameState = GameState.NotStarted;
+    this.matchState = undefined;
   }
 
   private handleIsInMatch() {
     this.matchesService.getCurrentMatch().subscribe({
       next: (response) => {
-        this.matchId = response.data.id;
-        if (response.data.matchState) {
-          this.redirectToMatch(); // TODO: fetch first round
+        if (response.data.matchState === MatchStates.inProgress) {
+          this.matchId = response.data.id;
+          this.redirectToMatch();
         }
-        this.redirectToLobby(response.data.id);
+        else{
+          this.redirectToLobby(response.data.id);
+        }
       },
       error: (err) => {
         if (err.status !== HttpStatusCode.NotFound) {
           console.error(err);
           return;
         }
+        this.matchState = undefined;
       },
     });
   }

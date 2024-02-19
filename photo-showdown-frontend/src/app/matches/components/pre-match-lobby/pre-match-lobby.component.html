@@ -124,7 +124,6 @@
         </mat-error>
       </form>
       <button
-        class="start"
         color="primary"
         mat-raised-button
         (click)="startMatch()"
@@ -139,14 +138,14 @@
       <div class="users-container">
         <div *ngFor="let user of match?.users">{{ user.username }}</div>
       </div>
+      <button
+        class="disconnect-button"
+        color="warn"
+        mat-raised-button
+        (click)="disconnect()"
+      >
+        Disconnect
+      </button>
     </div>
-    <button
-      class="disconnect-button"
-      color="warn"
-      mat-raised-button
-      (click)="disconnect()"
-    >
-      Disconnect
-    </button>
   </div>
 </mat-card>

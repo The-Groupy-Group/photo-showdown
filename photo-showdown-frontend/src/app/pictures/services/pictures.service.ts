@@ -12,7 +12,7 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root',
 })
 export class PicturesService {
-  readonly apiURL = environment.apiUrl + '/Pictures';
+  private readonly apiURL = environment.apiUrl + '/Pictures';
   constructor(private http: HttpClient) {}
   httpOptions = {
     headers: new HttpHeaders({
