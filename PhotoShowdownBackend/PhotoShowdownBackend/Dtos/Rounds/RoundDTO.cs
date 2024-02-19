@@ -6,7 +6,7 @@ namespace PhotoShowdownBackend.Dtos.Rounds
     {
         public int MatchId { get; set; }
         public int RoundIndex { get; set; } = 0;
-        public Round.RoundStates RoundState { get; set; } = Round.RoundStates.NotStarted;
+        public Round.RoundStates RoundState { get; set; }
         public DateTime StartDate { get; set; }
         public string Sentence { get; set; } = string.Empty;
     }

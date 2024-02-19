@@ -37,8 +37,7 @@ public class RoundsRepositoryTests
         var round = new Round
         {
             MatchId = newMatch.Id,
-            RoundIndex = 1,
-            RoundState = Round.RoundStates.NotStarted
+            RoundIndex = 1
         };
         var roundCreated = await repo.CreateAsync(round);
 

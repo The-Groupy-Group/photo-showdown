@@ -26,6 +26,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { GameMainScreenComponent } from './matches/components/game-main-screen/game-main-screen.component';
 import { InMatchComponent } from './matches/components/in-match/in-match.component';
 import { PictureItemComponent } from './pictures/components/picture-item/picture-item.component';
+import { InMatchPictureSelectionComponent } from './matches/components/in-match-picture-selection/in-match-picture-selection.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import { PictureItemComponent } from './pictures/components/picture-item/picture
     GameMainScreenComponent,
     InMatchComponent,
     PictureItemComponent,
+    InMatchPictureSelectionComponent,
   ],
   imports: [
     BrowserModule,

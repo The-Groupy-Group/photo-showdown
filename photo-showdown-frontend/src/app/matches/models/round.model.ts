@@ -10,7 +10,6 @@ export interface Round {
  * The possible states of a round
  */
 export enum RoundStates {
-  notStarted = 'notStarted',
   pictureSelection = 'pictureSelection',
   voting = 'voting',
   ended = 'ended',

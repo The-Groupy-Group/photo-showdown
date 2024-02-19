@@ -17,7 +17,13 @@ import { Picture } from 'src/app/pictures/models/picture.model';
 })
 export class InMatchComponent {
   readonly RoundStates = RoundStates;
-  currentRound!: Round;
+  currentRound: Round = {
+    matchId: 0,
+    roundIndex: 0,
+    roundState: RoundStates.pictureSelection,
+    startDate: new Date(),
+    sentence: '',
+  };
   usersPictures: Picture[] = [];
 
   /**
@@ -27,7 +33,7 @@ export class InMatchComponent {
     private readonly webSocketService: WebSocketService,
     private readonly matchesService: MatchesService,
     private readonly picturesService: PicturesService,
-    private readonly notifier: NotifierService,
+    private readonly notifier: NotifierService
   ) {}
 
   ngOnInit() {

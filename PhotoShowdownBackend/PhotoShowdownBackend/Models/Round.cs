@@ -33,9 +33,8 @@ public class Round
 
     public enum RoundStates
     {
-        NotStarted = 0,
-        PictureSelection = 1,
-        Voting = 2,
-        Ended = 3
+        PictureSelection,
+        Voting,
+        Ended
     }
 }
