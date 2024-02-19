@@ -1,4 +1,11 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { NotifierService } from 'angular-notifier';
 import { MatchesService } from '../../services/matches.service';
 import { Match } from '../../models/match.model';
@@ -19,8 +26,9 @@ import { Round } from '../../models/round.model';
   styleUrls: ['./pre-match-lobby.component.css'],
 })
 export class PreMatchLobbyComponent implements OnInit {
-  match?: Match;
+  userId: number = this.authService.getUserId();
   isOwner = false;
+  match?: Match;
   matchSettings: MatchSettings = { matchId: 0, sentences: [] };
   allSentences = '';
   errorMessage = '';
@@ -42,7 +50,7 @@ export class PreMatchLobbyComponent implements OnInit {
     this.matchesService.getMatchById(this.matchId).subscribe((response) => {
       this.match = response.data;
       this.matchSettings.matchId = this.match.id;
-      this.isOwner = this.match.owner.id === this.authService.getUserId();
+      this.isOwner = this.match.owner.id === this.userId;
       this.isLoading = false;
       this.cd.detectChanges();
     });
@@ -73,6 +81,7 @@ export class PreMatchLobbyComponent implements OnInit {
       (wsMessage) => {
         if (this.match) {
           this.match.owner = wsMessage.data;
+          this.isOwner = this.match.owner.id === this.userId;
         }
         this.cd.detectChanges();
       }
