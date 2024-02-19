@@ -4,5 +4,8 @@
   <p>Round Index: {{ this.currentRound.roundIndex }}</p>
   <p>Round State: {{ this.currentRound.roundState }}</p>
   <p>Sentence: {{ this.currentRound.sentence }}</p>
-  <app-in-match-picture-selection *ngSwitchCase="RoundStates.pictureSelection"></app-in-match-picture-selection>
+  <app-in-match-picture-selection
+    *ngSwitchCase="RoundStates.pictureSelection"
+    [usersPictures]="this.usersPictures"
+  ></app-in-match-picture-selection>
 </div>

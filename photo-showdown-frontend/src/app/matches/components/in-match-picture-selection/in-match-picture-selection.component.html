@@ -1,0 +1,14 @@
+<h3>Select a picture</h3>
+<div class="pictures-grid">
+  <!-- <img
+    class="grid-item"
+    *ngFor="let picture of usersPictures"
+    src={{picture.picturePath}}
+  />
+  <br> -->
+  <app-picture-item
+    *ngFor="let picture of usersPictures"
+    [picture]="picture"
+    class="grid-item"
+  ></app-picture-item>
+</div>

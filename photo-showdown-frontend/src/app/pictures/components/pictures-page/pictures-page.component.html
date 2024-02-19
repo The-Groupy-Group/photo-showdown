@@ -1,41 +1,46 @@
 <mat-card>
   <h2>Upload your pictures</h2>
-  <form
-    class="form"
-    (submit)="onSubmit(pictureForm)"
-    enctype="multipart/form-data"
-    #pictureForm="ngForm"
-  >
-    <input
-      type="file"
-      class="file-button"
-      [accept]="'image/jpeg,image/png'"
-      name="file"
-      (change)="getFile($event)"
-      ngModel
-      required
-      placeholder="Please choose a file"
-    />
-    <button
-      mat-raised-button
-      color="primary"
-      type="submit"
-      [disabled]="this.pictureFileToUpload == undefined"
+  <!-- Upload Pictures -->
+  <div class="upload-container">
+    <form
+      class="form"
+      (submit)="onSubmit(pictureForm)"
+      enctype="multipart/form-data"
+      #pictureForm="ngForm"
     >
-      Upload
-    </button>
-    <button
-      mat-raised-button
-      color="warn"
-      (onClick)="this.pictureFileToUpload = undefined"
-      [hidden]="this.pictureFileToUpload == undefined"
-    >Cancel</button>
-  </form>
-  <div class="upload-container" *ngIf="pictureDisplayURL != null">
+      <input
+        type="file"
+        class="file-button"
+        [accept]="'image/jpeg,image/png'"
+        name="file"
+        (change)="getFile($event)"
+        ngModel
+        required
+        placeholder="Please choose a file"
+      />
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="this.pictureFileToUpload == undefined"
+      >
+        Upload
+      </button>
+      <button
+        mat-raised-button
+        color="warn"
+        (onClick)="this.pictureFileToUpload = undefined"
+        [hidden]="this.pictureFileToUpload == undefined"
+      >
+        Cancel
+      </button>
+    </form>
     <app-picture-item
+      *ngIf="pictureDisplayURL != null"
       [picture]="{ id: 0, picturePath: pictureDisplayURL }"
     ></app-picture-item>
   </div>
+  <!-- Uploaded Pictures -->
   <div *ngIf="usersPictures.length > 0">
     <h2>Your pictures</h2>
     <app-picture-grid-item
