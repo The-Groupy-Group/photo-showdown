@@ -139,7 +139,7 @@ public class MatchesController : ControllerBase
         {
             return BadRequest(response.ErrorResponse(ex.Message));
         }
-        catch(MatchAlreadyStartedException ex)
+        catch (MatchAlreadyStartedException ex)
         {
             return BadRequest(response.ErrorResponse(ex.Message));
         }
@@ -173,24 +173,15 @@ public class MatchesController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(APIResponse<MatchDTO>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(APIResponse<MatchDTO?>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetCurrentMatch()
     {
-        APIResponse<MatchDTO> response = new();
-        try
-        {
-            int userId = _sessionService.GetCurrentUserId();
-            var match = await _matchesService.GetMatchByUserId(userId);
-            response.Data = match;
-            return Ok(response);
-        }
-        catch (UserNotConnectedToMatchException ex)
-        {
-            return NotFound(response.ErrorResponse(ex.Message));
-        }
+        APIResponse<MatchDTO?> response = new();
+        int userId = _sessionService.GetCurrentUserId();
+        var match = await _matchesService.GetMatchByUserId(userId);
+        response.Data = match;
+        return Ok(response);
     }
 
     [HttpPost]

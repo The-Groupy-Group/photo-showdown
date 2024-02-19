@@ -162,11 +162,14 @@ public class MatchesService : IMatchesService
         await _matchConnectionsService.CreateMatchConnection(userId, matchId);
     }
 
-    public async Task<MatchDTO> GetMatchByUserId(int userId)
+    public async Task<MatchDTO?> GetMatchByUserId(int userId)
     {
-        int matchId = await _matchConnectionsService.GetMatchIdByUserId(userId);
-        Match match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId, tracked: false))!;
-
+        MatchConnection? matchConnection = await _matchConnectionsService.GetMatchConnectionByUserId(userId);
+        if(matchConnection == null)
+        {
+            return null;
+        }
+        Match? match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchConnection.MatchId, tracked: false))!;
         MatchDTO matchDTO = _mapper.Map<MatchDTO>(match);
         return matchDTO;
     }

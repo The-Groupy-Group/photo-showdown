@@ -13,7 +13,10 @@ public class MatchConnectionsService : IMatchConnectionsService
     private readonly IMapper _mapper;
     private readonly ILogger<MatchConnectionsService> _logger;
 
-    public MatchConnectionsService(IMatchConnectionsRepository matchConnectionsRepo, IMapper mapper, ILogger<MatchConnectionsService> logger)
+    public MatchConnectionsService(
+        IMatchConnectionsRepository matchConnectionsRepo, 
+        IMapper mapper, 
+        ILogger<MatchConnectionsService> logger)
     {
         _matchConnectionsRepo = matchConnectionsRepo;
         _mapper = mapper;
@@ -58,15 +61,10 @@ public class MatchConnectionsService : IMatchConnectionsService
 
         await _matchConnectionsRepo.DeleteAsync(mc);
     }
-    public async Task<int> GetMatchIdByUserId(int userId)
+    public async Task<MatchConnection?> GetMatchConnectionByUserId(int userId)
     {
         MatchConnection? mc = await _matchConnectionsRepo.GetAsync(mc => mc.UserId == userId);
 
-        if (mc == null)
-        {
-            throw new UserNotConnectedToMatchException();
-        }
-
-        return mc.MatchId;
+        return mc;
     }
 }

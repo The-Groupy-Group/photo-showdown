@@ -1,4 +1,6 @@
-﻿namespace PhotoShowdownBackend.Services.MatchConnections;
+﻿using PhotoShowdownBackend.Models;
+
+namespace PhotoShowdownBackend.Services.MatchConnections;
 
 public interface IMatchConnectionsService
 {
@@ -7,5 +9,5 @@ public interface IMatchConnectionsService
     Task<bool> IsMatchEmpty(int matchId);
     Task<bool> IsUserInThisMatch(int userId, int matchId);
     Task DeleteMatchConnection(int userId, int matchId);
-    Task<int> GetMatchIdByUserId(int userId);
+    Task<MatchConnection?> GetMatchConnectionByUserId(int userId);
 }

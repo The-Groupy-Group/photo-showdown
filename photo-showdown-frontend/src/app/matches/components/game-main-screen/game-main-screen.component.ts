@@ -38,24 +38,16 @@ export class GameMainScreenComponent {
   }
 
   private handleIsInMatch() {
-    this.matchesService.getCurrentMatch().subscribe({
-      next: (response) => {
-        if (response.data.matchState === MatchStates.inProgress) {
-          this.matchId = response.data.id;
-          this.redirectToMatch();
-        } else {
-          this.redirectToLobby(response.data.id);
-        }
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        if (err.status !== HttpStatusCode.NotFound) {
-          console.error(err);
-          return;
-        }
+    this.matchesService.getCurrentMatch().subscribe((response) => {
+      if (!response.data) { // Not in a match
         this.matchState = undefined;
-        this.cd.detectChanges();
-      },
+      } else if (response.data.matchState === MatchStates.inProgress) { // In a match
+        this.matchId = response.data.id;
+        this.redirectToMatch();
+      } else { // In a match lobby
+        this.redirectToLobby(response.data.id);
+      }
+      this.cd.detectChanges();
     });
   }
 }
