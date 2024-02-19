@@ -1,7 +1,6 @@
 .lobby-container {
-  margin-left: 10%;
-  margin-right: 10%;
-  margin-top: 2%;
+  margin: 2% auto;
+  width: 70vh;
   text-align: center;
   min-height: 50vh;
   border: 20px solid #f3f3f3;

@@ -6,7 +6,7 @@ import { HomepageComponent } from './homepage/homepage/homepage.component';
 import { authGuard } from './shared/guards/auth-guard/auth.guard';
 import { PicturesPageComponent } from './pictures/components/pictures-page/pictures-page.component';
 import { isInMatchGuard } from './shared/guards/is-in-match-guard/is-in-match.guard';
-import { GameComponent } from './matches/components/game/game.component';
+import { GameMainScreenComponent } from './matches/components/game-main-screen/game-main-screen.component';
 
 const routes: Routes = [
   {
@@ -19,7 +19,7 @@ const routes: Routes = [
     path: 'login',
   },
   {
-    component: GameComponent,
+    component: GameMainScreenComponent,
     path: 'game',
     canActivate: [authGuard],
   },

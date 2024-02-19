@@ -14,11 +14,11 @@ import { MatchSettings } from '../../models/match-settings.model';
 import { Round } from '../../models/round.model';
 
 @Component({
-  selector: 'app-pre-game-lobby',
-  templateUrl: './pre-game-lobby.component.html',
-  styleUrls: ['./pre-game-lobby.component.css'],
+  selector: 'app-pre-match-lobby',
+  templateUrl: './pre-match-lobby.component.html',
+  styleUrls: ['./pre-match-lobby.component.css'],
 })
-export class PreGameLobbyComponent implements OnInit {
+export class PreMatchLobbyComponent implements OnInit {
   match?: Match;
   isOwner = false;
   matchSettings: MatchSettings = { matchId: 0, sentences: [] };

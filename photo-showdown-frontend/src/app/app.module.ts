@@ -21,9 +21,9 @@ import { PictureGridItemComponent } from './pictures/components/picture-grid-ite
 import { MatchListComponent } from './matches/components/match-list/match-list.component';
 import { MatchListItemComponent } from './matches/components/match-list-item/match-list-item.component';
 import { NotifierModule } from 'angular-notifier';
-import { PreGameLobbyComponent } from './matches/components/pre-game-lobby/pre-game-lobby.component';
+import { PreMatchLobbyComponent } from './matches/components/pre-match-lobby/pre-match-lobby.component';
 import { MatDialogModule } from '@angular/material/dialog';
-import { GameComponent } from './matches/components/game/game.component';
+import { GameMainScreenComponent } from './matches/components/game-main-screen/game-main-screen.component';
 import { InMatchComponent } from './matches/components/in-match/in-match.component';
 import { PictureItemComponent } from './pictures/components/picture-item/picture-item.component';
 
@@ -38,8 +38,8 @@ import { PictureItemComponent } from './pictures/components/picture-item/picture
     PictureGridItemComponent,
     MatchListComponent,
     MatchListItemComponent,
-    PreGameLobbyComponent,
-    GameComponent,
+    PreMatchLobbyComponent,
+    GameMainScreenComponent,
     InMatchComponent,
     PictureItemComponent,
   ],

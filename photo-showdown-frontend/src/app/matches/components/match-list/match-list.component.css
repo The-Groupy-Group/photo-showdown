@@ -12,11 +12,8 @@
 }
 
 .matches-container {
-  /* margin-left: 10%;
-  margin-right: 10%; */
-  margin: 0 auto;
-  margin-top: 2%;
-  width: 60vh;
+  margin: 2% auto;
+  width: 70vh;
 }
 
 .refresh-list {

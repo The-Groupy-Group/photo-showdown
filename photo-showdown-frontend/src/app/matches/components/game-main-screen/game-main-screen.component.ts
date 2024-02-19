@@ -6,11 +6,11 @@ import { ActivatedRoute } from '@angular/router';
 import { Round } from '../../models/round.model';
 
 @Component({
-  selector: 'app-game',
-  templateUrl: './game.component.html',
-  styleUrls: ['./game.component.css'],
+  selector: 'app-game-main-screen',
+  templateUrl: './game-main-screen.component.html',
+  styleUrls: ['./game-main-screen.component.css'],
 })
-export class GameComponent {
+export class GameMainScreenComponent {
   readonly GameState = GameState;
 
   gameState: GameState = GameState.NotStarted;
