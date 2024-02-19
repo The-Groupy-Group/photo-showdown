@@ -7,7 +7,12 @@ import { Picture } from 'src/app/pictures/models/picture.model';
   styleUrls: ['./in-match-picture-selection.component.css'],
 })
 export class InMatchPictureSelectionComponent {
-  @Input() usersPictures: Picture[] = [];
-  @Output() selectedPicture: EventEmitter<Picture> =
-    new EventEmitter<Picture>();
+  selectedPictureId: number = 0;
+  @Input() pictures: Picture[] = [];
+  @Output() onSelectedPicture: EventEmitter<Picture> = new EventEmitter();
+
+  onPictureSelected(picture: Picture) {
+    this.selectedPictureId = picture.id;
+    this.onSelectedPicture.emit(picture);
+  }
 }

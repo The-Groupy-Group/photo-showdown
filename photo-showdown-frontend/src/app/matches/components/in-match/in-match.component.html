@@ -1,11 +1,14 @@
-<div class="in-match-container" [ngSwitch]="currentRound.roundState">
+<div class="in-match-container" [ngSwitch]="currentRound?.roundState">
   <h2>Current Round Details:</h2>
-  <p>Match Id: {{ this.currentRound.matchId }}</p>
-  <p>Round Index: {{ this.currentRound.roundIndex }}</p>
-  <p>Round State: {{ this.currentRound.roundState }}</p>
-  <p>Sentence: {{ this.currentRound.sentence }}</p>
+  <p>Match Id: {{ this.currentRound?.matchId }}</p>
+  <p>Round Index: {{ this.currentRound?.roundIndex }}</p>
+  <p>Round State: {{ this.currentRound?.roundState }}</p>
+  <h2>
+    Sentence:<strong> {{ this.currentRound?.sentence }}</strong>
+  </h2>
   <app-in-match-picture-selection
     *ngSwitchCase="RoundStates.pictureSelection"
-    [usersPictures]="this.usersPictures"
+    [pictures]="this.usersPictures"
+    (onSelectedPicture)="onPictureSelected($event)"
   ></app-in-match-picture-selection>
 </div>

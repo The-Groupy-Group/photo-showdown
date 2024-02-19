@@ -16,19 +16,12 @@ import { Picture } from 'src/app/pictures/models/picture.model';
   styleUrls: ['./in-match.component.css'],
 })
 export class InMatchComponent {
-  readonly RoundStates = RoundStates;
-  currentRound: Round = {
-    matchId: 0,
-    roundIndex: 0,
-    roundState: RoundStates.pictureSelection,
-    startDate: new Date(),
-    sentence: '',
-  };
-  usersPictures: Picture[] = [];
 
-  /**
-   *
-   */
+  readonly RoundStates = RoundStates;
+  usersPictures: Picture[] = [];
+  currentRound?: Round;
+  selectedPicture?: Picture;
+
   constructor(
     private readonly webSocketService: WebSocketService,
     private readonly matchesService: MatchesService,
@@ -49,5 +42,9 @@ export class InMatchComponent {
         this.currentRound = wsMessage.data;
       }
     );
+  }
+
+  onPictureSelected(picture: Picture) {
+    this.selectedPicture = picture;
   }
 }

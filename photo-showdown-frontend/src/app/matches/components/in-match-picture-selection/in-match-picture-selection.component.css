@@ -3,7 +3,12 @@
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 16px;
 }
+
 .grid-item {
-    width: 100%;
-    box-sizing: border-box;
-  }
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.selected {
+  border: 2px solid blue;
+}
