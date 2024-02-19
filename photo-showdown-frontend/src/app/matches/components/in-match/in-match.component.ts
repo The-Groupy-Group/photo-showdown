@@ -16,7 +16,6 @@ import { Picture } from 'src/app/pictures/models/picture.model';
   styleUrls: ['./in-match.component.css'],
 })
 export class InMatchComponent {
-
   readonly RoundStates = RoundStates;
   usersPictures: Picture[] = [];
   currentRound?: Round;
@@ -46,5 +45,12 @@ export class InMatchComponent {
 
   onPictureSelected(picture: Picture) {
     this.selectedPicture = picture;
+    this.matchesService
+      .selectPictureForRound(
+        this.currentRound!.matchId,
+        this.currentRound!.roundIndex,
+        picture.id
+      )
+      .subscribe();
   }
 }

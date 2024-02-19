@@ -9,6 +9,7 @@ import { Observable } from 'rxjs';
 import { Entity } from 'src/app/shared/models/entity.model';
 import { environment } from 'src/environments/environment';
 import { MatchSettings } from '../models/match-settings.model';
+import { Round } from '../models/round.model';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +23,7 @@ export class MatchesService {
     }),
   };
 
+  // ------------------- Match API Calls ------------------- //
   /**
    *
    *
@@ -101,6 +103,50 @@ export class MatchesService {
     return this.http.post<EmptyAPIResponse>(
       this.apiURL + `/StartMatch`,
       matchSettings,
+      this.httpOptions
+    );
+  }
+
+  // ------------------- Round API Calls ------------------- //
+  /**
+   *
+   * @returns the current round
+   */
+  getCurrentRound(): Observable<APIResponse<Round>> {
+    return this.http.get<APIResponse<Round>>(
+      this.apiURL + '/GetCurrentRound',
+      this.httpOptions
+    );
+  }
+
+  selectPictureForRound(
+    matchId: number,
+    roundIndex: number,
+    pictureId: number
+  ): Observable<EmptyAPIResponse> {
+    return this.http.post<EmptyAPIResponse>(
+      this.apiURL + `/SelectPictureForRound`,
+      {
+        matchId,
+        roundIndex,
+        pictureId,
+      },
+      this.httpOptions
+    );
+  }
+
+  voteForPicture(
+    matchId: number,
+    roundIndex: number,
+    pictureId: number
+  ): Observable<EmptyAPIResponse> {
+    return this.http.post<EmptyAPIResponse>(
+      this.apiURL + `/VoteForPicture`,
+      {
+        matchId,
+        roundIndex,
+        pictureId,
+      },
       this.httpOptions
     );
   }
