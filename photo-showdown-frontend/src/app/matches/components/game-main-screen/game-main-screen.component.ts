@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { MatchesService } from '../../services/matches.service';
 import { HttpStatusCode } from '@angular/common/http';
 import { MatchStates } from '../../models/match.model';
@@ -14,7 +14,10 @@ export class GameMainScreenComponent {
   matchState?: MatchStates = undefined;
   matchId?: number;
 
-  constructor(private matchesService: MatchesService) {}
+  constructor(
+    private matchesService: MatchesService,
+    private readonly cd: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.handleIsInMatch();
@@ -40,10 +43,10 @@ export class GameMainScreenComponent {
         if (response.data.matchState === MatchStates.inProgress) {
           this.matchId = response.data.id;
           this.redirectToMatch();
-        }
-        else{
+        } else {
           this.redirectToLobby(response.data.id);
         }
+        this.cd.detectChanges();
       },
       error: (err) => {
         if (err.status !== HttpStatusCode.NotFound) {
@@ -51,6 +54,7 @@ export class GameMainScreenComponent {
           return;
         }
         this.matchState = undefined;
+        this.cd.detectChanges();
       },
     });
   }
