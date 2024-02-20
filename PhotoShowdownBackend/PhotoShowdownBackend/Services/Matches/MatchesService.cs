@@ -129,11 +129,18 @@ public class MatchesService : IMatchesService
         // Delete the connection
         await _matchConnectionsService.DeleteMatchConnection(userToRemove.Id, matchId);
 
+        
+        bool isMatchEmpty = await _matchConnectionsService.IsMatchEmpty(matchId);
         // If the match is empty and hasent started, delete it
-        if (!(match.StartDate > DateTime.UtcNow) && await _matchConnectionsService.IsMatchEmpty(matchId))
+        if (!(DateTime.UtcNow > match.StartDate) && isMatchEmpty)
         {
             await DeleteMatch(matchId);
             return;
+        }
+        else if (isMatchEmpty) // If the match is empty and has started, end the match
+        {
+            match.EndDate = DateTime.UtcNow;
+            // TODO: Implement the logic to end the match
         }
 
         // Send a message to the room
