@@ -107,7 +107,10 @@ public class MatchesService : IMatchesService
         }
         // TODO: Swap with m.HasMatchStarted if possible
         bool hasMatchStarted = await _matchesRepo
-            .AnyAsync(m => m.Id == matchId && m.StartDate != null && DateTime.UtcNow >= m.StartDate);
+            .AnyAsync(m => 
+                m.Id == matchId && 
+                m.StartDate != null && 
+                DateTime.UtcNow >= m.StartDate);
         if (hasMatchStarted)
         {
             throw new MatchAlreadyStartedException();
@@ -164,12 +167,12 @@ public class MatchesService : IMatchesService
 
     public async Task<MatchDTO?> GetMatchByUserId(int userId)
     {
-        MatchConnection? matchConnection = await _matchConnectionsService.GetMatchConnectionByUserId(userId);
-        if(matchConnection == null)
+        int? matchId = await _matchConnectionsService.GetMatchIdByUserId(userId);
+        if(matchId == null)
         {
             return null;
         }
-        Match? match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchConnection.MatchId, tracked: false))!;
+        Match? match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId, tracked: false))!;
         MatchDTO matchDTO = _mapper.Map<MatchDTO>(match);
         return matchDTO;
     }
