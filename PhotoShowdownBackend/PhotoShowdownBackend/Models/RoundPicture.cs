@@ -11,4 +11,5 @@ public class RoundPicture
     public Round Round { get; set; } = null!;
     public Picture Picture { get; set; } = null!;
     public Match Match { get; set; } = null!;
+    public ICollection<RoundVote> RoundVotes { get; set; } = new List<RoundVote>();
 }
