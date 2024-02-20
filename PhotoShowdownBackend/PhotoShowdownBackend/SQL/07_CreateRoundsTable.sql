@@ -1,7 +1,6 @@
 ﻿USE PhotoShowdownDB;
 GO
 
--- Create the Matches table
 CREATE TABLE Rounds (
     MatchId INT NOT NULL,
 	RoundId INT NOT NULL,

@@ -31,6 +31,8 @@ public class Round
     [ForeignKey("WinnerId")]
     public User? Winner { get; set; }
 
+    public ICollection<RoundPicture> RoundPictures { get; set; } = new List<RoundPicture>();
+
     public enum RoundStates
     {
         PictureSelection,
