@@ -47,6 +47,43 @@ public class MatchesService : IMatchesService
         _logger = logger;
     }
 
+    public async Task<List<MatchDTO>> GetAllMatches(MatchStates? state)
+    {
+        List<Match> allMatches = await _matchesRepo
+            .GetAllWithUsersAsync(match =>
+                (state.HasValue &&
+                (state == MatchStates.Ended && match.EndDate >= DateTime.UtcNow) ||
+                (state == MatchStates.InProgress && match.StartDate >= DateTime.UtcNow && !match.EndDate.HasValue) ||
+                (state == MatchStates.NotStarted && (!match.StartDate.HasValue || match.StartDate > DateTime.UtcNow))),
+                tracked: true);
+
+
+        List<MatchDTO> matches = allMatches.Select(_mapper.Map<MatchDTO>).ToList();
+
+        return matches;
+    }
+
+    public async Task<MatchDTO> GetMatchById(int matchId)
+    {
+        Match? match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId, tracked: false) ?? 
+            throw new NotFoundException("Invalid match Id");
+
+        MatchDTO matchDTO = _mapper.Map<MatchDTO>(match);
+        return matchDTO;
+    }
+
+    public async Task<MatchDTO?> GetMatchByUserId(int userId)
+    {
+        int? matchId = await _matchConnectionsService.GetMatchIdByUserId(userId);
+        if (matchId == null)
+        {
+            return null;
+        }
+        Match? match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId, tracked: false))!;
+        MatchDTO matchDTO = _mapper.Map<MatchDTO>(match);
+        return matchDTO;
+    }
+
     public async Task<MatchCreationResponseDTO> CreateNewMatch(int ownerId)
     {
         if (await _matchConnectionsService.IsUserConnectedToMatch(ownerId))
@@ -67,36 +104,6 @@ public class MatchesService : IMatchesService
         var response = _mapper.Map<MatchCreationResponseDTO>(match);
 
         return response;
-    }
-
-    public async Task<List<MatchDTO>> GetAllMatches(MatchStates? state)
-    {
-        List<Match> allMatches = await _matchesRepo
-            .GetAllWithUsersAsync(match =>
-                (state.HasValue &&
-                (state == MatchStates.Ended && match.EndDate >= DateTime.UtcNow) ||
-                (state == MatchStates.InProgress && match.StartDate >= DateTime.UtcNow && !match.EndDate.HasValue) ||
-                (state == MatchStates.NotStarted && (!match.StartDate.HasValue || match.StartDate > DateTime.UtcNow))),
-                tracked: true);
-
-
-        List<MatchDTO> matches = allMatches.Select(_mapper.Map<MatchDTO>).ToList();
-
-        return matches;
-    }
-
-    public async Task<bool> DoesMatchExists(int matchId)
-    {
-        return await _matchesRepo.AnyAsync(match => match.Id == matchId);
-    }
-
-    public async Task<MatchDTO> GetMatchById(int matchId)
-    {
-        Match? match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId, tracked: false) ?? 
-            throw new NotFoundException("Invalid match Id");
-
-        MatchDTO matchDTO = _mapper.Map<MatchDTO>(match);
-        return matchDTO;
     }
 
     public async Task AddUserToMatch(UserPublicDetailsDTO user, int matchId)
@@ -129,9 +136,8 @@ public class MatchesService : IMatchesService
         // Delete the connection
         await _matchConnectionsService.DeleteMatchConnection(userToRemove.Id, matchId);
 
-        
-        bool isMatchEmpty = await _matchConnectionsService.IsMatchEmpty(matchId);
         // If the match is empty and hasent started, delete it
+        bool isMatchEmpty = await _matchConnectionsService.IsMatchEmpty(matchId);
         if (!(DateTime.UtcNow > match.StartDate) && isMatchEmpty)
         {
             await DeleteMatch(matchId);
@@ -160,28 +166,6 @@ public class MatchesService : IMatchesService
             var newOwnerWsMessage = new NewOwnerWebSocketMessage(_mapper.Map<UserPublicDetailsDTO>(newOwner));
             await _webSocketRoomManager.SendMessageToRoom(userToRemove.Id, matchId, newOwnerWsMessage);
         }
-    }
-
-    public async Task<bool> IsUserConnectedToMatch(int userId)
-    {
-        return await _matchConnectionsService.IsUserConnectedToMatch(userId);
-    }
-
-    public async Task ConnectUserToMatch(int userId, int matchId)
-    {
-        await _matchConnectionsService.CreateMatchConnection(userId, matchId);
-    }
-
-    public async Task<MatchDTO?> GetMatchByUserId(int userId)
-    {
-        int? matchId = await _matchConnectionsService.GetMatchIdByUserId(userId);
-        if(matchId == null)
-        {
-            return null;
-        }
-        Match? match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId, tracked: false))!;
-        MatchDTO matchDTO = _mapper.Map<MatchDTO>(match);
-        return matchDTO;
     }
 
     public async Task StartMatch(int userId, StartMatchDTO startMatchDTO)
@@ -274,5 +258,15 @@ public class MatchesService : IMatchesService
         }
 
         await _matchesRepo.DeleteAsync(m);
+    }
+
+    private async Task<bool> IsUserConnectedToMatch(int userId)
+    {
+        return await _matchConnectionsService.IsUserConnectedToMatch(userId);
+    }
+
+    private async Task<bool> DoesMatchExists(int matchId)
+    {
+        return await _matchesRepo.AnyAsync(match => match.Id == matchId);
     }
 }

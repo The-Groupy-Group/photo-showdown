@@ -10,6 +10,7 @@ using PhotoShowdownBackend.Dtos.WebSocketMessages;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Exceptions.Matches;
+using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.Matches;
 using PhotoShowdownBackend.Services.Session;
 using PhotoShowdownBackend.Services.Users;
@@ -54,9 +55,10 @@ public class MatchesController : ControllerBase
         try
         {
             int ownerId = _sessionService.GetCurrentUserId();
+            UserPublicDetailsDTO owner = await _usersService.GetUserPublicDetails(ownerId);
 
             var newMatchDetails = await _matchesService.CreateNewMatch(ownerId);
-            await _matchesService.ConnectUserToMatch(ownerId, newMatchDetails.Id);
+            await _matchesService.AddUserToMatch(owner, newMatchDetails.Id);
 
             response.Data = newMatchDetails;
 

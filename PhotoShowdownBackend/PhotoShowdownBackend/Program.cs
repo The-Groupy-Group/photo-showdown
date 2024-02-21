@@ -72,7 +72,7 @@ builder.Services.AddDbContext<PhotoShowdownDbContext>(options =>
 DbContextOptions<PhotoShowdownDbContext> options = new DbContextOptionsBuilder<PhotoShowdownDbContext>()
     .UseSqlServer(connectionString)
     .Options;
-DatabaseInitializer.Initialize(new(options));
+DatabaseInitializer.Initialize(new PhotoShowdownDbContext(options));
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
