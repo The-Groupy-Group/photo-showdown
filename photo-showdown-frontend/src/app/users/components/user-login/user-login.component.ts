@@ -20,7 +20,7 @@ export class UserLoginComponent {
   ) {}
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/']);
+      this.navigateToHome();
     }
   }
 
@@ -32,11 +32,18 @@ export class UserLoginComponent {
     this.authService.login(this.username, this.password).subscribe({
       next: (response) => {
         this.errorMessage = undefined;
+        this.navigateToHome();
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading = false;
         this.errorMessage = error.error.message;
       },
     });
+  }
+
+  navigateToHome() {
+    this.router.navigate(['/']).then(() => {
+      window.location.reload();
+    });;
   }
 }

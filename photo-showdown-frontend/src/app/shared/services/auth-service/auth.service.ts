@@ -15,14 +15,15 @@ import { environment } from 'src/environments/environment';
  * this service handles authentication.
  */
 export class AuthService {
-  constructor(private http: HttpClient, private readonly router: Router) {}
-  readonly apiURL = environment.apiUrl + '/Users';
-  readonly localStorageTokenKey = 'id_token';
-  httpOptions = {
+  private readonly apiURL = environment.apiUrl + '/Users';
+  private readonly TOKEN_KEY = 'auth-token';
+  private readonly httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
     }),
   };
+
+  constructor(private http: HttpClient, private readonly router: Router) {}
 
   /**
    * this function logs in the user
@@ -34,6 +35,7 @@ export class AuthService {
     username: string,
     password: string
   ): Observable<APIResponse<LoginResponse>> {
+    window.sessionStorage.clear();
     return this.http
       .post<APIResponse<LoginResponse>>(
         this.apiURL + '/Login',
@@ -42,28 +44,21 @@ export class AuthService {
       )
       .pipe(
         tap((res) => {
-          localStorage.setItem(this.localStorageTokenKey, res.data.token);
-
-          this.router.navigate(['/']).then(() => {
-            window.location.reload();
-          });
+          this.setJwtToken(res.data.token);
         }),
         shareReplay()
       );
   }
 
   public logout() {
-    localStorage.removeItem(this.localStorageTokenKey);
+    window.sessionStorage.removeItem(this.TOKEN_KEY);
   }
-  
+
   public isLoggedIn(): boolean {
     return (
-      localStorage.getItem(this.localStorageTokenKey) != undefined &&
+      this.getJwtToken() != undefined &&
       this.getExpirationDate().valueOf() > Date.now().valueOf()
     );
-  }
-  public isLoggedOut(): boolean {
-    return !this.isLoggedIn();
   }
 
   /**
@@ -71,33 +66,31 @@ export class AuthService {
    * @returns string of the user's id
    */
   public getUserId(): number {
-    var JwtPayload = this.getJwtPayload();
-    return Number(JwtPayload.Id);
+    return Number(this.getJwtPayload().Id);
   }
 
   public getUsername(): string {
-    var JwtPayload = this.getJwtPayload();
-    return JwtPayload.Username;
+    return this.getJwtPayload().Username;
   }
 
-  public getExpirationDate(): Date {
-    var JwtPayload = this.getJwtPayload();
-    return new Date(JwtPayload.exp * 1000);
+  public getJwtToken(): string | null {
+    return window.sessionStorage.getItem(this.TOKEN_KEY);
   }
 
-  /**
-   *decodes the token_id from local storage
-   * @returns string of the user's username
-   */
+  public setJwtToken(token: string) {
+    window.sessionStorage.setItem(this.TOKEN_KEY, token);
+  }
+
   public getJwtPayload(): JwtPayload {
-    const jwt = localStorage.getItem('id_token');
+    const jwt = window.sessionStorage.getItem(this.TOKEN_KEY);
     if (!jwt) {
       throw new Error('No JWT found');
     }
     return jwt_decode(jwt);
   }
 
-  public getJwtToken(): string {
-    return localStorage.getItem('id_token') || '';
+  private getExpirationDate(): Date {
+    //return new Date(jwt_decode<JwtPayload>(token)!.exp * 1000);
+    return new Date(this.getJwtPayload().exp * 1000);
   }
 }
