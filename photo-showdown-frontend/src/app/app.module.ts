@@ -28,6 +28,7 @@ import { InMatchComponent } from './matches/components/in-match/in-match.compone
 import { PictureItemComponent } from './pictures/components/picture-item/picture-item.component';
 import { InMatchPictureSelectionComponent } from './matches/components/in-match-picture-selection/in-match-picture-selection.component';
 
+
 @NgModule({
   declarations: [
     AppComponent,
