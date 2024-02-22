@@ -25,6 +25,8 @@ using PhotoShowdownBackend.Services.Rounds;
 using PhotoShowdownBackend.Services.CustomSentences;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.CustomSentences;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -163,6 +165,17 @@ builder.Services.AddAuthentication().AddJwtBearer(options =>
     };
 });
 
+// Add RateLimiter
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddTokenBucketLimiter("token", options =>
+    {
+        options.TokenLimit = 100;
+        options.ReplenishmentPeriod = TimeSpan.FromSeconds(5);
+        options.TokensPerPeriod = 10;
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -195,5 +208,7 @@ app.MapControllers();
 app.UseWebSockets();
 
 app.UseMiddleware<WebSocketHandlerMiddleware>();
+
+app.UseRateLimiter();
 
 app.Run();

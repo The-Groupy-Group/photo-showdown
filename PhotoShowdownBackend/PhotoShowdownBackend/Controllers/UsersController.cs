@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using PhotoShowdownBackend.Attributes;
 using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos;
@@ -18,6 +19,7 @@ namespace PhotoShowdownBackend.Controllers;
 [ApiController]
 [Authorize]
 [HandleException]
+[EnableRateLimiting("token")]
 public class UsersController : ControllerBase
 {
     private readonly IUsersService _usersService;
