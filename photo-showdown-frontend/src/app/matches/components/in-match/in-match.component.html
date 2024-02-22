@@ -8,7 +8,7 @@
     <p>Round Index: {{ this.currentRound?.roundIndex }}</p>
     <p>Round State: {{ this.currentRound?.roundState }}</p>
     <p>Round StartTime: {{ this.currentRound?.startDate }}</p>
-    <p>Round Time: {{ this.secondsCountDown }}</p>
+    <p>Round Time: {{ this.countdown$ | async }}</p>
   </mat-card>
 
   <app-in-match-picture-selection
