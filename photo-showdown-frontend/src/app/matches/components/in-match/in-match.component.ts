@@ -39,7 +39,7 @@ export class InMatchComponent {
 
     // Listen for new round started
     this.webSocketService.onWebSocketEvent<WebSocketMessage<Round>>(
-      WebSocketMessageType.newRoundStarted,
+      WebSocketMessageType.roundStateChange,
       (wsMessage) => {
         this.currentRound = wsMessage.data;
         this.currentRound.startDate = DateTimeUtils.convertUtcToLocal(

@@ -30,7 +30,7 @@ public abstract class WebSocketMessage
         PlayerLeft,
         NewOwner,
         MatchStarted,
-        NewRoundStarted,
+        RoundStateChange,
     }
 }
 

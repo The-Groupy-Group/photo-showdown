@@ -22,5 +22,5 @@ export enum WebSocketMessageType {
   playerLeft = 'playerLeft',
   newOwner = 'newOwner',
   matchStarted = 'matchStarted',
-  newRoundStarted = 'newRoundStarted',
+  roundStateChange = 'roundStateChange',
 }

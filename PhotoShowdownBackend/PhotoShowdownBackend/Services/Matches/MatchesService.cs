@@ -232,16 +232,21 @@ public class MatchesService : IMatchesService
                 StartDate = DateTime.UtcNow,
                 Sentence = "PITOM DONFIL HEFLITZ TUUUM TUUUM TUTUUTUTUMMM " + roundIndex
             };
-            NewRoundStartedWebSocketMessage newRoundWsMessage = new(roundDto);
-            await _webSocketRoomManager.SendMessageToRoom(null, match.Id, newRoundWsMessage);
+            RoundStateChangeWebSocketMessage roundWsMessage = new(roundDto);
+            await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
             await Task.Delay(match.PictureSelectionTimeSeconds * 1000);
 
             // ------- Start voting phase ------- //
-            await Task.Delay(match.VoteTimeSeconds * 1000);
             // TODO: Implement voting logic
+            roundWsMessage.Data.RoundState = Round.RoundStates.Voting;
+            await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
+            await Task.Delay(match.VoteTimeSeconds * 1000);
 
             // ------- Ending a round ------- //
             //roundDto = _roundsService.EndRound(match.Id, roundIndex);
+            roundWsMessage.Data.RoundState = Round.RoundStates.Ended;
+            await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
+            // TODO: Implement round winner logic
             await Task.Delay(ROUND_WINNER_DISPLAY_SECONDS * 1000);
             roundIndex++;
         }
