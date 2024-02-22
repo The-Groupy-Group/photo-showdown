@@ -29,7 +29,14 @@ export class PreMatchLobbyComponent implements OnInit {
   userId: number = this.authService.getUserId();
   isOwner = false;
   match?: Match;
-  matchSettings: MatchSettings = { matchId: 0, sentences: [] };
+  matchSettings: MatchSettings = {
+    matchId: 0,
+    sentences: [],
+    numOfRounds: 20,
+    numOfVotesToWin: 10,
+    pictureSelectionTimeSeconds: 30,
+    voteTimeSeconds: 35,
+  };
   allSentences = '';
   errorMessage = '';
   isLoading = true;

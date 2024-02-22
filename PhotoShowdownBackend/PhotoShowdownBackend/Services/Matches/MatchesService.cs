@@ -65,7 +65,7 @@ public class MatchesService : IMatchesService
 
     public async Task<MatchDTO> GetMatchById(int matchId)
     {
-        Match? match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId, tracked: false) ?? 
+        Match? match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId, tracked: false) ??
             throw new NotFoundException("Invalid match Id");
 
         MatchDTO matchDTO = _mapper.Map<MatchDTO>(match);
@@ -114,9 +114,9 @@ public class MatchesService : IMatchesService
         }
         // TODO: Swap with m.HasMatchStarted if possible
         bool hasMatchStarted = await _matchesRepo
-            .AnyAsync(m => 
-                m.Id == matchId && 
-                m.StartDate != null && 
+            .AnyAsync(m =>
+                m.Id == matchId &&
+                m.StartDate != null &&
                 DateTime.UtcNow >= m.StartDate);
         if (hasMatchStarted)
         {
@@ -183,25 +183,13 @@ public class MatchesService : IMatchesService
             throw new MatchAlreadyStartedException();
         }
 
-        // Map the request to update the Match object
+        // Update the Match from the request
         match.StartDate = DateTime.UtcNow;
-        if (startMatchDTO.PictureSelectionTimeSeconds.HasValue)
-        {
-            match.PictureSelectionTimeSeconds = startMatchDTO.PictureSelectionTimeSeconds.Value;
-        }
-        if (startMatchDTO.VoteTimeSeconds.HasValue)
-        {
-            match.VoteTimeSeconds = startMatchDTO.VoteTimeSeconds.Value;
-        }
-        if (startMatchDTO.NumOfVotesToWin.HasValue)
-        {
-            match.NumOfVotesToWin = startMatchDTO.NumOfVotesToWin.Value;
-        }
-        if (startMatchDTO.NumOfRounds.HasValue)
-        {
-            match.NumOfRounds = startMatchDTO.NumOfRounds.Value;
-        }
-        // Update the match
+        match.PictureSelectionTimeSeconds = startMatchDTO.PictureSelectionTimeSeconds;
+        match.VoteTimeSeconds = startMatchDTO.VoteTimeSeconds;
+        match.NumOfVotesToWin = startMatchDTO.NumOfVotesToWin;
+        match.NumOfRounds = startMatchDTO.NumOfRounds;
+
         await _matchesRepo.UpdateAsync(match);
 
         // Start the match logic
