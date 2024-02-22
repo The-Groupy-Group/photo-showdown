@@ -216,7 +216,7 @@ public class MatchesService : IMatchesService
     // ------------ Private methods ------------ //
     private async void ExecuteMatchLogic(Match match)
     {
-        Thread.Sleep(5 * 1000); // Sleep 5 seconds to let the clients connect to the room
+        await Task.Delay(5 * 1000); // Sleep 5 seconds to let the clients connect to the room
         // TODO: https://groupy-group.atlassian.net/browse/PHSH-114
 
         int roundIndex = 0;
@@ -234,15 +234,15 @@ public class MatchesService : IMatchesService
             };
             NewRoundStartedWebSocketMessage newRoundWsMessage = new(roundDto);
             await _webSocketRoomManager.SendMessageToRoom(null, match.Id, newRoundWsMessage);
-            Thread.Sleep(match.PictureSelectionTimeSeconds * 1000);
+            await Task.Delay(match.PictureSelectionTimeSeconds * 1000);
 
             // ------- Start voting phase ------- //
-            Thread.Sleep(match.VoteTimeSeconds * 1000);
+            await Task.Delay(match.VoteTimeSeconds * 1000);
             // TODO: Implement voting logic
 
             // ------- Ending a round ------- //
             //roundDto = _roundsService.EndRound(match.Id, roundIndex);
-            Thread.Sleep(ROUND_WINNER_DISPLAY_SECONDS * 1000);
+            await Task.Delay(ROUND_WINNER_DISPLAY_SECONDS * 1000);
             roundIndex++;
         }
         // TODO: Implement match end logic (send a message to the room, remove all connection)
