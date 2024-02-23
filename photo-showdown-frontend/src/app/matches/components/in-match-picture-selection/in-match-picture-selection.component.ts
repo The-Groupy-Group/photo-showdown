@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Picture } from 'src/app/pictures/models/picture.model';
+import { MatchesService } from '../../services/matches.service';
+import { Round } from '../../models/round.model';
 
 @Component({
   selector: 'app-in-match-picture-selection',
@@ -9,10 +11,20 @@ import { Picture } from 'src/app/pictures/models/picture.model';
 export class InMatchPictureSelectionComponent {
   selectedPictureId: number = 0;
   @Input() pictures: Picture[] = [];
-  @Output() onSelectedPicture: EventEmitter<Picture> = new EventEmitter();
+  @Input() currentRound?: Round;
+  
+  constructor( private readonly matchesService: MatchesService) {
+
+  }
 
   onPictureSelected(picture: Picture) {
     this.selectedPictureId = picture.id;
-    this.onSelectedPicture.emit(picture);
+    this.matchesService
+      .selectPictureForRound(
+        this.currentRound!.matchId,
+        this.currentRound!.roundIndex,
+        picture.id
+      )
+      .subscribe();
   }
 }

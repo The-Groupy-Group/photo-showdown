@@ -1,4 +1,9 @@
 export class DateTimeUtils {
+  static getSecondsUntil(roundEndDate: Date): number {
+    const now = new Date();
+    const diff = roundEndDate.getTime() - now.getTime();
+    return Math.floor(diff / 1000);
+  }
   // Convert UTC to Local
   static convertUtcToLocal(utcDate: Date): Date {
     // const offset = new Date().getTimezoneOffset();

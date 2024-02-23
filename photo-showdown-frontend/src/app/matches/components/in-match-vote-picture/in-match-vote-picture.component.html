@@ -1,0 +1,10 @@
+<h3>Select a picture</h3>
+<div class="pictures-grid">
+  <app-picture-item
+    *ngFor="let picture of pictures"
+    [picture]="picture"
+    class="grid-item"
+    (click)="onPictureSelected(picture)"
+    [class.selected]="picture.id === selectedPictureId"
+  ></app-picture-item>
+</div>
