@@ -213,15 +213,11 @@ public class MatchesService : IMatchesService
         RoundDTO roundDTO = await _roundsService.GetCurrentRound(matchId);
 
         return roundDTO;
-
     }
 
     // ------------ Private methods ------------ //
     private async void ExecuteMatchLogic(Match match)
     {
-        await Task.Delay(5 * 1000); // Sleep 5 seconds to let the clients connect to the room
-        // TODO: https://groupy-group.atlassian.net/browse/PHSH-114
-
         int roundIndex = 0;
         while (!(false/*match.NumOfRounds == roundIndex || match.NumOfVotesToWin == userWithMaxVotes*/)) // Check winning condition
         {
