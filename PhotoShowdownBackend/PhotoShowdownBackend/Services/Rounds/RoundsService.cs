@@ -8,7 +8,6 @@ using PhotoShowdownBackend.Repositories.Pictures;
 using PhotoShowdownBackend.Repositories.Rounds;
 using PhotoShowdownBackend.Services.CustomSentences;
 using PhotoShowdownBackend.Services.Pictures;
-using System.Text.RegularExpressions;
 
 namespace PhotoShowdownBackend.Services.Rounds;
 
@@ -43,6 +42,8 @@ public class RoundsService : IRoundsService
 
         await _roundsRepo.CreateAsync(round);
 
+        round = await _roundsRepo.GetWithIncludes(r => r.MatchId == matchId && r.RoundIndex == roundIndex);
+
         return _mapper.Map<RoundDTO>(round);
     }
 
@@ -66,7 +67,7 @@ public class RoundsService : IRoundsService
     public async Task<RoundDTO> GetCurrentRound(int matchId)
     {
 
-        Round lastRound = await _roundsRepo.GetLast(matchId) ??
+        Round lastRound = await _roundsRepo.GetLastWithInclude(matchId) ??
             throw new NotFoundException();
         
         RoundDTO roundDTO = _mapper.Map<RoundDTO>(lastRound);

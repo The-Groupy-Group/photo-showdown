@@ -14,7 +14,8 @@ public class RoundsRepository : Repository<Round>, IRoundsRepository
         
     }
 
-    virtual public async Task<Round?> GetLast(int matchId,
+    virtual public async Task<Round?> GetLastWithInclude(
+        int matchId,
         bool tracked = true
         )
     {
@@ -30,6 +31,26 @@ public class RoundsRepository : Repository<Round>, IRoundsRepository
             .ThenInclude(rp => rp.RoundVotes)
             .Where(round => round.MatchId == matchId)
             .LastOrDefaultAsync();
+
+    }
+
+    virtual public async Task<Round?> GetWithIncludes(
+        Expression<Func<Round, bool>> filter,
+        bool tracked = true
+        )
+    {
+        IQueryable<Round> query = _dbSet;
+        if (!tracked)
+        {
+            query = query.AsNoTracking();
+        }
+        return await query
+            .Include(round => round.Match)
+            .Include(round => round.Winner)
+            .Include(round => round.RoundPictures)
+            .ThenInclude(rp => rp.RoundVotes)
+            .Where(filter)
+            .FirstOrDefaultAsync();
 
     }
 
