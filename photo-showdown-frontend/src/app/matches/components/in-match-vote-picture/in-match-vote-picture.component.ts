@@ -12,7 +12,7 @@ import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
 export class InMatchVotePictureComponent {
   votedPictureId: number = 0;
   userId: number;
-  @Input() picturesToVote: PictureSelected[] = [];
+  @Input() picturesToVote?: PictureSelected[] = [];
   @Input() currentRound?: Round;
 
   constructor(
