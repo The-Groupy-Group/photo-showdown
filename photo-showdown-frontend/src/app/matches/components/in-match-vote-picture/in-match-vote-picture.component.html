@@ -1,6 +1,7 @@
 <h3>Select a picture</h3>
 <div class="pictures-grid">
-  <div *ngFor="let picture of picturesToVote">
+    <!-- TODO: fix pictures-grid needing to be placed twice -->
+  <div *ngFor="let picture of picturesToVote" class="pictures-grid"> 
     <app-picture-item
       [picture]="picture"
       class="grid-item"
