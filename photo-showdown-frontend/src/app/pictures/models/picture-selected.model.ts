@@ -3,6 +3,7 @@ import { UserPublicDetails } from "src/app/users/models/user-public-details.mode
 export interface PictureSelected {
   id: number;
   picturePath: string;
+  numOfVotes: number;
   selectedByUser: UserPublicDetails;
   usersVoted: UserPublicDetails[];
 }
