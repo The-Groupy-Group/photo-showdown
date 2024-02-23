@@ -5,6 +5,7 @@ using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Messages;
+using PhotoShowdownBackend.Dtos.Rounds;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Dtos.WebSocketMessages;
 using PhotoShowdownBackend.Exceptions;
@@ -213,4 +214,29 @@ public class MatchesController : ControllerBase
             return BadRequest(response.ErrorResponse(ex.Message));
         }
     }
+
+    [HttpGet]
+    [ProducesResponseType(typeof(APIResponse<RoundDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetCurrentRound(int matchId)
+    {
+        APIResponse<RoundDTO> response = new ();
+        try
+        {
+            RoundDTO roundDTO = await _matchesService.GetCurrentRound(matchId);
+            response.Data = roundDTO;
+            return Ok(response);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ErrorResponse(ex.Message));
+        }
+        catch (MatchDidNotStartYetException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+    }
+
 }
