@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using PhotoShowdownBackend.Dtos.Rounds;
 using PhotoShowdownBackend.Exceptions;
+using PhotoShowdownBackend.Exceptions.Matches;
 using PhotoShowdownBackend.Exceptions.Rounds;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.Pictures;
 using PhotoShowdownBackend.Repositories.Rounds;
 using PhotoShowdownBackend.Services.CustomSentences;
 using PhotoShowdownBackend.Services.Pictures;
+using System.Text.RegularExpressions;
 
 namespace PhotoShowdownBackend.Services.Rounds;
 
@@ -59,5 +61,16 @@ public class RoundsService : IRoundsService
         await _roundsRepo.UpdateAsync(round);
 
         return _mapper.Map<RoundDTO>(round);
+    }
+
+    public async Task<RoundDTO> GetCurrentRound(int matchId)
+    {
+
+        Round lastRound = await _roundsRepo.GetLast(matchId) ??
+            throw new NotFoundException();
+        
+        RoundDTO roundDTO = _mapper.Map<RoundDTO>(lastRound);
+
+        return roundDTO;
     }
 }

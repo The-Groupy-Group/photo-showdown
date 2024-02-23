@@ -40,7 +40,8 @@ public class MatchesReporitory : Repository<Match>, IMatchesReporitory
         return await query
             .Include(match => match.Owner)
             .Include(match => match.MatchConnections)
-            .ThenInclude(mc => mc.User).Where(filter)
+            .ThenInclude(mc => mc.User)
+            .Where(filter)
             .FirstOrDefaultAsync();
     }
 }

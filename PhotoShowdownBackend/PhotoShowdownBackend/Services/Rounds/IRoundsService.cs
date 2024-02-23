@@ -6,4 +6,6 @@ public interface IRoundsService
 {
     Task<RoundDTO> StartRound(int matchId, int roundIndex);
     Task<RoundDTO> EndRound(int matchId, int roundIndex);
+    Task<RoundDTO> GetCurrentRound(int matchId);
+
 }

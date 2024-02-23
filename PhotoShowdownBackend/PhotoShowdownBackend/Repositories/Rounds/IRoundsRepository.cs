@@ -5,4 +5,5 @@ namespace PhotoShowdownBackend.Repositories.Rounds;
 
 public interface IRoundsRepository: IRepository<Round>
 {
+  Task<Round?> GetLast(int matchId,bool tracked = true);
 }

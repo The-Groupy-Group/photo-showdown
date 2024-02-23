@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Messages;
@@ -29,7 +30,7 @@ public class MatchesService : IMatchesService
     private readonly WebSocketRoomManager _webSocketRoomManager;
     private readonly IMapper _mapper;
     private readonly ILogger<MatchesService> _logger;
-    private const int ROUND_WINNER_DISPLAY_SECONDS = 15;
+    private const int ROUND_WINNER_DISPLAY_SECONDS = SystemSettings.ROUND_WINNER_DISPLAY_SECONDS;
 
     public MatchesService(
         IMatchesReporitory matchesRepository,
@@ -201,6 +202,20 @@ public class MatchesService : IMatchesService
         _ = Task.Run(() => ExecuteMatchLogic(match));
     }
 
+    public async Task<RoundDTO> GetCurrentRound(int matchId)
+    {
+        Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ??
+             throw new NotFoundException();
+
+        if(match.StartDate == null || DateTime.UtcNow < match.StartDate)
+            throw new MatchDidNotStartYetException();
+
+        RoundDTO roundDTO = await _roundsService.GetCurrentRound(matchId);
+
+        return roundDTO;
+
+    }
+
     // ------------ Private methods ------------ //
     private async void ExecuteMatchLogic(Match match)
     {
@@ -211,15 +226,7 @@ public class MatchesService : IMatchesService
         while (!(false/*match.NumOfRounds == roundIndex || match.NumOfVotesToWin == userWithMaxVotes*/)) // Check winning condition
         {
             // ------- Start a new round ------- //
-            //var roundDto = _roundsService.StartRound(match.Id, roundIndex);
-            var roundDto = new RoundDTO()
-            {
-                MatchId = match.Id,
-                RoundIndex = roundIndex,
-                RoundState = Round.RoundStates.PictureSelection,
-                StartDate = DateTime.UtcNow,
-                Sentence = "PITOM DONFIL HEFLITZ TUUUM TUUUM TUTUUTUTUMMM " + roundIndex
-            };
+            var roundDto = await _roundsService.StartRound(match.Id, roundIndex);
             RoundStateChangeWebSocketMessage roundWsMessage = new(roundDto);
             await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
             await Task.Delay(match.PictureSelectionTimeSeconds * 1000);
@@ -262,4 +269,6 @@ public class MatchesService : IMatchesService
     {
         return await _matchesRepo.AnyAsync(match => match.Id == matchId);
     }
+
+
 }

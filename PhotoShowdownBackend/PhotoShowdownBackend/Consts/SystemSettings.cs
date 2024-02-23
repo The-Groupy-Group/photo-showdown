@@ -8,4 +8,7 @@ public class SystemSettings
 
     // Database
     public const string DatabaseName = "PhotoShowdownDB";
+
+    // Matches
+    public const int ROUND_WINNER_DISPLAY_SECONDS = 15;
 }
