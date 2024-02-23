@@ -1,0 +1,14 @@
+<h3>Select a picture</h3>
+<div class="pictures-grid">
+    <!-- TODO: fix pictures-grid needing to be placed twice -->
+  <div *ngFor="let picture of picturesToVote" class="pictures-grid"> 
+    <app-picture-item
+      [picture]="picture"
+      class="grid-item"
+      (click)="onPictureVoted(picture)"
+      [class.voted]="picture.id === votedPictureId"
+      [class.disabled]="picture.id === userId"
+    ></app-picture-item>
+    <strong>{{ picture.numOfVotes }}</strong>
+  </div>
+</div>

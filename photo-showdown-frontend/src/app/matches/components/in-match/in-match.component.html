@@ -14,6 +14,12 @@
   <app-in-match-picture-selection
     *ngSwitchCase="RoundStates.pictureSelection"
     [pictures]="this.usersPictures"
-    (onSelectedPicture)="onPictureSelected($event)"
+    [currentRound]="this.currentRound"
   ></app-in-match-picture-selection>
+
+  <app-in-match-vote-picture
+    *ngSwitchCase="RoundStates.voting"
+    [picturesToVote]="this.currentRound?.picturesSelected"
+    [currentRound]="this.currentRound"
+  ></app-in-match-vote-picture>
 </div>

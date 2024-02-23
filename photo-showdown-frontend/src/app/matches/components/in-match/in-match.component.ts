@@ -32,7 +32,6 @@ export class InMatchComponent {
   ) {}
 
   ngOnInit() {
-    this.countdown$ = this.setTimer(10);
     // Get all pictures for the current user
     this.picturesService.getMyPictures().subscribe((response) => {
       this.usersPictures = response.data;
@@ -44,24 +43,45 @@ export class InMatchComponent {
       WebSocketMessageType.roundStateChange,
       (wsMessage) => {
         this.currentRound = wsMessage.data;
+
+        // Convert dates to local time
         this.currentRound.startDate = DateTimeUtils.convertUtcToLocal(
           this.currentRound.startDate
         );
-        this.countdown$ = this.setTimer(10);
+        this.currentRound.pictureSelectionEndDate =
+          DateTimeUtils.convertUtcToLocal(
+            this.currentRound.pictureSelectionEndDate
+          );
+        this.currentRound.votingEndDate = DateTimeUtils.convertUtcToLocal(
+          this.currentRound.votingEndDate
+        );
+        this.currentRound.roundEndDate = DateTimeUtils.convertUtcToLocal(
+          this.currentRound.roundEndDate
+        );
+
+        // Set the timer based on the current round state
+        switch (this.currentRound.roundState) {
+          case RoundStates.pictureSelection:
+            this.countdown$ = this.setTimer(
+              DateTimeUtils.getSecondsUntil(
+                this.currentRound.pictureSelectionEndDate
+              )
+            );
+            break;
+          case RoundStates.voting:
+            this.countdown$ = this.setTimer(
+              DateTimeUtils.getSecondsUntil(this.currentRound.votingEndDate)
+            );
+            break;
+          case RoundStates.ended:
+            this.countdown$ = this.setTimer(
+              DateTimeUtils.getSecondsUntil(this.currentRound.roundEndDate)
+            );
+            break;
+        }
         this.cd.detectChanges();
       }
     );
-  }
-
-  onPictureSelected(picture: Picture) {
-    this.selectedPicture = picture;
-    this.matchesService
-      .selectPictureForRound(
-        this.currentRound!.matchId,
-        this.currentRound!.roundIndex,
-        picture.id
-      )
-      .subscribe();
   }
 
   setTimer(seconds: number) {

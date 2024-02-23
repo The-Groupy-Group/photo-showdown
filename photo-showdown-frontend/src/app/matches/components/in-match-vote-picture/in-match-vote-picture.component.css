@@ -1,0 +1,19 @@
+.pictures-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+.grid-item {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.voted {
+  border: 2px solid rgb(255, 8, 0);
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}

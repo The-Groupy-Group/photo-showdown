@@ -27,6 +27,7 @@ import { GameMainScreenComponent } from './matches/components/game-main-screen/g
 import { InMatchComponent } from './matches/components/in-match/in-match.component';
 import { PictureItemComponent } from './pictures/components/picture-item/picture-item.component';
 import { InMatchPictureSelectionComponent } from './matches/components/in-match-picture-selection/in-match-picture-selection.component';
+import { InMatchVotePictureComponent } from './matches/components/in-match-vote-picture/in-match-vote-picture.component';
 
 @NgModule({
   declarations: [
@@ -44,6 +45,7 @@ import { InMatchPictureSelectionComponent } from './matches/components/in-match-
     InMatchComponent,
     PictureItemComponent,
     InMatchPictureSelectionComponent,
+    InMatchVotePictureComponent,
   ],
   imports: [
     BrowserModule,
