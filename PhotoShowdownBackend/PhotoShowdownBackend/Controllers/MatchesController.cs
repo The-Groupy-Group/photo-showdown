@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration.UserSecrets;
 using PhotoShowdownBackend.Attributes;
 using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos;
@@ -13,6 +14,7 @@ using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Exceptions.Matches;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.Matches;
+using PhotoShowdownBackend.Services.Pictures;
 using PhotoShowdownBackend.Services.Session;
 using PhotoShowdownBackend.Services.Users;
 using PhotoShowdownBackend.WebSockets;
@@ -30,6 +32,7 @@ public class MatchesController : ControllerBase
     private readonly IUsersService _usersService;
     private readonly WebSocketRoomManager _webSocketManager;
     private readonly ISessionService _sessionService;
+    private readonly IPicturesService _picturesService;
     private readonly ILogger<MatchesController> _logger;
 
     public MatchesController(
@@ -37,12 +40,14 @@ public class MatchesController : ControllerBase
         IUsersService usersService,
         WebSocketRoomManager webSocketManager,
         ISessionService sessionService,
+        IPicturesService picturesService,
         ILogger<MatchesController> logger)
     {
         _matchesService = matchesService;
         _usersService = usersService;
         _webSocketManager = webSocketManager;
         _sessionService = sessionService;
+        _picturesService = picturesService;
         _logger = logger;
     }
 
@@ -236,6 +241,26 @@ public class MatchesController : ControllerBase
         catch (MatchDidNotStartYetException ex)
         {
             return BadRequest(response.ErrorResponse(ex.Message));
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SelectPicture(int pictureId, int matchId, int roundIndex)
+    {
+        APIResponse response = new ();
+        try
+        {
+            if ((await _picturesService.GetPicture(pictureId)) == null)
+            {
+                return NotFound();
+            }
+            int userId = _sessionService.GetCurrentUserId();
+            await _matchesService.SelectPicture(pictureId,matchId,roundIndex,userId);
+            return Ok(response);
+        }
+        catch(NotFoundException ex)
+        {
+
         }
     }
 

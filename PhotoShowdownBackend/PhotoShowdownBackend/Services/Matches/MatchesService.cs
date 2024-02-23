@@ -216,6 +216,21 @@ public class MatchesService : IMatchesService
 
     }
 
+    public async Task SelectPicture(int pictureId,int matchId,int roundIndex,int userId)
+    {
+        Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ??
+             throw new NotFoundException();
+
+        if (match.StartDate == null || DateTime.UtcNow < match.StartDate)
+            throw new MatchDidNotStartYetException();
+
+        var picture;
+        //Add picture to match
+        await _picturesRepo.CreateAsync(picture);
+
+
+    }
+
     // ------------ Private methods ------------ //
     private async void ExecuteMatchLogic(Match match)
     {
@@ -233,13 +248,13 @@ public class MatchesService : IMatchesService
 
             // ------- Start voting phase ------- //
             // TODO: Implement voting logic
-            roundWsMessage.Data.RoundState = Round.RoundStates.Voting;
+            roundWsMessage.Data.RoundState = Round.RoundStates.Voting; //swap with service call
             await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
             await Task.Delay(match.VoteTimeSeconds * 1000);
 
             // ------- Ending a round ------- //
             //roundDto = _roundsService.EndRound(match.Id, roundIndex);
-            roundWsMessage.Data.RoundState = Round.RoundStates.Ended;
+            roundWsMessage.Data.RoundState = Round.RoundStates.Ended; //swap with service call
             await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
             // TODO: Implement round winner logic
             await Task.Delay(ROUND_WINNER_DISPLAY_SECONDS * 1000);
