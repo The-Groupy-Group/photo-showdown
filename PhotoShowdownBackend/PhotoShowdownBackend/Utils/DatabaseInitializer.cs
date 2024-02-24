@@ -11,7 +11,10 @@ public static class DatabaseInitializer
     public static void Initialize(PhotoShowdownDbContext dbContext)
     {
         // Set all Match rows to "ended"
-        foreach (var match in dbContext.Matches.Where(m => m.StartDate < DateTime.UtcNow).Include(m=> m.MatchConnections))
+        foreach (var match in dbContext.Matches.Where(m => 
+            !m.EndDate.HasValue || 
+            DateTime.UtcNow < m.EndDate)
+            .Include(m=> m.MatchConnections))
         {
             match.EndDate = DateTime.UtcNow;
             dbContext.MatchConnections.RemoveRange(match.MatchConnections);
