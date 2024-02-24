@@ -14,8 +14,8 @@ public class MatchConnectionsService : IMatchConnectionsService
     private readonly ILogger<MatchConnectionsService> _logger;
 
     public MatchConnectionsService(
-        IMatchConnectionsRepository matchConnectionsRepo, 
-        IMapper mapper, 
+        IMatchConnectionsRepository matchConnectionsRepo,
+        IMapper mapper,
         ILogger<MatchConnectionsService> logger)
     {
         _matchConnectionsRepo = matchConnectionsRepo;
@@ -60,6 +60,13 @@ public class MatchConnectionsService : IMatchConnectionsService
         }
 
         await _matchConnectionsRepo.DeleteAsync(mc);
+    }
+    public async Task DeleteAllMatchConnections(int matchId)
+    {
+        var matchConnections = await _matchConnectionsRepo
+            .GetAllAsync(filter: mc => mc.MatchId == matchId);
+
+        await _matchConnectionsRepo.DeleteRangeAsync([.. matchConnections]);
     }
     public async Task<int?> GetMatchIdByUserId(int userId)
     {
