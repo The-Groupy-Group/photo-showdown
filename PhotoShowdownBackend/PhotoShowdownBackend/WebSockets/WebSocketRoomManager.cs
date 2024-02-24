@@ -26,11 +26,6 @@ public class WebSocketRoomManager
         WebSocketRoom room = GetOrCreateRoom(matchId);
         room.ConnectedUsers.TryAdd(userId, socket);
     }
-    public void RemoveSocket(int userId, int matchId)
-    {
-        WebSocketRoom room = GetOrCreateRoom(matchId);
-        room.ConnectedUsers.TryRemove(userId, out _);
-    }
     public async Task SendMessageToRoom(int? sendingUserId, int matchId, WebSocketMessage message)
     {
         _logger.LogInformation("Sending web socket message by user {userId} to match {matchId}: {message}", sendingUserId, matchId, message);
@@ -73,15 +68,29 @@ public class WebSocketRoomManager
         {
             if (room.ConnectedUsers.TryGetValue(userId, out var socket))
             {
-                await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "undfined", CancellationToken.None);
+                await socket.CloseConnection();
                 RemoveSocket(userId, matchId);
             }
         }
+    }
+    public async Task CloseRoom(int matchId)
+    {
+        var room = GetOrCreateRoom(matchId);
+        foreach (var (_, socket) in room.ConnectedUsers)
+        {
+            await socket.CloseConnection();
+        }
+        ChatRooms.TryRemove(matchId, out _);
     }
     // Private methods
     private WebSocketRoom GetOrCreateRoom(int matchId)
     {
         return ChatRooms.GetOrAdd(matchId, id => new WebSocketRoom(id));
+    }
+    private void RemoveSocket(int userId, int matchId)
+    {
+        WebSocketRoom room = GetOrCreateRoom(matchId);
+        room.ConnectedUsers.TryRemove(userId, out _);
     }
     private class WebSocketRoom
     {

@@ -76,6 +76,11 @@ public class Repository<T> : IRepository<T> where T : class
         await _db.SaveChangesAsync();
         return entity;
     }
+    virtual public async Task DeleteRangeAsync(T[] entities)
+    {
+        _dbSet.RemoveRange(entities);
+        await _db.SaveChangesAsync();
+    }
     virtual public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
     {
         return await _dbSet.AnyAsync(predicate);
