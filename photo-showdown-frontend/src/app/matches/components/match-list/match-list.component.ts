@@ -26,9 +26,7 @@ export class MatchListComponent implements OnInit {
   createMatch() {
     this.matchesService.createNewMatch().subscribe({
       next: (response) => {
-        {
-          this.onJoinMatch.emit(response.data.id);
-        }
+        this.onJoinMatch.emit(response.data.id);
       },
       error: (response) => {
         this.notifier.notify('error', response.error.message);
