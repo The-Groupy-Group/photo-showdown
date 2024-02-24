@@ -8,13 +8,13 @@ import { Component, EventEmitter, Output } from '@angular/core';
 export class ButtonSingleUseComponent {
   isDisabled = false;
 
-  @Output() click = new EventEmitter<void>();
+  @Output() buttonClick = new EventEmitter<void>();
 
   onClick() {
     // Disable the button after clicking
     this.isDisabled = true;
 
     // Emit the buttonClick event
-    this.click.emit();
+    this.buttonClick.emit();
   }
 }

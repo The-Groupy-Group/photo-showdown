@@ -79,7 +79,6 @@ public class RoundsService : IRoundsService
 
     public async Task<RoundDTO> GetCurrentRound(int matchId)
     {
-
         Round lastRound = await _roundsRepo.GetLastWithInclude(matchId) ??
             throw new NotFoundException();
 
