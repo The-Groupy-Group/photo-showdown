@@ -149,8 +149,7 @@ public class MatchesService : IMatchesService
         }
         else if (isMatchEmpty) // If the match is empty and has started, end the match
         {
-            match.EndDate = DateTime.UtcNow;
-            // TODO: Implement the logic to end the match
+            await EndMatch(matchId);
             return;
         }
 
@@ -211,7 +210,7 @@ public class MatchesService : IMatchesService
         Match match = await _matchesRepo.GetAsync(m => m.Id == matchId) ??
              throw new NotFoundException();
 
-        if(match.StartDate == null || DateTime.UtcNow < match.StartDate)
+        if (match.StartDate == null || DateTime.UtcNow < match.StartDate)
             throw new MatchDidNotStartYetException();
 
         RoundDTO roundDTO = await _roundsService.GetCurrentRound(matchId);
@@ -233,7 +232,7 @@ public class MatchesService : IMatchesService
             {
                 roundDto = await roundsService.StartRound(match.Id, roundIndex);
             }
-            catch(CantFetchSentenceException)
+            catch (CantFetchSentenceException)
             {
                 // TODO: end the match prematurely
                 _logger.LogError("Cant fetch sentence for match {matchId}", match.Id);
@@ -257,7 +256,8 @@ public class MatchesService : IMatchesService
             await Task.Delay(ROUND_WINNER_DISPLAY_SECONDS * 1000);
             roundIndex++;
         }
-        // TODO: Implement match end logic (send a message to the room, remove all connection)
+        // TODO: Send a message to the room, etc...
+        await EndMatch(match.Id);
     }
 
     private async Task DeleteMatch(int matchId)
@@ -277,10 +277,24 @@ public class MatchesService : IMatchesService
         return await _matchConnectionsService.IsUserConnectedToMatch(userId);
     }
 
+    private async Task EndMatch(int matchId)
+    {
+        Match match = await _matchesRepo.GetAsync(m => m.Id == matchId) ??
+            throw new NotFoundException();
+
+        if (match.EndDate != null)
+        {
+            throw new MatchAlreadyEndedException();
+        }
+
+        match.EndDate = DateTime.UtcNow;
+        await _matchesRepo.UpdateAsync(match);
+        await _matchConnectionsService.DeleteAllMatchConnections(matchId);
+        await _webSocketRoomManager.CloseRoom(matchId);
+    }
+
     private async Task<bool> DoesMatchExists(int matchId)
     {
         return await _matchesRepo.AnyAsync(match => match.Id == matchId);
     }
-
-
 }
