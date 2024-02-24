@@ -55,14 +55,14 @@ public class RoundsService : IRoundsService
 
         await _roundsRepo.CreateAsync(round);
 
-        round = await _roundsRepo.GetWithIncludes(r => r.MatchId == matchId && r.RoundIndex == roundIndex);
+        round = await _roundsRepo.GetWithIncludesAsync(r => r.MatchId == matchId && r.RoundIndex == roundIndex);
 
         return _mapper.Map<RoundDTO>(round);
     }
 
     public async Task<RoundDTO> StartVotePhase(int matchId, int roundIndex)
     {
-        var round = await _roundsRepo.GetAsync(r => r.MatchId == matchId && r.RoundIndex == roundIndex) ??
+        var round = await _roundsRepo.GetWithIncludesAsync(r => r.MatchId == matchId && r.RoundIndex == roundIndex) ??
             throw new NotFoundException("Round not found");
         
         round.RoundState = Round.RoundStates.Voting;

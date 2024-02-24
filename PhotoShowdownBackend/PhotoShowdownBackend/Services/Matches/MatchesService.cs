@@ -276,7 +276,6 @@ public class MatchesService : IMatchesService
 
             // ------- Start voting phase ------- //
             roundDto = await roundsService.StartVotePhase(match.Id, roundIndex);   
-            roundWsMessage.Data.RoundState = Round.RoundStates.Voting; //swap with service call
             await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
             await Task.Delay(match.VoteTimeSeconds * 1000);
 
