@@ -281,6 +281,7 @@ public class MatchesService : IMatchesService
 
             // ------- Ending a round ------- //
             roundDto = await _roundsService.EndRound(match.Id, roundIndex);
+            roundWsMessage.Data = roundDto;
             await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
             // TODO: Implement round winner logic
             await Task.Delay(ROUND_WINNER_DISPLAY_SECONDS * 1000);

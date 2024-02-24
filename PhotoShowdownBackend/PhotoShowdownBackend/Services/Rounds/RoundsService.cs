@@ -80,8 +80,7 @@ public class RoundsService : IRoundsService
 
         round.RoundState = Round.RoundStates.Ended;
         round.EndDate = DateTime.UtcNow;
-
-        round = await CalculateRoundWinner(round);
+        round.WinnerId = CalculateRoundWinner(round);
 
         await _roundsRepo.UpdateAsync(round);
 
@@ -150,7 +149,7 @@ public class RoundsService : IRoundsService
         return pictureSelectedDto;
     }
 
-    private async Task<Round> CalculateRoundWinner(Round r)
+    private int CalculateRoundWinner(Round r)
     {
         RoundPicture? winnerPicture = null;
         int maxVotes = 0;
@@ -167,8 +166,7 @@ public class RoundsService : IRoundsService
         if (winnerPicture == null)
             throw new NotFoundException();
 
-        r.WinnerId = winnerPicture.UserId;
+        return winnerPicture.UserId!.Value;
 
-        return r;
     }
 }
