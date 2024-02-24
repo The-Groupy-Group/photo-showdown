@@ -245,6 +245,10 @@ public class MatchesController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(APIResponse<RoundDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SelectPicture(int pictureId, int matchId, int roundIndex)
     {
         APIResponse response = new ();
@@ -260,7 +264,11 @@ public class MatchesController : ControllerBase
         }
         catch(NotFoundException ex)
         {
-
+            return NotFound(response.ErrorResponse(ex.Message));
+        }
+        catch (MatchDidNotStartYetException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
         }
     }
 
