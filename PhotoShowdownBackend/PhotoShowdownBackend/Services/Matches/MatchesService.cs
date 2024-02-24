@@ -275,8 +275,7 @@ public class MatchesService : IMatchesService
             await Task.Delay(match.PictureSelectionTimeSeconds * 1000);
 
             // ------- Start voting phase ------- //
-            // TODO: Implement voting logic
-            roundWsMessage.Data.RoundState = Round.RoundStates.Voting; //swap with service call
+            roundDto = await roundsService.StartVotePhase(match.Id, roundIndex);   
             await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
             await Task.Delay(match.VoteTimeSeconds * 1000);
 
