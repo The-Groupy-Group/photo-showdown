@@ -16,7 +16,19 @@ namespace PhotoShowdownBackend.Services.CustomSentences
         private static readonly ConcurrentDictionary<int, ConcurrentBag<string>> _defaultSentencesRepo = new();
         private static readonly List<string> _defaultSentences = new()
         {
-            "Diat from tomorrow",
+            "The best sentence to start talking to a girl ___.",
+            "I went to the grocery store and asked for my  favorite food which is___.",
+            "On Christmas my aunt brought me the gift I wanted the most.",
+            "I hate washing dishes, it always ends with___.",
+            "At my birthday party I invited all my friends except___, whom I don't like.",
+            "When she asks me to___, I always tell  her___.",
+            "The best way to be in two places at the same time___.",
+            "With great power comes great responsibility.",
+            "If I had one wish I would ask___.",
+            "The one thing i will never do___.",
+            "Most of the times i help a friend, i expect for return___.",
+            "My favorite game is___, I always win.",
+            "My favorite sentence."
         };
 
         public SentencesService(ICustomSentencesRepository customSentencesRepo, IMapper mapper, ILogger<SentencesService> logger)

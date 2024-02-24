@@ -230,7 +230,7 @@ public class MatchesService : IMatchesService
             }
             catch(CantFetchSentenceException ex)
             {
-                // TODO: end the match in due course
+                // TODO: end the match prematurely
                 _logger.LogError("Cant fetch sentence for match {matchId}", match.Id);
                 break;
             }
