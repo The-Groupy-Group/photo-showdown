@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { PictureSelected } from 'src/app/pictures/models/picture-selected.model';
 import { MatchesService } from '../../services/matches.service';
-import { Round } from '../../models/round.model';
+import { Round, RoundStates } from '../../models/round.model';
 import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
 
 @Component({
@@ -16,6 +16,8 @@ export class InMatchVotePictureComponent {
 
   @Input() picturesToVote?: PictureSelected[] = [];
   @Input() currentRound?: Round;
+
+  readonly RoundStates = RoundStates;
 
   constructor(
     private readonly matchesService: MatchesService,

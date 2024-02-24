@@ -11,11 +11,17 @@
     <p>
       Round Time: <strong>{{ this.countdown$ | async }}</strong>
     </p>
+    <p *ngIf="currentRound?.roundState === RoundStates.ended">
+      <strong>Winner: {{ currentRound!.roundWinner!.username }}</strong>
+    </p>
     <button
       mat-raised-button
       color="warn"
       [disabled]="!this.currentRound?.picturesSelected"
-      (click)="onLeaveMatchClicked()">Disconnect</button>
+      (click)="onLeaveMatchClicked()"
+    >
+      Disconnect
+    </button>
   </mat-card>
 
   <app-in-match-picture-selection
@@ -25,7 +31,7 @@
   ></app-in-match-picture-selection>
 
   <app-in-match-vote-picture
-    *ngSwitchCase="RoundStates.voting"
+    *ngSwitchCase="RoundStates.voting || RoundStates.ended"
     [picturesToVote]="this.currentRound?.picturesSelected"
     [currentRound]="this.currentRound"
   ></app-in-match-vote-picture>

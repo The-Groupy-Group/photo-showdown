@@ -6,7 +6,7 @@
   <app-pre-match-lobby
     *ngSwitchCase="MatchStates.notStarted"
     [matchId]="matchId!"
-    (onDisconnect)="leaveMatch()"
+    (onLeaveMatch)="leaveMatch()"
     (onMatchStart)="redirectToMatch()"
   ></app-pre-match-lobby>
   <app-in-match
