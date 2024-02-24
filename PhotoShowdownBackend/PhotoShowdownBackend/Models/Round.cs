@@ -31,6 +31,7 @@ public class Round
     [ForeignKey("WinnerId")]
     public User? Winner { get; set; }
 
+    [InverseProperty("Round")]
     public ICollection<RoundPicture> RoundPictures { get; set; } = new List<RoundPicture>();
 
     public enum RoundStates
