@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Messages;
+using PhotoShowdownBackend.Dtos.Pictures;
 using PhotoShowdownBackend.Dtos.Rounds;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Dtos.WebSocketMessages;
@@ -12,6 +13,7 @@ using PhotoShowdownBackend.Exceptions.Matches;
 using PhotoShowdownBackend.Exceptions.Rounds;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.RoundPictures;
+using PhotoShowdownBackend.Repositories.RoundVotes;
 using PhotoShowdownBackend.Repositories.Users;
 using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Services.Pictures;
@@ -34,6 +36,7 @@ public class MatchesService : IMatchesService
     private readonly WebSocketRoomManager _webSocketRoomManager;
     private readonly IServiceProvider _serviceProvider;
     private readonly IRoundPicturesRepository _roundPicturesRepository;
+    private readonly IRoundVotesRepository _roundVotesRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<MatchesService> _logger;
     private const int ROUND_WINNER_DISPLAY_SECONDS = SystemSettings.ROUND_WINNER_DISPLAY_SECONDS;
@@ -46,6 +49,7 @@ public class MatchesService : IMatchesService
         WebSocketRoomManager webSocketRoomManager,
         IServiceProvider serviceProvider,
         IRoundPicturesRepository roundPicturesRepository,
+        IRoundVotesRepository roundVotesRepository,
         IMapper mapper,
         ILogger<MatchesService> logger)
     {
@@ -56,6 +60,7 @@ public class MatchesService : IMatchesService
         _webSocketRoomManager = webSocketRoomManager;
         _serviceProvider = serviceProvider;
         _roundPicturesRepository = roundPicturesRepository;
+        _roundVotesRepository = roundVotesRepository;
         _mapper = mapper;
         _logger = logger;
     }
@@ -226,7 +231,7 @@ public class MatchesService : IMatchesService
         return roundDTO;
     }
 
-    public async Task SelectPicture(int pictureId,int matchId,int roundIndex,int userId)
+    public async Task SelectPicture(int pictureId, int matchId, int roundIndex, int userId)
     {
         Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ??
              throw new NotFoundException();
@@ -247,6 +252,31 @@ public class MatchesService : IMatchesService
         //call roundpictureservice to add the picture to the repository
         await _roundPicturesRepository.CreateAsync(roundPicture);
 
+    }
+
+    public async Task VoteToPicture(int matchId, int roundIndex, int roundPictureId, int userId)
+    {
+        Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ??
+             throw new NotFoundException();
+
+        if (match.StartDate == null || DateTime.UtcNow < match.StartDate)
+            throw new MatchDidNotStartYetException();
+
+        RoundVote roundVote = new()
+        {
+            RoundPictureId = roundPictureId,
+            UserId = userId,
+        };
+
+        await _roundVotesRepository.CreateAsync(roundVote);
+
+        PictureSelectedDTO pictureSelectedDto = await _roundPicturesRepository.GetAsync(
+            filter: rp => rp.Id == roundPictureId,
+            map: rp => _mapper.Map<PictureSelectedDTO>(rp)) ??
+            throw new NotFoundException("Invalid round picture id");
+
+        UserVotedToPictureWebSocketMessage userVotedToPictureWsMessage = new(pictureSelectedDto);
+        await _webSocketRoomManager.SendMessageToRoom(null, match.Id, userVotedToPictureWsMessage);
 
     }
 

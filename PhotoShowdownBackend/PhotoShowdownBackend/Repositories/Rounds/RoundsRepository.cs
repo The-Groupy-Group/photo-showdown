@@ -29,6 +29,8 @@ public class RoundsRepository : Repository<Round>, IRoundsRepository
             .Include(round => round.Winner)
             .Include(round => round.RoundPictures)
             .ThenInclude(rp => rp.RoundVotes)
+            .Include(round => round.RoundPictures)
+            .ThenInclude(rp => rp.Picture)
             .Where(round => round.MatchId == matchId)
             .OrderBy(round => round.RoundIndex)
             .LastOrDefaultAsync();
@@ -50,6 +52,8 @@ public class RoundsRepository : Repository<Round>, IRoundsRepository
             .Include(round => round.Winner)
             .Include(round => round.RoundPictures)
             .ThenInclude(rp => rp.RoundVotes)
+            .Include(round => round.RoundPictures)
+            .ThenInclude(rp => rp.Picture)
             .Where(filter)
             .FirstOrDefaultAsync();
 
