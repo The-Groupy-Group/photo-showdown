@@ -16,7 +16,7 @@
 class="lock-in-button"
   mat-raised-button
   color="primary"
-  [disabled]="!votedPictureId && !lockedIn"
+  [disabled]="!votedPictureId || lockedIn"
   (click)="onLockIn()"
 >
   Lock-in Selection
