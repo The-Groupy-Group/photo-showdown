@@ -28,6 +28,7 @@ import { InMatchComponent } from './matches/components/in-match/in-match.compone
 import { PictureItemComponent } from './pictures/components/picture-item/picture-item.component';
 import { InMatchPictureSelectionComponent } from './matches/components/in-match-picture-selection/in-match-picture-selection.component';
 import { InMatchVotePictureComponent } from './matches/components/in-match-vote-picture/in-match-vote-picture.component';
+import { ButtonSingleUseComponent } from './shared/components/button-single-use/button-single-use.component';
 
 @NgModule({
   declarations: [
@@ -46,6 +47,7 @@ import { InMatchVotePictureComponent } from './matches/components/in-match-vote-
     PictureItemComponent,
     InMatchPictureSelectionComponent,
     InMatchVotePictureComponent,
+    ButtonSingleUseComponent,
   ],
   imports: [
     BrowserModule,

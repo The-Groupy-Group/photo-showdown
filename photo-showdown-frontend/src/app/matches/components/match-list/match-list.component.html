@@ -1,14 +1,12 @@
 <div class="matches-container">
   <mat-card-title class="title">Matches</mat-card-title>
   <span>
-    <button
+    <app-button-single-use
       class="create-match-button"
-      color="primary"
-      mat-raised-button
       (click)="createMatch()"
     >
       Create a match
-    </button>
+    </app-button-single-use>
     <button
       class="refresh-list"
       color="primary"
