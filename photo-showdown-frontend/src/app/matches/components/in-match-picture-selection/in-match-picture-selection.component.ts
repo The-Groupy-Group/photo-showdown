@@ -9,21 +9,22 @@ import { Round } from '../../models/round.model';
   styleUrls: ['./in-match-picture-selection.component.css'],
 })
 export class InMatchPictureSelectionComponent {
-  selectedPictureId: number = 0;
+  selectedPictureId?: number;
   @Input() pictures: Picture[] = [];
   @Input() currentRound?: Round;
-  
-  constructor( private readonly matchesService: MatchesService) {
 
-  }
+  constructor(private readonly matchesService: MatchesService) {}
 
   onPictureSelected(picture: Picture) {
     this.selectedPictureId = picture.id;
+  }
+
+  onLockIn() {
     this.matchesService
       .selectPictureForRound(
         this.currentRound!.matchId,
         this.currentRound!.roundIndex,
-        picture.id
+        this.selectedPictureId!
       )
       .subscribe();
   }

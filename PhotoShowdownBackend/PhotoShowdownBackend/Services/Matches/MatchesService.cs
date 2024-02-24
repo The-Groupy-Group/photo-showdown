@@ -241,7 +241,7 @@ public class MatchesService : IMatchesService
             }
             RoundStateChangeWebSocketMessage roundWsMessage = new(roundDto);
             await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
-            await Task.Delay(match.PictureSelectionTimeSeconds * 1000);
+            await Task.Delay(match.PictureSelectionTimeSeconds * 100099999);
 
             // ------- Start voting phase ------- //
             // TODO: Implement voting logic
