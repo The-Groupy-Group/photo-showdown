@@ -149,12 +149,12 @@ public class RoundsService : IRoundsService
         return pictureSelectedDto;
     }
 
-    private int CalculateRoundWinner(Round r)
+    private static int CalculateRoundWinner(Round round)
     {
         RoundPicture? winnerPicture = null;
         int maxVotes = 0;
 
-        foreach (RoundPicture rp in r.RoundPictures)
+        foreach (RoundPicture rp in round.RoundPictures)
         {
             if(maxVotes < rp.RoundVotes.Count)
             {
@@ -167,6 +167,5 @@ public class RoundsService : IRoundsService
             throw new NotFoundException();
 
         return winnerPicture.UserId!.Value;
-
     }
 }
