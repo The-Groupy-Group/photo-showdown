@@ -199,7 +199,7 @@ public class MatchesService : IMatchesService
 
         MatchStartedWebSocketMessage matchStartedWsMessage = new();
         await _webSocketRoomManager.SendMessageToRoom(null, match.Id, matchStartedWsMessage);
-        _ = Task.Run(() => ExecuteMatchLogic(match));
+        await ExecuteMatchLogic(match);
     }
 
     public async Task<RoundDTO> GetCurrentRound(int matchId)
@@ -216,7 +216,7 @@ public class MatchesService : IMatchesService
     }
 
     // ------------ Private methods ------------ //
-    private async void ExecuteMatchLogic(Match match)
+    private async Task ExecuteMatchLogic(Match match)
     {
         int roundIndex = 0;
         while (!(false/*match.NumOfRounds == roundIndex || match.NumOfVotesToWin == userWithMaxVotes*/)) // Check winning condition
