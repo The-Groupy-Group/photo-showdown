@@ -41,5 +41,6 @@ public interface IRepository<T> where T : class
     public Task<T> CreateAsync(T entity);
     public Task<T> UpdateAsync(T entity);
     public Task<T> DeleteAsync(T entity);
+    public Task DeleteRangeAsync(T[] entities);
     public Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
 }
