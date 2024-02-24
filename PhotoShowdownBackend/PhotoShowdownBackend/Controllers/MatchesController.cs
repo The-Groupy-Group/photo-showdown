@@ -14,6 +14,7 @@ using PhotoShowdownBackend.Dtos.WebSocketMessages;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Exceptions.Matches;
+using PhotoShowdownBackend.Exceptions.Rounds;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Services.Matches;
 using PhotoShowdownBackend.Services.Pictures;
@@ -268,6 +269,10 @@ public class MatchesController : ControllerBase
         {
             return BadRequest(response.ErrorResponse(ex.Message));
         }
+        catch (RoundNotInSelectionStateException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
     }
 
     [HttpPost]
@@ -289,6 +294,10 @@ public class MatchesController : ControllerBase
             return NotFound(response.ErrorResponse(ex.Message));
         }
         catch (MatchDidNotStartYetException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+        catch (RoundNotInVotingStateException ex)
         {
             return BadRequest(response.ErrorResponse(ex.Message));
         }

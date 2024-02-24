@@ -95,7 +95,7 @@ builder.Services.AddScoped<ISentencesService, SentencesService>();
 // Add repositories
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<IPicturesRepository, PicturesRepository>();
-builder.Services.AddScoped<IMatchesReporitory, MatchesReporitory>();
+builder.Services.AddScoped<IMatchesRepository, MatchesRepository>();
 builder.Services.AddScoped<IMatchConnectionsRepository, MatchConnectionsRepository>();
 builder.Services.AddScoped<IRoundsRepository, RoundsRepository>();
 builder.Services.AddScoped<ICustomSentencesRepository, CustomSentencesRepository>();

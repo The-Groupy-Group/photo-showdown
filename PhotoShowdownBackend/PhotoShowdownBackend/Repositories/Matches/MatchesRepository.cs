@@ -9,9 +9,9 @@ namespace PhotoShowdownBackend.Repositories.Users;
 /// <summary>
 /// Data Access Layer (DAL) implementation for our Matches
 /// </summary>
-public class MatchesReporitory : Repository<Match>, IMatchesReporitory
+public class MatchesRepository : Repository<Match>, IMatchesRepository
 {
-    public MatchesReporitory(PhotoShowdownDbContext _db) : base(_db) { }
+    public MatchesRepository(PhotoShowdownDbContext _db) : base(_db) { }
 
     virtual public async Task<List<Match>> GetAllWithUsersAsync(
         Expression<Func<Match, bool>>? filter = null, 

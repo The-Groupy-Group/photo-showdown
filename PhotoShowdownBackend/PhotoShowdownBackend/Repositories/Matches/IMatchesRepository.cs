@@ -7,7 +7,7 @@ namespace PhotoShowdownBackend.Repositories.Users;
 /// <summary>
 /// Data Access Layer (DAL) interface for our Users
 /// </summary>
-public interface IMatchesReporitory : IRepository<Match>
+public interface IMatchesRepository : IRepository<Match>
 {
     Task<List<Match>> GetAllWithUsersAsync(
         Expression<Func<Match, bool>>? filter = null, 
