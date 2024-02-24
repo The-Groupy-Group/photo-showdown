@@ -1,4 +1,3 @@
-<h3>Select a picture</h3>
 <div class="pictures-grid">
   <app-picture-item
     *ngFor="let picture of pictures"
@@ -8,3 +7,12 @@
     [class.selected]="picture.id === selectedPictureId"
   ></app-picture-item>
 </div>
+<button
+class="lock-in-button"
+  mat-raised-button
+  color="primary"
+  [disabled]="!selectedPictureId || lockedIn"
+  (click)="onLockIn()"
+>
+  Lock-in Selection
+</button>

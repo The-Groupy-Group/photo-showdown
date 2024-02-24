@@ -4,11 +4,13 @@
   </h2>
   <mat-card class="round-details">
     <h2>Current Round Details:</h2>
-    <p>Match Id: {{ this.currentRound?.matchId }}</p>
     <p>Round Index: {{ this.currentRound?.roundIndex }}</p>
-    <p>Round State: {{ this.currentRound?.roundState }}</p>
-    <p>Round StartTime: {{ this.currentRound?.startDate }}</p>
-    <p>Round Time: {{ this.countdown$ | async }}</p>
+    <p>
+      Round State: <strong>{{ this.currentRound?.roundState }}</strong>
+    </p>
+    <p>
+      Round Time: <strong>{{ this.countdown$ | async }}</strong>
+    </p>
   </mat-card>
 
   <app-in-match-picture-selection

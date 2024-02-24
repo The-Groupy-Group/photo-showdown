@@ -18,11 +18,14 @@ import { Observable, timer, map, takeWhile } from 'rxjs';
   styleUrls: ['./in-match.component.css'],
 })
 export class InMatchComponent {
-  readonly RoundStates = RoundStates;
   usersPictures: Picture[] = [];
   currentRound?: Round;
   selectedPicture?: Picture;
   countdown$?: Observable<number>;
+
+  @Input() matchId!: number;
+
+  readonly RoundStates = RoundStates;
 
   constructor(
     private readonly webSocketService: WebSocketService,
@@ -38,53 +41,53 @@ export class InMatchComponent {
       this.cd.detectChanges();
     });
 
+    this.matchesService.getCurrentRound(this.matchId).subscribe((response) => {
+      this.handleRoundStateChange(response.data);
+      this.cd.detectChanges();
+    });
+
     // Listen for new round started
     this.webSocketService.onWebSocketEvent<WebSocketMessage<Round>>(
       WebSocketMessageType.roundStateChange,
       (wsMessage) => {
-        this.currentRound = wsMessage.data;
-
-        // Convert dates to local time
-        this.currentRound.startDate = DateTimeUtils.convertUtcToLocal(
-          this.currentRound.startDate
-        );
-        this.currentRound.pictureSelectionEndDate =
-          DateTimeUtils.convertUtcToLocal(
-            this.currentRound.pictureSelectionEndDate
-          );
-        this.currentRound.votingEndDate = DateTimeUtils.convertUtcToLocal(
-          this.currentRound.votingEndDate
-        );
-        this.currentRound.roundEndDate = DateTimeUtils.convertUtcToLocal(
-          this.currentRound.roundEndDate
-        );
-
-        // Set the timer based on the current round state
-        switch (this.currentRound.roundState) {
-          case RoundStates.pictureSelection:
-            this.countdown$ = this.setTimer(
-              DateTimeUtils.getSecondsUntil(
-                this.currentRound.pictureSelectionEndDate
-              )
-            );
-            break;
-          case RoundStates.voting:
-            this.countdown$ = this.setTimer(
-              DateTimeUtils.getSecondsUntil(this.currentRound.votingEndDate)
-            );
-            break;
-          case RoundStates.ended:
-            this.countdown$ = this.setTimer(
-              DateTimeUtils.getSecondsUntil(this.currentRound.roundEndDate)
-            );
-            break;
-        }
+        this.handleRoundStateChange(wsMessage.data);
         this.cd.detectChanges();
       }
     );
   }
 
-  setTimer(seconds: number) {
+  private handleRoundStateChange(round: Round) {
+    // Convert dates to local time
+    round.startDate = DateTimeUtils.convertUtcToLocal(round.startDate);
+    round.pictureSelectionEndDate = DateTimeUtils.convertUtcToLocal(
+      round.pictureSelectionEndDate
+    );
+    round.votingEndDate = DateTimeUtils.convertUtcToLocal(round.votingEndDate);
+    round.roundEndDate = DateTimeUtils.convertUtcToLocal(round.roundEndDate);
+
+    // Set the timer based on the current round state
+    switch (round.roundState) {
+      case RoundStates.pictureSelection:
+        this.countdown$ = this.setTimer(
+          DateTimeUtils.getSecondsUntil(round.pictureSelectionEndDate)
+        );
+        break;
+      case RoundStates.voting:
+        this.countdown$ = this.setTimer(
+          DateTimeUtils.getSecondsUntil(round.votingEndDate)
+        );
+        break;
+      case RoundStates.ended:
+        this.countdown$ = this.setTimer(
+          DateTimeUtils.getSecondsUntil(round.roundEndDate)
+        );
+        break;
+    }
+
+    this.currentRound = round;
+  }
+
+  private setTimer(seconds: number) {
     return timer(0, 1000).pipe(
       map((x) => seconds - x),
       takeWhile((x) => x >= 0)

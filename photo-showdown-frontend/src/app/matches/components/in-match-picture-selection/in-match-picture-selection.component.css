@@ -2,6 +2,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 16px;
+  overflow-y: scroll;
 }
 
 .grid-item {
@@ -11,4 +12,9 @@
 
 .selected {
   border: 2px solid blue;
+}
+
+.lock-in-button {
+  margin-top: 10px;
+  left: 50%;
 }

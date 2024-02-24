@@ -12,6 +12,8 @@ import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
 export class InMatchVotePictureComponent {
   votedPictureId: number = 0;
   userId: number;
+  lockedIn = false;
+
   @Input() picturesToVote?: PictureSelected[] = [];
   @Input() currentRound?: Round;
 
@@ -29,11 +31,15 @@ export class InMatchVotePictureComponent {
     }
 
     this.votedPictureId = picture.id;
+  }
+
+  onLockIn() {
+    this.lockedIn = true;
     this.matchesService
       .voteForPicture(
         this.currentRound!.matchId,
         this.currentRound!.roundIndex,
-        picture.id
+        this.votedPictureId
       )
       .subscribe();
   }

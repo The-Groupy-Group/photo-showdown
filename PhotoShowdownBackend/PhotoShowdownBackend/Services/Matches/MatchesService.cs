@@ -9,6 +9,7 @@ using PhotoShowdownBackend.Dtos.WebSocketMessages;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Exceptions.Matches;
+using PhotoShowdownBackend.Exceptions.Rounds;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.Users;
 using PhotoShowdownBackend.Services.MatchConnections;
@@ -28,6 +29,7 @@ public class MatchesService : IMatchesService
     private readonly IMatchConnectionsService _matchConnectionsService;
     private readonly IRoundsService _roundsService;
     private readonly WebSocketRoomManager _webSocketRoomManager;
+    private readonly IServiceProvider _serviceProvider;
     private readonly IMapper _mapper;
     private readonly ILogger<MatchesService> _logger;
     private const int ROUND_WINNER_DISPLAY_SECONDS = SystemSettings.ROUND_WINNER_DISPLAY_SECONDS;
@@ -37,6 +39,7 @@ public class MatchesService : IMatchesService
         IMatchConnectionsService matchConnectionsService,
         IRoundsService roundsService,
         WebSocketRoomManager webSocketRoomManager,
+        IServiceProvider serviceProvider,
         IMapper mapper,
         ILogger<MatchesService> logger)
     {
@@ -44,6 +47,7 @@ public class MatchesService : IMatchesService
         _matchConnectionsService = matchConnectionsService;
         _roundsService = roundsService;
         _webSocketRoomManager = webSocketRoomManager;
+        _serviceProvider = serviceProvider;
         _mapper = mapper;
         _logger = logger;
     }
@@ -204,7 +208,7 @@ public class MatchesService : IMatchesService
 
     public async Task<RoundDTO> GetCurrentRound(int matchId)
     {
-        Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ??
+        Match match = await _matchesRepo.GetAsync(m => m.Id == matchId) ??
              throw new NotFoundException();
 
         if(match.StartDate == null || DateTime.UtcNow < match.StartDate)
@@ -213,7 +217,6 @@ public class MatchesService : IMatchesService
         RoundDTO roundDTO = await _roundsService.GetCurrentRound(matchId);
 
         return roundDTO;
-
     }
 
     public async Task SelectPicture(int pictureId,int matchId,int roundIndex,int userId)
@@ -232,16 +235,25 @@ public class MatchesService : IMatchesService
     }
 
     // ------------ Private methods ------------ //
-    private async void ExecuteMatchLogic(Match match)
+    private async Task ExecuteMatchLogic(Match match)
     {
-        await Task.Delay(5 * 1000); // Sleep 5 seconds to let the clients connect to the room
-        // TODO: https://groupy-group.atlassian.net/browse/PHSH-114
-
+        using var scope = _serviceProvider.CreateScope();
+        var roundsService = scope.ServiceProvider.GetRequiredService<IRoundsService>();
         int roundIndex = 0;
         while (!(false/*match.NumOfRounds == roundIndex || match.NumOfVotesToWin == userWithMaxVotes*/)) // Check winning condition
         {
             // ------- Start a new round ------- //
-            var roundDto = await _roundsService.StartRound(match.Id, roundIndex);
+            RoundDTO roundDto;
+            try
+            {
+                roundDto = await roundsService.StartRound(match.Id, roundIndex);
+            }
+            catch(CantFetchSentenceException)
+            {
+                // TODO: end the match prematurely
+                _logger.LogError("Cant fetch sentence for match {matchId}", match.Id);
+                break;
+            }
             RoundStateChangeWebSocketMessage roundWsMessage = new(roundDto);
             await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
             await Task.Delay(match.PictureSelectionTimeSeconds * 1000);

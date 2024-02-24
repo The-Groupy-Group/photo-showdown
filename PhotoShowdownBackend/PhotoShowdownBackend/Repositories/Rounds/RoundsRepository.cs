@@ -30,6 +30,7 @@ public class RoundsRepository : Repository<Round>, IRoundsRepository
             .Include(round => round.RoundPictures)
             .ThenInclude(rp => rp.RoundVotes)
             .Where(round => round.MatchId == matchId)
+            .OrderBy(round => round.RoundIndex)
             .LastOrDefaultAsync();
 
     }
