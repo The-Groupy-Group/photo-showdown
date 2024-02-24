@@ -19,6 +19,6 @@ public interface IMatchesService
     Task<MatchDTO?> GetMatchByUserId(int userId);
     Task StartMatch(int userId, StartMatchDTO startMatchDTO);
     Task<RoundDTO> GetCurrentRound(int matchId);
-    Task SelectPicture(int pictureId, int matchId, int roundIndex, int userId);
-    Task VoteToPicture(int matchId, int roundIndex, int roundPictureId, int userId);
+    Task SelectPictureForRound(int pictureId, int matchId, int roundIndex, int userId);
+    Task VoteForSelectedPicture(int roundPictureId, int matchId, int roundIndex, int userId);
 }

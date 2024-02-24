@@ -1,4 +1,4 @@
-﻿using PhotoShowdownBackend.Dtos.Pictures;
+﻿using PhotoShowdownBackend.Dtos.RoundPictures;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Models;
 

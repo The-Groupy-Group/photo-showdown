@@ -6,7 +6,9 @@ using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Messages;
+using PhotoShowdownBackend.Dtos.RoundPictures;
 using PhotoShowdownBackend.Dtos.Rounds;
+using PhotoShowdownBackend.Dtos.RoundVotes;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Dtos.WebSocketMessages;
 using PhotoShowdownBackend.Exceptions;
@@ -227,7 +229,7 @@ public class MatchesController : ControllerBase
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetCurrentRound(int matchId)
     {
-        APIResponse<RoundDTO> response = new ();
+        APIResponse<RoundDTO> response = new();
         try
         {
             RoundDTO roundDTO = await _matchesService.GetCurrentRound(matchId);
@@ -249,16 +251,16 @@ public class MatchesController : ControllerBase
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SelectPicture(int pictureId, int matchId, int roundIndex)
+    public async Task<IActionResult> SelectPictureForRound(SelectPictureForRoundRequestDTO request)
     {
-        APIResponse response = new ();
+        APIResponse response = new();
         try
         {
             int userId = _sessionService.GetCurrentUserId();
-            await _matchesService.SelectPicture(pictureId,matchId,roundIndex,userId);
+            await _matchesService.SelectPictureForRound(request.PictureId, request.MatchId, request.RoundIndex, userId);
             return Ok(response);
         }
-        catch(NotFoundException ex)
+        catch (NotFoundException ex)
         {
             return NotFound(response.ErrorResponse(ex.Message));
         }
@@ -273,13 +275,13 @@ public class MatchesController : ControllerBase
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> VoteToPicture(int matchId,int roundIndex,int roundPictureId)
+    public async Task<IActionResult> VoteForSelectedPicture(VoteForSelectedPictureRequestDTO request)
     {
         APIResponse response = new();
         try
         {
             int userId = _sessionService.GetCurrentUserId();
-            await _matchesService.VoteToPicture(matchId,roundIndex,roundPictureId,userId);
+            await _matchesService.VoteForSelectedPicture(request.RoundPictureId, request.MatchId, request.RoundIndex, userId);
             return Ok(response);
         }
         catch (NotFoundException ex)

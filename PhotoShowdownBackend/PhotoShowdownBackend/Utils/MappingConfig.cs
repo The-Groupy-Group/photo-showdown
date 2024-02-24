@@ -2,6 +2,7 @@
 using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Pictures;
+using PhotoShowdownBackend.Dtos.RoundPictures;
 using PhotoShowdownBackend.Dtos.Rounds;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Extentions;

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Messages;
-using PhotoShowdownBackend.Dtos.Pictures;
+using PhotoShowdownBackend.Dtos.RoundPictures;
 using PhotoShowdownBackend.Dtos.Rounds;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Dtos.WebSocketMessages;
@@ -231,7 +231,7 @@ public class MatchesService : IMatchesService
         return roundDTO;
     }
 
-    public async Task SelectPicture(int pictureId, int matchId, int roundIndex, int userId)
+    public async Task SelectPictureForRound(int pictureId, int matchId, int roundIndex, int userId)
     {
         Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ??
              throw new NotFoundException();
@@ -254,7 +254,7 @@ public class MatchesService : IMatchesService
 
     }
 
-    public async Task VoteToPicture(int matchId, int roundIndex, int roundPictureId, int userId)
+    public async Task VoteForSelectedPicture(int roundPictureId, int matchId, int roundIndex, int userId)
     {
         Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ??
              throw new NotFoundException();
