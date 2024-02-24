@@ -136,12 +136,11 @@ public class MatchesService : IMatchesService
 
     public async Task RemoveUserFromMatch(UserPublicDetailsDTO userToRemove, int matchId)
     {
-        Match match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId, tracked: true))!;
-
         // Delete the connection
         await _matchConnectionsService.DeleteMatchConnection(userToRemove.Id, matchId);
 
         // If the match is empty and hasent started, delete it
+        Match match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId, tracked: true))!;
         bool isMatchEmpty = await _matchConnectionsService.IsMatchEmpty(matchId);
         if (!(DateTime.UtcNow > match.StartDate) && isMatchEmpty)
         {
@@ -152,6 +151,7 @@ public class MatchesService : IMatchesService
         {
             match.EndDate = DateTime.UtcNow;
             // TODO: Implement the logic to end the match
+            return;
         }
 
         // Send a message to the room
