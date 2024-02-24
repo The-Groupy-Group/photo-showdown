@@ -9,10 +9,10 @@ import { MatchStates } from '../../models/match.model';
   styleUrls: ['./game-main-screen.component.css'],
 })
 export class GameMainScreenComponent {
-  readonly MatchStates = MatchStates;
-
   matchState?: MatchStates = undefined;
   matchId?: number;
+
+  readonly MatchStates = MatchStates;
 
   constructor(
     private matchesService: MatchesService,
@@ -32,7 +32,7 @@ export class GameMainScreenComponent {
     this.matchState = MatchStates.inProgress;
   }
 
-  disconnect() {
+  leaveMatch() {
     this.matchId = undefined;
     this.matchState = undefined;
   }

@@ -6,12 +6,12 @@
   <app-pre-match-lobby
     *ngSwitchCase="MatchStates.notStarted"
     [matchId]="matchId!"
-    (onDisconnect)="disconnect()"
+    (onDisconnect)="leaveMatch()"
     (onMatchStart)="redirectToMatch()"
   ></app-pre-match-lobby>
   <app-in-match
     *ngSwitchCase="MatchStates.inProgress"
     [matchId]="matchId!"
-    (onDisconnect)="disconnect()"
+    (onLeaveMatch)="leaveMatch()"
   ></app-in-match>
 </div>

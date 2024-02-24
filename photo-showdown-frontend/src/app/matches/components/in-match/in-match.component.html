@@ -11,6 +11,11 @@
     <p>
       Round Time: <strong>{{ this.countdown$ | async }}</strong>
     </p>
+    <button
+      mat-raised-button
+      color="warn"
+      [disabled]="!this.currentRound?.picturesSelected"
+      (click)="onLeaveMatchClicked()">Disconnect</button>
   </mat-card>
 
   <app-in-match-picture-selection

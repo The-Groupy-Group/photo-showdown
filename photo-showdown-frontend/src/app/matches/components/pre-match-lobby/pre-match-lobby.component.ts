@@ -18,7 +18,7 @@ import {
 import { UserPublicDetails } from 'src/app/users/models/user-public-details.model';
 import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
 import { MatchSettings } from '../../models/match-settings.model';
-import { Round } from '../../models/round.model';
+import { NgModel } from '@angular/forms';
 
 @Component({
   selector: 'app-pre-match-lobby',
@@ -29,6 +29,9 @@ export class PreMatchLobbyComponent implements OnInit {
   userId: number = this.authService.getUserId();
   isOwner = false;
   match?: Match;
+  allSentences = '';
+  errorMessage = '';
+  isLoading = true;
   matchSettings: MatchSettings = {
     matchId: 0,
     sentences: [],
@@ -37,9 +40,7 @@ export class PreMatchLobbyComponent implements OnInit {
     pictureSelectionTimeSeconds: 30,
     voteTimeSeconds: 35,
   };
-  allSentences = '';
-  errorMessage = '';
-  isLoading = true;
+
   @Input() matchId!: number;
   @Output() onDisconnect: EventEmitter<undefined> = new EventEmitter();
   @Output() onMatchStart: EventEmitter<undefined> = new EventEmitter();
@@ -116,9 +117,9 @@ export class PreMatchLobbyComponent implements OnInit {
     });
   }
 
-  disconnect() {
+  onLeaveMatchClicked() {
     this.matchesService.leaveMatch(this.matchId).subscribe({
-      next: (response) => {
+      next: () => {
         this.onDisconnect.emit();
       },
       error: (response) => {

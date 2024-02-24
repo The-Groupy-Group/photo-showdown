@@ -1,4 +1,10 @@
-import { ChangeDetectorRef, Component, Input } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+} from '@angular/core';
 import { Round, RoundStates } from '../../models/round.model';
 import { WebSocketService } from '../../services/web-socket.service';
 import { NotifierService } from 'angular-notifier';
@@ -11,6 +17,7 @@ import { PicturesService } from 'src/app/pictures/services/pictures.service';
 import { Picture } from 'src/app/pictures/models/picture.model';
 import { DateTimeUtils } from 'src/app/shared/utils/date-time-utils';
 import { Observable, timer, map, takeWhile } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-in-match',
@@ -24,6 +31,7 @@ export class InMatchComponent {
   countdown$?: Observable<number>;
 
   @Input() matchId!: number;
+  @Output() onLeaveMatch: EventEmitter<undefined> = new EventEmitter();
 
   readonly RoundStates = RoundStates;
 
@@ -54,6 +62,10 @@ export class InMatchComponent {
         this.cd.detectChanges();
       }
     );
+  }
+
+  onLeaveMatchClicked() {
+    this.onLeaveMatch.emit();
   }
 
   private handleRoundStateChange(round: Round) {
