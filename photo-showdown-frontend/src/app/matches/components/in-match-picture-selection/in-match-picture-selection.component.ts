@@ -10,6 +10,8 @@ import { Round } from '../../models/round.model';
 })
 export class InMatchPictureSelectionComponent {
   selectedPictureId?: number;
+  lockedIn = false;
+
   @Input() pictures: Picture[] = [];
   @Input() currentRound?: Round;
 
@@ -20,6 +22,7 @@ export class InMatchPictureSelectionComponent {
   }
 
   onLockIn() {
+    this.lockedIn = true;
     this.matchesService
       .selectPictureForRound(
         this.currentRound!.matchId,
