@@ -245,7 +245,7 @@ public class MatchesController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(APIResponse<RoundDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
@@ -254,10 +254,6 @@ public class MatchesController : ControllerBase
         APIResponse response = new ();
         try
         {
-            if ((await _picturesService.GetPicture(pictureId)) == null)
-            {
-                return NotFound();
-            }
             int userId = _sessionService.GetCurrentUserId();
             await _matchesService.SelectPicture(pictureId,matchId,roundIndex,userId);
             return Ok(response);
