@@ -208,7 +208,7 @@ public class MatchesService : IMatchesService
 
     public async Task<RoundDTO> GetCurrentRound(int matchId)
     {
-        Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ??
+        Match match = await _matchesRepo.GetAsync(m => m.Id == matchId) ??
              throw new NotFoundException();
 
         if(match.StartDate == null || DateTime.UtcNow < match.StartDate)
