@@ -11,4 +11,8 @@ public static class WebSocketExtentions
 
         await socket.SendAsync(buffer, WebSocketMessageType.Text, true, default);
     }
+    public static async Task CloseConnection(this WebSocket socket)
+    {
+        await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+    }
 }
