@@ -12,3 +12,12 @@
     <strong>{{ picture.numOfVotes }}</strong>
   </div>
 </div>
+<button
+class="lock-in-button"
+  mat-raised-button
+  color="primary"
+  [disabled]="!votedPictureId && !lockedIn"
+  (click)="onLockIn()"
+>
+  Lock-in Selection
+</button>

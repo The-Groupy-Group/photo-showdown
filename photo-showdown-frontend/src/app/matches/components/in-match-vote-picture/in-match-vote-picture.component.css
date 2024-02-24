@@ -17,3 +17,8 @@
   pointer-events: none;
   opacity: 0.5;
 }
+
+.lock-in-button {
+  margin-top: 10px;
+  left: 50%;
+}
