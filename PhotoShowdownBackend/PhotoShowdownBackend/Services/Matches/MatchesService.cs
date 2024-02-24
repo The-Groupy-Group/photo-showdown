@@ -9,6 +9,7 @@ using PhotoShowdownBackend.Dtos.WebSocketMessages;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Exceptions.Matches;
+using PhotoShowdownBackend.Exceptions.Rounds;
 using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.Users;
 using PhotoShowdownBackend.Services.MatchConnections;
@@ -222,7 +223,17 @@ public class MatchesService : IMatchesService
         while (!(false/*match.NumOfRounds == roundIndex || match.NumOfVotesToWin == userWithMaxVotes*/)) // Check winning condition
         {
             // ------- Start a new round ------- //
-            var roundDto = await _roundsService.StartRound(match.Id, roundIndex);
+            RoundDTO roundDto;
+            try
+            {
+                roundDto = await _roundsService.StartRound(match.Id, roundIndex);
+            }
+            catch(CantFetchSentenceException ex)
+            {
+                // TODO: end the match in due course
+                _logger.LogError("Cant fetch sentence for match {matchId}", match.Id);
+                break;
+            }
             RoundStateChangeWebSocketMessage roundWsMessage = new(roundDto);
             await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
             await Task.Delay(match.PictureSelectionTimeSeconds * 1000);
