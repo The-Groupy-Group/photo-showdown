@@ -106,7 +106,9 @@ export class PreMatchLobbyComponent implements OnInit {
     if (!this.match || !this.isOwner) {
       return;
     }
-    this.matchSettings.sentences = this.allSentences.split('\n');
+    this.matchSettings.sentences =
+      this.allSentences.length > 0 ? this.allSentences.split('\n') : [];
+      
     this.matchesService.startMatch(this.matchSettings).subscribe({
       error: (response) => {
         this.errorMessage = response.error.message;
