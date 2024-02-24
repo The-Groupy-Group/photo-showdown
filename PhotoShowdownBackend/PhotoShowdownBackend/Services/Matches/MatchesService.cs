@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Messages;
+using PhotoShowdownBackend.Dtos.Pictures;
 using PhotoShowdownBackend.Dtos.Rounds;
 using PhotoShowdownBackend.Dtos.Users;
 using PhotoShowdownBackend.Dtos.WebSocketMessages;
@@ -230,7 +231,7 @@ public class MatchesService : IMatchesService
         return roundDTO;
     }
 
-    public async Task SelectPicture(int pictureId,int matchId,int roundIndex,int userId)
+    public async Task SelectPicture(int pictureId, int matchId, int roundIndex, int userId)
     {
         Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ??
              throw new NotFoundException();
@@ -253,11 +254,11 @@ public class MatchesService : IMatchesService
 
     }
 
-    public async Task VoteToPicture(int matchId, int roundIndex, int roundPictureId,int userId)
+    public async Task VoteToPicture(int matchId, int roundIndex, int roundPictureId, int userId)
     {
         Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ??
              throw new NotFoundException();
-        
+
         if (match.StartDate == null || DateTime.UtcNow < match.StartDate)
             throw new MatchDidNotStartYetException();
 
@@ -269,7 +270,12 @@ public class MatchesService : IMatchesService
 
         await _roundVotesRepository.CreateAsync(roundVote);
 
-        UserVotedToPictureWebSocketMessage userVotedToPictureWsMessage = new();
+        PictureSelectedDTO pictureSelectedDto = await _roundPicturesRepository.GetAsync(
+            filter: rp => rp.Id == roundPictureId,
+            map: rp => _mapper.Map<PictureSelectedDTO>(rp)) ??
+            throw new NotFoundException("Invalid round picture id");
+
+        UserVotedToPictureWebSocketMessage userVotedToPictureWsMessage = new(pictureSelectedDto);
         await _webSocketRoomManager.SendMessageToRoom(null, match.Id, userVotedToPictureWsMessage);
 
     }
