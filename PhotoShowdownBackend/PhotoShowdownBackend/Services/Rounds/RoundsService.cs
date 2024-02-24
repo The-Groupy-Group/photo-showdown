@@ -60,6 +60,19 @@ public class RoundsService : IRoundsService
         return _mapper.Map<RoundDTO>(round);
     }
 
+    public async Task<RoundDTO> StartVotePhase(int matchId, int roundIndex)
+    {
+        var round = await _roundsRepo.GetAsync(r => r.MatchId == matchId && r.RoundIndex == roundIndex) ??
+            throw new NotFoundException("Round not found");
+        
+        round.RoundState = Round.RoundStates.Voting;
+
+        await _roundsRepo.UpdateAsync(round);
+
+        return _mapper.Map<RoundDTO>(round);
+
+    }
+
     public async Task<RoundDTO> EndRound(int matchId, int roundIndex)
     {
         var round = await _roundsRepo.GetAsync(r => r.MatchId == matchId && r.RoundIndex == roundIndex);
