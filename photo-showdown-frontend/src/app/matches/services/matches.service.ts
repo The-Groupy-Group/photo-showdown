@@ -138,14 +138,14 @@ export class MatchesService {
   voteForPicture(
     matchId: number,
     roundIndex: number,
-    pictureId: number
+    pictureSelectedId: number
   ): Observable<EmptyAPIResponse> {
     return this.http.post<EmptyAPIResponse>(
       this.apiURL + `/VoteForPicture`,
       {
         matchId,
         roundIndex,
-        pictureId,
+        roundPictureId: pictureSelectedId,
       },
       this.httpOptions
     );
