@@ -1,24 +1,21 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PhotoShowdownBackend.Models
+namespace PhotoShowdownBackend.Models;
+
+
+[Table("CustomSentences")]
+public class CustomSentence
 {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
 
-    [Table("CustomSentences")]
-    public class CustomSentence
-    {
+    [ForeignKey("Match")]
+    public int MatchId { get; set; }
 
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+    public string Sentence { get; set; } = null!;
 
-        [ForeignKey("Match")]
-        public int MatchId { get; set; }
-
-        public string Sentence { get; set; } = null!;
-
-        [ForeignKey("MatchId")]
-        public virtual Match Match { get; set; } = null!;
-
-    }
+    [ForeignKey("MatchId")]
+    public virtual Match Match { get; set; } = null!;
 }
