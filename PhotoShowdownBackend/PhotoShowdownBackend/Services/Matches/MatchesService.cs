@@ -29,6 +29,7 @@ public class MatchesService : IMatchesService
     private readonly IMatchConnectionsService _matchConnectionsService;
     private readonly IRoundsService _roundsService;
     private readonly WebSocketRoomManager _webSocketRoomManager;
+    private readonly IServiceProvider _serviceProvider;
     private readonly IMapper _mapper;
     private readonly ILogger<MatchesService> _logger;
     private const int ROUND_WINNER_DISPLAY_SECONDS = SystemSettings.ROUND_WINNER_DISPLAY_SECONDS;
@@ -38,6 +39,7 @@ public class MatchesService : IMatchesService
         IMatchConnectionsService matchConnectionsService,
         IRoundsService roundsService,
         WebSocketRoomManager webSocketRoomManager,
+        IServiceProvider serviceProvider,
         IMapper mapper,
         ILogger<MatchesService> logger)
     {
@@ -45,6 +47,7 @@ public class MatchesService : IMatchesService
         _matchConnectionsService = matchConnectionsService;
         _roundsService = roundsService;
         _webSocketRoomManager = webSocketRoomManager;
+        _serviceProvider = serviceProvider;
         _mapper = mapper;
         _logger = logger;
     }
@@ -200,7 +203,7 @@ public class MatchesService : IMatchesService
 
         MatchStartedWebSocketMessage matchStartedWsMessage = new();
         await _webSocketRoomManager.SendMessageToRoom(null, match.Id, matchStartedWsMessage);
-        await ExecuteMatchLogic(match);
+        _ = Task.Run(() => ExecuteMatchLogic(match));
     }
 
     public async Task<RoundDTO> GetCurrentRound(int matchId)
@@ -219,6 +222,8 @@ public class MatchesService : IMatchesService
     // ------------ Private methods ------------ //
     private async Task ExecuteMatchLogic(Match match)
     {
+        using var scope = _serviceProvider.CreateScope();
+        var roundsService = scope.ServiceProvider.GetRequiredService<IRoundsService>();
         int roundIndex = 0;
         while (!(false/*match.NumOfRounds == roundIndex || match.NumOfVotesToWin == userWithMaxVotes*/)) // Check winning condition
         {
@@ -226,9 +231,9 @@ public class MatchesService : IMatchesService
             RoundDTO roundDto;
             try
             {
-                roundDto = await _roundsService.StartRound(match.Id, roundIndex);
+                roundDto = await roundsService.StartRound(match.Id, roundIndex);
             }
-            catch(CantFetchSentenceException ex)
+            catch(CantFetchSentenceException)
             {
                 // TODO: end the match prematurely
                 _logger.LogError("Cant fetch sentence for match {matchId}", match.Id);
