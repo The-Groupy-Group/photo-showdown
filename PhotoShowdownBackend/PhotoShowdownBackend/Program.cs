@@ -27,6 +27,8 @@ using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.CustomSentences;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
+using PhotoShowdownBackend.Repositories.RoundPictures;
+using PhotoShowdownBackend.Repositories.RoundVotes;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -97,6 +99,8 @@ builder.Services.AddScoped<IMatchesReporitory, MatchesReporitory>();
 builder.Services.AddScoped<IMatchConnectionsRepository, MatchConnectionsRepository>();
 builder.Services.AddScoped<IRoundsRepository, RoundsRepository>();
 builder.Services.AddScoped<ICustomSentencesRepository, CustomSentencesRepository>();
+builder.Services.AddScoped<IRoundPicturesRepository, RoundPicturesRepository>();
+builder.Services.AddScoped<IRoundVotesRepository, RoundVotesRepository>();
 
 // Add SessionService
 builder.Services.AddScoped<ISessionService, SessionService>();

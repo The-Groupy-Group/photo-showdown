@@ -47,7 +47,8 @@ public class PicturesService : IPicturesService
 
     public async Task<PictureDTO> GetPicture(int pictureId)
     {
-        var picture = await _picturesRepo.GetAsync(p => p.Id == pictureId);
+        var picture = await _picturesRepo.GetAsync(p => p.Id == pictureId) ??
+            throw new NotFoundException("Picture not found");
         return _mapper.Map<PictureDTO>(picture);
     }
 

@@ -11,8 +11,10 @@ using PhotoShowdownBackend.Exceptions.MatchConnections;
 using PhotoShowdownBackend.Exceptions.Matches;
 using PhotoShowdownBackend.Exceptions.Rounds;
 using PhotoShowdownBackend.Models;
+using PhotoShowdownBackend.Repositories.RoundPictures;
 using PhotoShowdownBackend.Repositories.Users;
 using PhotoShowdownBackend.Services.MatchConnections;
+using PhotoShowdownBackend.Services.Pictures;
 using PhotoShowdownBackend.Services.Rounds;
 using PhotoShowdownBackend.WebSockets;
 
@@ -28,8 +30,10 @@ public class MatchesService : IMatchesService
     private readonly IMatchesReporitory _matchesRepo;
     private readonly IMatchConnectionsService _matchConnectionsService;
     private readonly IRoundsService _roundsService;
+    private readonly IPicturesService _picturesService;
     private readonly WebSocketRoomManager _webSocketRoomManager;
     private readonly IServiceProvider _serviceProvider;
+    private readonly IRoundPicturesRepository _roundPicturesRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<MatchesService> _logger;
     private const int ROUND_WINNER_DISPLAY_SECONDS = SystemSettings.ROUND_WINNER_DISPLAY_SECONDS;
@@ -38,16 +42,20 @@ public class MatchesService : IMatchesService
         IMatchesReporitory matchesRepository,
         IMatchConnectionsService matchConnectionsService,
         IRoundsService roundsService,
+        IPicturesService picturesService,
         WebSocketRoomManager webSocketRoomManager,
         IServiceProvider serviceProvider,
+        IRoundPicturesRepository roundPicturesRepository,
         IMapper mapper,
         ILogger<MatchesService> logger)
     {
         _matchesRepo = matchesRepository;
         _matchConnectionsService = matchConnectionsService;
         _roundsService = roundsService;
+        _picturesService = picturesService;
         _webSocketRoomManager = webSocketRoomManager;
         _serviceProvider = serviceProvider;
+        _roundPicturesRepository = roundPicturesRepository;
         _mapper = mapper;
         _logger = logger;
     }
@@ -218,6 +226,30 @@ public class MatchesService : IMatchesService
         return roundDTO;
     }
 
+    public async Task SelectPicture(int pictureId,int matchId,int roundIndex,int userId)
+    {
+        Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ??
+             throw new NotFoundException();
+
+        if (match.StartDate == null || DateTime.UtcNow < match.StartDate)
+            throw new MatchDidNotStartYetException();
+
+        //call pictureservice to get the picture
+        var picture = _picturesService.GetPicture(pictureId);
+        //convert to roundpicture
+        RoundPicture roundPicture = new()
+        {
+            PictureId = pictureId,
+            UserId = userId,
+            MatchId = matchId,
+            RoundIndex = roundIndex,
+        };
+        //call roundpictureservice to add the picture to the repository
+        await _roundPicturesRepository.CreateAsync(roundPicture);
+
+
+    }
+
     // ------------ Private methods ------------ //
     private async Task ExecuteMatchLogic(Match match)
     {
@@ -244,13 +276,13 @@ public class MatchesService : IMatchesService
 
             // ------- Start voting phase ------- //
             // TODO: Implement voting logic
-            roundWsMessage.Data.RoundState = Round.RoundStates.Voting;
+            roundWsMessage.Data.RoundState = Round.RoundStates.Voting; //swap with service call
             await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
             await Task.Delay(match.VoteTimeSeconds * 1000);
 
             // ------- Ending a round ------- //
             //roundDto = _roundsService.EndRound(match.Id, roundIndex);
-            roundWsMessage.Data.RoundState = Round.RoundStates.Ended;
+            roundWsMessage.Data.RoundState = Round.RoundStates.Ended; //swap with service call
             await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
             // TODO: Implement round winner logic
             await Task.Delay(ROUND_WINNER_DISPLAY_SECONDS * 1000);
