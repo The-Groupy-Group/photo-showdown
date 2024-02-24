@@ -268,4 +268,28 @@ public class MatchesController : ControllerBase
         }
     }
 
+    [HttpPost]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> VoteToPicture(int matchId,int roundIndex,int pictureId)
+    {
+        APIResponse response = new();
+        try
+        {
+            int userId = _sessionService.GetCurrentUserId();
+            await _matchesService.VoteToPicture(matchId,roundIndex,pictureId,userId);
+            return Ok(response);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ErrorResponse(ex.Message));
+        }
+        catch (MatchDidNotStartYetException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+    }
+
 }
