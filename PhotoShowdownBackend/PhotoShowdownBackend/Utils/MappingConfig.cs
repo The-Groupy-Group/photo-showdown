@@ -25,6 +25,8 @@ public class MappingConfig : Profile
         // Pictures
         CreateMap<Picture, PictureDTO>();
         CreateMap<RoundPicture,PictureSelectedDTO>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.PicturePath, opt => opt.MapFrom(src => src.Picture.PicturePath))
             .ForMember(dest => dest.NumOfVotes, opt => opt.MapFrom(src => src.RoundVotes.Count))
             .ForMember(dest => dest.SelectedByUser, opt => opt.MapFrom(src => src.User))
             .ForMember(dest => dest.UsersVoted, opt => opt.MapFrom(src => src.RoundVotes.Select(rv => rv.User)));

@@ -253,7 +253,7 @@ public class MatchesService : IMatchesService
 
     }
 
-    public async Task VoteToPicture(int matchId, int roundIndex, int pictureId,int userId)
+    public async Task VoteToPicture(int matchId, int roundIndex, int roundPictureId,int userId)
     {
         Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ??
              throw new NotFoundException();
@@ -263,7 +263,7 @@ public class MatchesService : IMatchesService
 
         RoundVote roundVote = new()
         {
-            RoundPictureId = pictureId,
+            RoundPictureId = roundPictureId,
             UserId = userId,
         };
 
