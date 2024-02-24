@@ -18,11 +18,14 @@ import { Observable, timer, map, takeWhile } from 'rxjs';
   styleUrls: ['./in-match.component.css'],
 })
 export class InMatchComponent {
-  readonly RoundStates = RoundStates;
   usersPictures: Picture[] = [];
   currentRound?: Round;
   selectedPicture?: Picture;
   countdown$?: Observable<number>;
+
+  @Input() matchId!: number;
+
+  readonly RoundStates = RoundStates;
 
   constructor(
     private readonly webSocketService: WebSocketService,
@@ -38,7 +41,7 @@ export class InMatchComponent {
       this.cd.detectChanges();
     });
 
-    this.matchesService.getCurrentRound().subscribe((response) => {
+    this.matchesService.getCurrentRound(this.matchId).subscribe((response) => {
       this.handleRoundStateChange(response.data);
       this.cd.detectChanges();
     });

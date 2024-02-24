@@ -112,9 +112,9 @@ export class MatchesService {
    *
    * @returns the current round
    */
-  getCurrentRound(): Observable<APIResponse<Round>> {
+  getCurrentRound(matchId: number): Observable<APIResponse<Round>> {
     return this.http.get<APIResponse<Round>>(
-      this.apiURL + '/GetCurrentRound',
+      `${this.apiURL}/GetCurrentRound?matchId=${matchId}`,
       this.httpOptions
     );
   }

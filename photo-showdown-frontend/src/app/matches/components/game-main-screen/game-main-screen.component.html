@@ -11,6 +11,7 @@
   ></app-pre-match-lobby>
   <app-in-match
     *ngSwitchCase="MatchStates.inProgress"
+    [matchId]="matchId!"
     (onDisconnect)="disconnect()"
   ></app-in-match>
 </div>
