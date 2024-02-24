@@ -75,15 +75,13 @@ public class RoundsService : IRoundsService
 
     public async Task<RoundDTO> EndRound(int matchId, int roundIndex)
     {
-        var round = await _roundsRepo.GetAsync(r => r.MatchId == matchId && r.RoundIndex == roundIndex);
-
-        if (round == null)
-        {
+        var round = await _roundsRepo.GetWithIncludesAsync(r => r.MatchId == matchId && r.RoundIndex == roundIndex) ??
             throw new NotFoundException("Round not found");
-        }
 
         round.RoundState = Round.RoundStates.Ended;
         round.EndDate = DateTime.UtcNow;
+
+        round = await CalculateRoundWinner(round);
 
         await _roundsRepo.UpdateAsync(round);
 
@@ -151,5 +149,27 @@ public class RoundsService : IRoundsService
             throw new NotFoundException("Invalid round picture id");
 
         return pictureSelectedDto;
+    }
+
+    private async Task<Round> CalculateRoundWinner(Round r)
+    {
+        RoundPicture? winnerPicture = null;
+        int maxVotes = 0;
+
+        foreach (RoundPicture rp in r.RoundPictures)
+        {
+            if(maxVotes < rp.RoundVotes.Count)
+            {
+                maxVotes = rp.RoundVotes.Count;
+                winnerPicture = rp;
+            }
+        }
+
+        if (winnerPicture == null)
+            throw new NotFoundException();
+
+        r.WinnerId = winnerPicture.UserId;
+
+        return r;
     }
 }
