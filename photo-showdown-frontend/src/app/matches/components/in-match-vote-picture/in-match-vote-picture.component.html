@@ -1,19 +1,25 @@
-<h3>Select a picture</h3>
+<h3>Vote</h3>
 <div class="pictures-grid">
-    <!-- TODO: fix pictures-grid needing to be placed twice -->
-  <div *ngFor="let picture of picturesToVote" class="pictures-grid"> 
+  <!-- TODO: fix pictures-grid needing to be placed twice -->
+  <div *ngFor="let picture of picturesToVote" class="pictures-grid">
+    <strong *ngIf="currentRound?.roundState === RoundStates.ended"
+      >Selected By: {{ picture.selectedByUser.username }}</strong
+    >
     <app-picture-item
       [picture]="picture"
       class="grid-item"
       (click)="onPictureVoted(picture)"
-      [class.voted]="picture.id === votedPictureId"
+      [class.voted-picture]="picture.id === votedPictureId"
       [class.disabled]="picture.id === userId"
+      [class.winning-picture]="
+        picture.selectedByUser.id === currentRound?.roundWinner?.id
+      "
     ></app-picture-item>
-    <strong>{{ picture.numOfVotes }}</strong>
+    <strong>Votes: {{ picture.numOfVotes }}</strong>
   </div>
 </div>
 <button
-class="lock-in-button"
+  class="lock-in-button"
   mat-raised-button
   color="primary"
   [disabled]="!votedPictureId || lockedIn"
