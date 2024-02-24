@@ -39,6 +39,7 @@ export class InMatchComponent {
     private readonly webSocketService: WebSocketService,
     private readonly matchesService: MatchesService,
     private readonly picturesService: PicturesService,
+    private readonly notifier: NotifierService,
     private readonly cd: ChangeDetectorRef
   ) {}
 
@@ -65,7 +66,14 @@ export class InMatchComponent {
   }
 
   onLeaveMatchClicked() {
-    this.onLeaveMatch.emit();
+    this.matchesService.leaveMatch(this.matchId).subscribe({
+      next: () => {
+        this.onLeaveMatch.emit();
+      },
+      error: (response) => {
+        this.notifier.notify('error', response.error.message);
+      },
+    });
   }
 
   private handleRoundStateChange(round: Round) {

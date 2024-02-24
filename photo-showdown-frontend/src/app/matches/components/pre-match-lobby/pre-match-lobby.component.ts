@@ -42,7 +42,7 @@ export class PreMatchLobbyComponent implements OnInit {
   };
 
   @Input() matchId!: number;
-  @Output() onDisconnect: EventEmitter<undefined> = new EventEmitter();
+  @Output() onLeaveMatch: EventEmitter<undefined> = new EventEmitter();
   @Output() onMatchStart: EventEmitter<undefined> = new EventEmitter();
 
   constructor(
@@ -120,7 +120,7 @@ export class PreMatchLobbyComponent implements OnInit {
   onLeaveMatchClicked() {
     this.matchesService.leaveMatch(this.matchId).subscribe({
       next: () => {
-        this.onDisconnect.emit();
+        this.onLeaveMatch.emit();
       },
       error: (response) => {
         this.notifier.notify('error', response.error.message);
