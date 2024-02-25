@@ -29,7 +29,7 @@
       <button
         mat-raised-button
         color="warn"
-        (onClick)="this.pictureFileToUpload = undefined"
+        (click)="cancelUpload()"
         [hidden]="this.pictureFileToUpload == undefined"
       >
         Cancel
