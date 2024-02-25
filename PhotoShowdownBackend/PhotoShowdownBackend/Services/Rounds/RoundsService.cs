@@ -64,18 +64,17 @@ public class RoundsService : IRoundsService
     {
         var round = await _roundsRepo.GetWithIncludesAsync(r => r.MatchId == matchId && r.RoundIndex == roundIndex) ??
             throw new NotFoundException("Round not found");
-        
+
         round.RoundState = Round.RoundStates.Voting;
 
         await _roundsRepo.UpdateAsync(round);
 
         return _mapper.Map<RoundDTO>(round);
-
     }
 
     public async Task<RoundDTO> EndRound(int matchId, int roundIndex)
     {
-        var round = await _roundsRepo.GetWithIncludesAsync(r => r.MatchId == matchId && r.RoundIndex == roundIndex) ??
+        var round = await _roundsRepo.GetAsync(r => r.MatchId == matchId && r.RoundIndex == roundIndex) ??
             throw new NotFoundException("Round not found");
 
         round.RoundState = Round.RoundStates.Ended;
@@ -84,7 +83,10 @@ public class RoundsService : IRoundsService
 
         await _roundsRepo.UpdateAsync(round);
 
-        return _mapper.Map<RoundDTO>(round);
+        RoundDTO? roundDto = await _roundsRepo.GetAsync(
+            filter: r => r.MatchId == matchId && r.RoundIndex == roundIndex,
+            map: r => _mapper.Map<RoundDTO>(r));
+        return roundDto!;
     }
 
     public async Task<RoundDTO> GetCurrentRound(int matchId)
@@ -149,23 +151,20 @@ public class RoundsService : IRoundsService
         return pictureSelectedDto;
     }
 
-    private static int CalculateRoundWinner(Round round)
+    private static int? CalculateRoundWinner(Round round)
     {
         RoundPicture? winnerPicture = null;
         int maxVotes = 0;
 
         foreach (RoundPicture rp in round.RoundPictures)
         {
-            if(maxVotes < rp.RoundVotes.Count)
+            if (maxVotes < rp.RoundVotes.Count)
             {
                 maxVotes = rp.RoundVotes.Count;
                 winnerPicture = rp;
             }
         }
 
-        if (winnerPicture == null)
-            throw new NotFoundException();
-
-        return winnerPicture.UserId!.Value;
+        return winnerPicture?.UserId;
     }
 }

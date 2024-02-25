@@ -253,43 +253,53 @@ public class MatchesService : IMatchesService
     // ------------ Private methods ------------ //
     private async Task ExecuteMatchLogic(Match match)
     {
-        using var scope = _serviceProvider.CreateScope();
-        var roundsService = scope.ServiceProvider.GetRequiredService<IRoundsService>();
-        int roundIndex = 0;
-        while (!(false/*match.NumOfRounds == roundIndex || match.NumOfVotesToWin == userWithMaxVotes*/)) // Check winning condition
+        try
         {
-            // ------- Start a new round ------- //
-            RoundDTO roundDto;
-            try
+            using var scope = _serviceProvider.CreateScope();
+            var roundsService = scope.ServiceProvider.GetRequiredService<IRoundsService>();
+            int roundIndex = 0;
+            while (!(match.NumOfRounds == roundIndex + 1/* || match.NumOfVotesToWin == userWithMaxVotes*/)) // Check winning condition
             {
-                roundDto = await roundsService.StartRound(match.Id, roundIndex);
-            }
-            catch (CantFetchSentenceException)
-            {
-                // TODO: end the match prematurely
-                _logger.LogError("Cant fetch sentence for match {matchId}", match.Id);
-                break;
-            }
-            RoundStateChangeWebSocketMessage roundWsMessage = new(roundDto);
-            await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
-            await Task.Delay(match.PictureSelectionTimeSeconds * 1000);
+                // ------- Start a new round ------- //
+                RoundDTO roundDto;
+                try
+                {
+                    roundDto = await roundsService.StartRound(match.Id, roundIndex);
+                }
+                catch (CantFetchSentenceException)
+                {
+                    // TODO: end the match prematurely
+                    _logger.LogError("Cant fetch sentence for match {matchId}", match.Id);
+                    break;
+                }
+                RoundStateChangeWebSocketMessage roundWsMessage = new(roundDto);
+                await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
+                await Task.Delay(match.PictureSelectionTimeSeconds * 1000);
 
-            // ------- Start voting phase ------- //
-            roundDto = await roundsService.StartVotePhase(match.Id, roundIndex);
-            roundWsMessage.Data = roundDto;
-            await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
-            await Task.Delay(match.VoteTimeSeconds * 1000);
+                // ------- Start voting phase ------- //
+                roundDto = await roundsService.StartVotePhase(match.Id, roundIndex);
+                roundWsMessage.Data = roundDto;
+                await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
+                await Task.Delay(match.VoteTimeSeconds * 1000);
 
-            // ------- Ending a round ------- //
-            roundDto = await _roundsService.EndRound(match.Id, roundIndex);
-            roundWsMessage.Data = roundDto;
-            await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
-            // TODO: Implement round winner logic
-            await Task.Delay(ROUND_WINNER_DISPLAY_SECONDS * 1000);
-            roundIndex++;
+                // ------- Ending a round ------- //
+                roundDto = await roundsService.EndRound(match.Id, roundIndex);
+                roundWsMessage.Data = roundDto;
+                await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
+                // TODO: Implement round winner logic
+                await Task.Delay(ROUND_WINNER_DISPLAY_SECONDS * 1000);
+                roundIndex++;
+            }
+            
         }
-        // TODO: Send a message to the room, etc...
-        await EndMatch(match.Id);
+        catch (Exception e)
+        {
+            _logger.LogError(e, "An error occurred while executing match logic for match {matchId}", match.Id);
+        }
+        finally
+        {
+            await EndMatch(match.Id);
+        }
     }
 
     private async Task DeleteMatch(int matchId)
@@ -318,7 +328,7 @@ public class MatchesService : IMatchesService
         {
             throw new MatchAlreadyEndedException();
         }
-
+        // TODO: Send a message to the room, etc...
         match.EndDate = DateTime.UtcNow;
         await _matchesRepo.UpdateAsync(match);
         await _matchConnectionsService.DeleteAllMatchConnections(matchId);

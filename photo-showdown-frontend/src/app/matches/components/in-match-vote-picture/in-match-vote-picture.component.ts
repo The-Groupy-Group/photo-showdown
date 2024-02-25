@@ -26,9 +26,7 @@ export class InMatchVotePictureComponent {
   ) {
     this.userId = this.authService.getUserId();
   }
-  ngOnInit() {
-    this.userPictureIds.forEach((id) => console.log(id));
-  }
+
   onPictureVoted(picture: PictureSelected) {
     // Cant vote to your own picture
     if (this.userId === picture.selectedByUser?.id) {
