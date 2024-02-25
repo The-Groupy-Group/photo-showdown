@@ -14,7 +14,7 @@ public class RoundsRepository : Repository<Round>, IRoundsRepository
         
     }
 
-    virtual public async Task<Round?> GetLastWithInclude(
+    virtual public async Task<Round?> GetLastWithIncludes(
         int matchId,
         bool tracked = true
         )
@@ -31,6 +31,8 @@ public class RoundsRepository : Repository<Round>, IRoundsRepository
             .ThenInclude(rp => rp.RoundVotes)
             .Include(round => round.RoundPictures)
             .ThenInclude(rp => rp.Picture)
+            .Include(round => round.RoundPictures)
+            .ThenInclude(rp => rp.User)
             .Where(round => round.MatchId == matchId)
             .OrderBy(round => round.RoundIndex)
             .LastOrDefaultAsync();
@@ -54,6 +56,8 @@ public class RoundsRepository : Repository<Round>, IRoundsRepository
             .ThenInclude(rp => rp.RoundVotes)
             .Include(round => round.RoundPictures)
             .ThenInclude(rp => rp.Picture)
+            .Include(round => round.RoundPictures)
+            .ThenInclude(rp => rp.User)
             .Where(filter)
             .FirstOrDefaultAsync();
 

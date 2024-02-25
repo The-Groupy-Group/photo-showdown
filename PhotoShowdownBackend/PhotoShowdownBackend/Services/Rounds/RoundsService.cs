@@ -74,7 +74,7 @@ public class RoundsService : IRoundsService
 
     public async Task<RoundDTO> EndRound(int matchId, int roundIndex)
     {
-        var round = await _roundsRepo.GetAsync(r => r.MatchId == matchId && r.RoundIndex == roundIndex) ??
+        var round = await _roundsRepo.GetWithIncludesAsync(r => r.MatchId == matchId && r.RoundIndex == roundIndex) ??
             throw new NotFoundException("Round not found");
 
         round.RoundState = Round.RoundStates.Ended;
@@ -83,15 +83,12 @@ public class RoundsService : IRoundsService
 
         await _roundsRepo.UpdateAsync(round);
 
-        RoundDTO? roundDto = await _roundsRepo.GetAsync(
-            filter: r => r.MatchId == matchId && r.RoundIndex == roundIndex,
-            map: r => _mapper.Map<RoundDTO>(r));
-        return roundDto!;
+        return _mapper.Map<RoundDTO>(round);
     }
 
     public async Task<RoundDTO> GetCurrentRound(int matchId)
     {
-        Round lastRound = await _roundsRepo.GetLastWithInclude(matchId) ??
+        Round lastRound = await _roundsRepo.GetLastWithIncludes(matchId) ??
             throw new NotFoundException();
 
         RoundDTO roundDTO = _mapper.Map<RoundDTO>(lastRound);

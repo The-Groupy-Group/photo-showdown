@@ -33,6 +33,10 @@ export class InMatchVotePictureComponent {
       return;
     }
 
+    if (this.lockedIn) {
+      return;
+    }
+
     this.votedPictureId = picture.id;
   }
 
