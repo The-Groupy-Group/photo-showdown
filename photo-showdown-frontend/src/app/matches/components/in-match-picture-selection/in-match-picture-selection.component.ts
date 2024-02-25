@@ -18,6 +18,9 @@ export class InMatchPictureSelectionComponent {
   constructor(private readonly matchesService: MatchesService) {}
 
   onPictureSelected(picture: Picture) {
+    if (this.lockedIn) {
+      return;
+    }
     this.selectedPictureId = picture.id;
   }
 

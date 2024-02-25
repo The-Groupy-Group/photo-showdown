@@ -32,7 +32,8 @@
 
   <app-in-match-vote-picture
     *ngSwitchCase="RoundStates.voting || RoundStates.ended"
-    [picturesToVote]="this.currentRound?.picturesSelected"
-    [currentRound]="this.currentRound"
+    [picturesToVote]="this.currentRound!.picturesSelected"
+    [userPictureIds]="this.userPictureIds"
+    [currentRound]="this.currentRound!"
   ></app-in-match-vote-picture>
 </div>

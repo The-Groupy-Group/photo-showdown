@@ -14,8 +14,9 @@ export class InMatchVotePictureComponent {
   userId: number;
   lockedIn = false;
 
-  @Input() picturesToVote?: PictureSelected[] = [];
-  @Input() currentRound?: Round;
+  @Input() picturesToVote: PictureSelected[] = [];
+  @Input() userPictureIds: Set<number> = new Set();
+  @Input() currentRound!: Round;
 
   readonly RoundStates = RoundStates;
 
@@ -25,10 +26,12 @@ export class InMatchVotePictureComponent {
   ) {
     this.userId = this.authService.getUserId();
   }
-
+  ngOnInit() {
+    this.userPictureIds.forEach((id) => console.log(id));
+  }
   onPictureVoted(picture: PictureSelected) {
     // Cant vote to your own picture
-    if (this.userId === picture.selectedByUser.id) {
+    if (this.userId === picture.selectedByUser?.id) {
       return;
     }
 

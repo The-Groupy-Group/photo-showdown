@@ -28,6 +28,7 @@ import { UrlUtils } from 'src/app/shared/utils/path-utils';
 })
 export class InMatchComponent {
   usersPictures: Picture[] = [];
+  userPictureIds: Set<number> = new Set();
   currentRound?: Round;
   selectedPicture?: Picture;
   countdown$?: Observable<number>;
@@ -49,6 +50,7 @@ export class InMatchComponent {
     // Get all pictures for the current user
     this.picturesService.getMyPictures().subscribe((response) => {
       this.usersPictures = response.data;
+      this.userPictureIds = new Set(this.usersPictures.map((p) => p.id));
       this.cd.detectChanges();
     });
 

@@ -3,6 +3,7 @@ import { Picture } from './picture.model';
 
 export interface PictureSelected extends Picture {
   numOfVotes: number;
-  selectedByUser: UserPublicDetails;
+  selectedByUser?: UserPublicDetails;
   usersVoted: UserPublicDetails[];
+  pictureId: number;
 }

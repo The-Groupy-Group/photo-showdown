@@ -1,21 +1,22 @@
 <h3>Vote</h3>
 <div class="pictures-grid">
   <!-- TODO: fix pictures-grid needing to be placed twice -->
-  <div *ngFor="let picture of picturesToVote" class="pictures-grid">
+  <div *ngFor="let selectedPicture of picturesToVote" class="pictures-grid">
     <strong *ngIf="currentRound?.roundState === RoundStates.ended"
-      >Selected By: {{ picture.selectedByUser.username }}</strong
+      >Selected By: {{ selectedPicture.selectedByUser!.username }}</strong
     >
     <app-picture-item
-      [picture]="picture"
+      [picture]="selectedPicture"
       class="grid-item"
-      (click)="onPictureVoted(picture)"
-      [class.voted-picture]="picture.id === votedPictureId"
-      [class.disabled]="picture.id === userId"
+      (click)="onPictureVoted(selectedPicture)"
+      [class.voted-picture]="selectedPicture.id === votedPictureId"
+      [class.disabled]="userPictureIds.has(selectedPicture.pictureId)"
       [class.winning-picture]="
-        picture.selectedByUser.id === currentRound?.roundWinner?.id
+        currentRound.roundWinner != undefined &&
+        selectedPicture.selectedByUser?.id === currentRound.roundWinner.id
       "
     ></app-picture-item>
-    <strong>Votes: {{ picture.numOfVotes }}</strong>
+    <strong>Votes: {{ selectedPicture.numOfVotes }}</strong>
   </div>
 </div>
 <button
