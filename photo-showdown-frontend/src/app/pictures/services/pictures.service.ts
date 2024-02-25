@@ -1,12 +1,13 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map, pipe } from 'rxjs';
 import {
   APIResponse,
   EmptyAPIResponse,
 } from 'src/app/shared/models/api-response.model';
 import { Picture } from '../models/picture.model';
 import { environment } from 'src/environments/environment';
+import { UrlUtils } from 'src/app/shared/utils/path-utils';
 
 @Injectable({
   providedIn: 'root',
@@ -27,9 +28,19 @@ export class PicturesService {
    * @returns an array of pictures the user posses
    */
   getMyPictures(): Observable<APIResponse<Picture[]>> {
-    return this.http.get<APIResponse<Picture[]>>(
-      this.apiURL + '/GetMyPictures',
-      this.httpOptions
+    return (
+      this.http.get<APIResponse<Picture[]>>(
+        this.apiURL + '/GetMyPictures',
+        this.httpOptions
+      ).
+      pipe(
+        map((response) => {
+          response.data.forEach((picture) => {
+            picture.picturePath = `${UrlUtils.getBasePicturesURL()}/${picture.picturePath}`;
+          });
+          return response;
+        })
+      )
     );
   }
   /**

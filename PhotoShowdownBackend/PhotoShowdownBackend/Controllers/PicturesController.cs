@@ -50,9 +50,6 @@ public class PicturesController : ControllerBase
         var currentUserId = _sessionService.GetCurrentUserId();
         var picture = await _picturesService.UploadPicture(pictureFile, currentUserId);
 
-        // Append base path to picture path
-        picture.PicturePath = GetPictureBaseBath() + picture.PicturePath;
-
         response.Data = picture;
 
         return StatusCode(StatusCodes.Status201Created, response);
@@ -71,13 +68,6 @@ public class PicturesController : ControllerBase
 
         var currentUserId = _sessionService.GetCurrentUserId();
         var pictures = await _picturesService.GetUserPicture(currentUserId);
-
-        // Append base path to picture path
-        var basePath = GetPictureBaseBath();
-        foreach (var pic in pictures)
-        {
-            pic.PicturePath = basePath + pic.PicturePath;
-        }
 
         response.Data = pictures;
         return Ok(response);
