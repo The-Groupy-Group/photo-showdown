@@ -42,7 +42,6 @@ public class MatchesService : IMatchesService
         IMatchesRepository matchesRepository,
         IMatchConnectionsService matchConnectionsService,
         IRoundsService roundsService,
-        IPicturesService picturesService,
         WebSocketRoomManager webSocketRoomManager,
         IServiceProvider serviceProvider,
         IMapper mapper,
@@ -207,7 +206,24 @@ public class MatchesService : IMatchesService
 
         MatchStartedWebSocketMessage matchStartedWsMessage = new();
         await _webSocketRoomManager.SendMessageToRoom(null, match.Id, matchStartedWsMessage);
-        _ = Task.Run(() => ExecuteMatchLogic(match));
+        _ = Task.Run(() => ExecuteMatchLogic(match, _serviceProvider.CreateScope()));
+    }
+
+
+    public async Task EndMatch(int matchId)
+    {
+        Match match = await _matchesRepo.GetAsync(m => m.Id == matchId) ??
+            throw new NotFoundException();
+
+        if (match.EndDate != null)
+        {
+            throw new MatchAlreadyEndedException();
+        }
+        // TODO: Send a message to the room, etc...
+        match.EndDate = DateTime.UtcNow;
+        await _matchesRepo.UpdateAsync(match);
+        await _matchConnectionsService.DeleteAllMatchConnections(matchId);
+        await _webSocketRoomManager.CloseRoom(matchId);
     }
 
     public async Task<RoundDTO> GetCurrentRound(int matchId)
@@ -251,12 +267,16 @@ public class MatchesService : IMatchesService
     }
 
     // ------------ Private methods ------------ //
-    private async Task ExecuteMatchLogic(Match match)
+    private static async Task ExecuteMatchLogic(Match match, IServiceScope scope)
     {
+        // Get the services
+        var roundsService = scope.ServiceProvider.GetRequiredService<IRoundsService>();
+        var matchesService = scope.ServiceProvider.GetRequiredService<IMatchesService>();
+        var webSocketRoomManager = scope.ServiceProvider.GetRequiredService<WebSocketRoomManager>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<MatchesService>>();
         try
         {
-            using var scope = _serviceProvider.CreateScope();
-            var roundsService = scope.ServiceProvider.GetRequiredService<IRoundsService>();
+            
             int roundIndex = 0;
             while (!(match.NumOfRounds == roundIndex + 1/* || match.NumOfVotesToWin == userWithMaxVotes*/)) // Check winning condition
             {
@@ -269,23 +289,23 @@ public class MatchesService : IMatchesService
                 catch (CantFetchSentenceException)
                 {
                     // TODO: end the match prematurely
-                    _logger.LogError("Cant fetch sentence for match {matchId}", match.Id);
+                    logger.LogError("Cant fetch sentence for match {matchId}", match.Id);
                     break;
                 }
                 RoundStateChangeWebSocketMessage roundWsMessage = new(roundDto);
-                await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
+                await webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
                 await Task.Delay(match.PictureSelectionTimeSeconds * 1000);
 
                 // ------- Start voting phase ------- //
                 roundDto = await roundsService.StartVotePhase(match.Id, roundIndex);
                 roundWsMessage.Data = roundDto;
-                await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
+                await webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
                 await Task.Delay(match.VoteTimeSeconds * 1000);
 
                 // ------- Ending a round ------- //
                 roundDto = await roundsService.EndRound(match.Id, roundIndex);
                 roundWsMessage.Data = roundDto;
-                await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
+                await webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
                 // TODO: Implement round winner logic
                 await Task.Delay(ROUND_WINNER_DISPLAY_SECONDS * 1000);
                 roundIndex++;
@@ -294,11 +314,12 @@ public class MatchesService : IMatchesService
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error occurred while executing match logic for match {matchId}", match.Id);
+            logger.LogError(e, "An error occurred while executing match logic for match {matchId}", match.Id);
         }
         finally
         {
-            await EndMatch(match.Id);
+            await matchesService.EndMatch(match.Id);
+            scope.Dispose();
         }
     }
 
@@ -317,22 +338,6 @@ public class MatchesService : IMatchesService
     private async Task<bool> IsUserConnectedToMatch(int userId)
     {
         return await _matchConnectionsService.IsUserConnectedToMatch(userId);
-    }
-
-    private async Task EndMatch(int matchId)
-    {
-        Match match = await _matchesRepo.GetAsync(m => m.Id == matchId) ??
-            throw new NotFoundException();
-
-        if (match.EndDate != null)
-        {
-            throw new MatchAlreadyEndedException();
-        }
-        // TODO: Send a message to the room, etc...
-        match.EndDate = DateTime.UtcNow;
-        await _matchesRepo.UpdateAsync(match);
-        await _matchConnectionsService.DeleteAllMatchConnections(matchId);
-        await _webSocketRoomManager.CloseRoom(matchId);
     }
 
     private async Task<bool> DoesMatchExists(int matchId)
