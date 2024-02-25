@@ -81,6 +81,10 @@ DatabaseInitializer.Initialize(new PhotoShowdownDbContext(options));
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+    options.JsonSerializerOptions.Converters.Add(new DateTimeConverter());
+
+    // Save options.JsonSerializerOptions to be glovaly accessible
+    SystemSettings.JsonSerializerOptions = options.JsonSerializerOptions;
 });
 
 

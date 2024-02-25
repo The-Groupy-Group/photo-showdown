@@ -1,6 +1,8 @@
-﻿namespace PhotoShowdownBackend.Consts;
+﻿using System.Text.Json;
 
-public class SystemSettings
+namespace PhotoShowdownBackend.Consts;
+
+public static class SystemSettings
 {
     // Folders
     public const string PicturesFolderName = "pictures";
@@ -11,4 +13,6 @@ public class SystemSettings
 
     // Matches
     public const int ROUND_WINNER_DISPLAY_SECONDS = 15;
+
+    public static JsonSerializerOptions JsonSerializerOptions = null!;
 }

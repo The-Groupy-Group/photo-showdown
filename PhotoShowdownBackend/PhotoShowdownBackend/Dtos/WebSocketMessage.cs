@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using PhotoShowdownBackend.Consts;
+using PhotoShowdownBackend.Utils;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace PhotoShowdownBackend.Dtos;
@@ -16,12 +18,7 @@ public abstract class WebSocketMessage
     }
     override public string ToString()
     {
-        var res = JsonSerializer.Serialize<object>(this, new JsonSerializerOptions
-        {
-            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = true
-        });
+        string res = JsonSerializer.Serialize<object>(this, SystemSettings.JsonSerializerOptions);
         return res;
     }
     public enum MessageType
