@@ -1,0 +1,21 @@
+.create-match-button {
+  margin-bottom: 10px;
+  margin-right: 10px;
+}
+
+.title {
+  margin: 0 auto;
+  text-decoration: underline;
+  text-align: center;
+  font-size: x-large;
+  margin-bottom: 17px;
+}
+
+.matches-container {
+  margin: 2% auto;
+  width: 70vh;
+}
+
+.refresh-list {
+  margin-bottom: 10px;
+}

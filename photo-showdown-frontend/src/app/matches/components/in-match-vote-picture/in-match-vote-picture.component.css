@@ -1,0 +1,28 @@
+.pictures-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+.grid-item {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.voted-picture {
+  border: 2px solid rgb(255, 8, 0);
+}
+
+.winning-picture {
+  border: 3px solid rgb(255, 251, 0);
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.lock-in-button {
+  margin-top: 10px;
+  left: 50%;
+}

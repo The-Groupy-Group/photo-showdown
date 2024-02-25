@@ -1,0 +1,26 @@
+.form {
+  min-width: 250px;
+  max-width: 250px;
+  min-height: 50px;
+  height: 100%;
+}
+
+mat-card {
+  margin: auto;
+  width: 50%;
+  margin-top: 2%;
+}
+
+.file-button {
+  padding-bottom: 10px;
+}
+
+.upload-container {
+  padding-top: 20px;
+  margin: auto;
+  width: 50%;
+  height: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

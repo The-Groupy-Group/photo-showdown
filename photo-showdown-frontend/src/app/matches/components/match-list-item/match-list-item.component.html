@@ -1,0 +1,21 @@
+<mat-card>
+  <div class="match-container">
+    <h3>Match id: {{ match.id }}</h3>
+    <h3>Match owner: {{ match.owner.username }}</h3>
+    <h3>Connected users:</h3>
+    <ul>
+      <li *ngFor="let user of match.users">{{ user.username }}</li>
+    </ul>
+
+    <span>
+      <button
+        class="enter-match-button"
+        color="primary"
+        mat-raised-button
+        (click)="joinMatch()"
+      >
+        Enter
+      </button>
+    </span>
+  </div>
+</mat-card>
