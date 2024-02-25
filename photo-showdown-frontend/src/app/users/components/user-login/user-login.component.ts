@@ -18,6 +18,7 @@ export class UserLoginComponent {
     private readonly authService: AuthService,
     private readonly router: Router
   ) {}
+  
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
       this.navigateToHome();
@@ -44,6 +45,6 @@ export class UserLoginComponent {
   navigateToHome() {
     this.router.navigate(['/']).then(() => {
       window.location.reload();
-    });;
+    });
   }
 }
