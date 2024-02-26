@@ -1,28 +1,19 @@
-<div class="matches-container">
+<mat-card class="matches-container">
   <mat-card-title class="title">Matches</mat-card-title>
-  <span>
-    <app-button-single-use
-      class="create-match-button"
-      (buttonClick)="createMatch()"
-      
-    >
+  <mat-card-content>
+    <app-button-single-use (buttonClick)="createMatch()">
       Create a match
     </app-button-single-use>
 
-    <button
-      class="refresh-list"
-      color="primary"
-      mat-raised-button
-      (click)="loadMatches()"
-    >
-      Refresh
+    <button color="primary" mat-mini-fab (click)="loadMatches()">
+      <mat-icon
+      >refresh</mat-icon>
     </button>
-  </span>
-  <div  *ngIf="matches.length > 0">
+
     <app-match-list-item
       *ngFor="let match of this.matches"
       [match]="match"
       (onJoinMatch)="joinedMatch($event)"
     ></app-match-list-item>
-  </div>
-</div>
+  </mat-card-content>
+</mat-card>

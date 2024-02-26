@@ -2,10 +2,7 @@
   <div class="registration-title">
     <h2>Log In</h2>
   </div>
-  <form
-    (submit)="onSubmit(userForm)"
-    #userForm="ngForm"
-  >
+  <form (submit)="onSubmit(userForm)" #userForm="ngForm">
     <mat-form-field>
       <input
         matInput
@@ -38,4 +35,5 @@
       Log In
     </button>
   </form>
+  <p>Don't have an account? <a [routerLink]="['/register']">Register</a></p>
 </mat-card>

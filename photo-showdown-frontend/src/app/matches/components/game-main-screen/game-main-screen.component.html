@@ -1,14 +1,19 @@
 <div [ngSwitch]="matchState">
+  <!-- Match List -->
   <app-match-list
     *ngSwitchCase="undefined"
     (onJoinMatch)="redirectToLobby($event)"
   ></app-match-list>
+
+  <!-- Pre-Match Lobby -->
   <app-pre-match-lobby
     *ngSwitchCase="MatchStates.notStarted"
     [matchId]="matchId!"
     (onLeaveMatch)="leaveMatch()"
     (onMatchStart)="redirectToMatch()"
   ></app-pre-match-lobby>
+  
+  <!-- In-Match -->
   <app-in-match
     *ngSwitchCase="MatchStates.inProgress"
     [matchId]="matchId!"

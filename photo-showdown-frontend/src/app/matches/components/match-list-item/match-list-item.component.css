@@ -1,7 +1,12 @@
 .match-container {
   margin: 3%;
+  background-color: aliceblue;
+  padding: 2%;
+  border-radius: 5px;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
 }
 
 .enter-match-button {
   float: right;
+  
 }
