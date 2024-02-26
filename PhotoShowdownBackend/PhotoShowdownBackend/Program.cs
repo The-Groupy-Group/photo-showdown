@@ -38,7 +38,7 @@ Directory.CreateDirectory(Path.Combine(builder.Environment.ContentRootPath, "www
 // Add Serilog
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
-    .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Debug)
+    .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
     .WriteTo.File(
         "Logs\\log.txt",
         rollingInterval: RollingInterval.Day,
