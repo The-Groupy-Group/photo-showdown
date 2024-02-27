@@ -14,7 +14,7 @@ namespace PhotoShowdownBackend.WebSockets;
 public class WebSocketRoomManager
 {
     // Private fields
-    private readonly ConcurrentDictionary<int, WebSocketRoom> ChatRooms = new();
+    private readonly ConcurrentDictionary<int, WebSocketRoom> _chatRooms = new();
     private readonly ILogger<WebSocketRoomManager> _logger;
 
     // Constructor
@@ -80,7 +80,7 @@ public class WebSocketRoomManager
     public async Task SendMessageToRoom(int? sendingUserId, int matchId, WebSocketMessage message)
     {
         _logger.LogInformation("Sending web socket message by user {userId} to match {matchId}: {message}", sendingUserId, matchId, message);
-        if (ChatRooms.TryGetValue(matchId, out var room))
+        if (_chatRooms.TryGetValue(matchId, out var room))
         {
             foreach (var (userId, userSocket) in room.ConnectedUsers)
             {
@@ -116,16 +116,16 @@ public class WebSocketRoomManager
         {
             await socket.CloseConnection();
         }
-        ChatRooms.TryRemove(matchId, out _);
+        _chatRooms.TryRemove(matchId, out _);
     }
     // --------------- Private methods --------------- //
     private WebSocketRoom GetOrCreateRoom(int matchId)
     {
-        return ChatRooms.GetOrAdd(matchId, id => new WebSocketRoom(id));
+        return _chatRooms.GetOrAdd(matchId, id => new WebSocketRoom(id));
     }
     private WebSocket? RemoveSocketFromRoom(int userId, int matchId)
     {
-        if (!ChatRooms.TryGetValue(matchId, out WebSocketRoom? room) || room == null)
+        if (!_chatRooms.TryGetValue(matchId, out WebSocketRoom? room) || room == null)
         {
             _logger.LogWarning("RemoveSocketFromRoom FAIL, Web socket room with id {matchId} not found", matchId);
             return null;
