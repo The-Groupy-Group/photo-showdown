@@ -3,7 +3,7 @@
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 16px;
   overflow-y: scroll;
-  height: 59vh; /* Stretched to the bottom of the screen */
+  height: 54vh; /* Stretched to the bottom of the screen */
 }
 
 .grid-item {
@@ -11,7 +11,7 @@
   box-sizing: border-box;
 }
 
-.picture-info{
+.picture-info {
   display: flex;
   justify-content: space-between;
   flex-direction: row;

@@ -14,15 +14,14 @@
   display: flex;
   justify-content: space-between;
   flex-direction: row;
-  margin-bottom: 20px;
-  padding: 10px;
-  width: 50%;
+  width: 40%;
 }
 
 .round-players {
   width: 45%;
   margin-bottom: 20px;
   padding: 10px;
+  overflow-y: scroll;
 }
 
 .round-details {
