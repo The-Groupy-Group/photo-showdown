@@ -19,7 +19,7 @@ import { DateTimeUtils } from 'src/app/shared/utils/date-time-utils';
 import { Observable, timer, map, takeWhile } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
-import { UrlUtils } from 'src/app/shared/utils/path-utils';
+import { UrlUtils } from 'src/app/shared/utils/url-utils';
 
 @Component({
   selector: 'app-in-match',
@@ -108,9 +108,7 @@ export class InMatchComponent {
         break;
     }
     round.picturesSelected.forEach((picture) => {
-      picture.picturePath = `${UrlUtils.getBasePicturesURL()}/${
-        picture.picturePath
-      }`;
+      picture.picturePath = UrlUtils.getBasePicturesURL(picture.picturePath);
     });
     this.currentRound = round;
   }
