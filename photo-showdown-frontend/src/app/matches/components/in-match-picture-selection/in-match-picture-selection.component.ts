@@ -3,6 +3,9 @@ import { Picture } from 'src/app/pictures/models/picture.model';
 import { MatchesService } from '../../services/matches.service';
 import { Round } from '../../models/round.model';
 
+/**
+ * A component that displays the picture selection view in a match.
+ */
 @Component({
   selector: 'app-in-match-picture-selection',
   templateUrl: './in-match-picture-selection.component.html',
@@ -13,18 +16,18 @@ export class InMatchPictureSelectionComponent {
   lockedIn = false;
 
   @Input() pictures: Picture[] = [];
-  @Input() currentRound?: Round;
+  @Input() currentRound!: Round;
 
   constructor(private readonly matchesService: MatchesService) {}
 
-  onPictureSelected(picture: Picture) {
+  selectPicture(picture: Picture) {
     if (this.lockedIn) {
       return;
     }
     this.selectedPictureId = picture.id;
   }
 
-  onLockIn() {
+  lockIn() {
     this.lockedIn = true;
     this.matchesService
       .selectPictureForRound(

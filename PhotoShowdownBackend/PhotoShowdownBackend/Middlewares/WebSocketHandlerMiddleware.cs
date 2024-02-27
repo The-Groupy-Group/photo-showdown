@@ -58,7 +58,7 @@ public class WebSocketHandlerMiddleware
 
         // Accept the websocket request and add it to the web socket manager
         var socket = await context.WebSockets.AcceptWebSocketAsync();
-        webSocketManager.AddSocket(userId, match.Id, socket);
+        webSocketManager.AddWebSocket(userId, match.Id, socket);
 
         await webSocketManager.HandleWebSocket(socket, userId, match.Id);
     }

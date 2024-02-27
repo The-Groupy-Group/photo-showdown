@@ -1,4 +1,5 @@
 ﻿using PhotoShowdownBackend.Dtos;
+using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Extentions;
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
@@ -13,35 +14,24 @@ namespace PhotoShowdownBackend.WebSockets;
 public class WebSocketRoomManager
 {
     // Private fields
-    private readonly ConcurrentDictionary<int, WebSocketRoom> ChatRooms = new();
+    private readonly ConcurrentDictionary<int, WebSocketRoom> _chatRooms = new();
     private readonly ILogger<WebSocketRoomManager> _logger;
+
     // Constructor
     public WebSocketRoomManager(ILogger<WebSocketRoomManager> logger)
     {
         _logger = logger;
     }
-    // Public methods
-    public void AddSocket(int userId, int matchId, WebSocket socket)
-    {
-        WebSocketRoom room = GetOrCreateRoom(matchId);
-        room.ConnectedUsers.TryAdd(userId, socket);
-    }
-    public async Task SendMessageToRoom(int? sendingUserId, int matchId, WebSocketMessage message)
-    {
-        _logger.LogInformation("Sending web socket message by user {userId} to match {matchId}: {message}", sendingUserId, matchId, message);
-        if (ChatRooms.TryGetValue(matchId, out var room))
-        {
-            foreach (var (userId, userSocket) in room.ConnectedUsers)
-            {
-                if (userId != sendingUserId && userSocket.State == WebSocketState.Open)
-                    await userSocket.SendMessageAsync(message.ToString());
-            }
-        }
-        else
-        {
-            _logger.LogWarning("Match {matchId} not found", matchId);
-        }
-    }
+
+    // --------------- Public methods --------------- //
+
+    /// <summary>
+    /// Handles the web socket connection
+    /// </summary>
+    /// <param name="webSocket"></param>
+    /// <param name="userId"></param>
+    /// <param name="matchId"></param>
+    /// <returns></returns>
     public async Task HandleWebSocket(WebSocket webSocket, int userId, int matchId)
     {
         // Handle the web socket
@@ -57,22 +47,68 @@ public class WebSocketRoomManager
             }
             if (result.MessageType == WebSocketMessageType.Close)
             {
-                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
-                RemoveSocket(userId, matchId);
+                RemoveSocketFromRoom(userId, matchId);
             }
         }
     }
-    public async Task CloseConnection(int userId, int matchId)
+
+    /// <summary>
+    /// Adds a web socket to the room
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="matchId"></param>
+    /// <param name="socket"></param>
+    public void AddWebSocket(int userId, int matchId, WebSocket socket)
     {
-        if (ChatRooms.TryGetValue(matchId, out var room))
+        WebSocketRoom room = GetOrCreateRoom(matchId);
+
+        if (!room.ConnectedUsers.TryAdd(userId, socket))
         {
-            if (room.ConnectedUsers.TryGetValue(userId, out var socket))
+            _logger.LogWarning("Failed to add web socket for user {userId} to match {matchId}", userId, matchId);
+        }
+
+        _logger.LogInformation("Adding web socket for user {userId} to match {matchId}", userId, matchId);
+    }
+
+    /// <summary>
+    /// Sends a message to the room
+    /// </summary>
+    /// <param name="sendingUserId"></param>
+    /// <param name="matchId"></param>
+    /// <param name="message"></param>
+    /// <returns></returns>
+    public async Task SendMessageToRoom(int? sendingUserId, int matchId, WebSocketMessage message)
+    {
+        _logger.LogInformation("Sending web socket message by user {userId} to match {matchId}: {message}", sendingUserId, matchId, message);
+        if (_chatRooms.TryGetValue(matchId, out var room))
+        {
+            foreach (var (userId, userSocket) in room.ConnectedUsers)
             {
-                await socket.CloseConnection();
-                RemoveSocket(userId, matchId);
+                if (userId != sendingUserId && userSocket.State == WebSocketState.Open)
+                    await userSocket.SendMessageAsync(message.ToString());
             }
         }
+        else
+        {
+            _logger.LogWarning("Sending web socket message FAIL, Match {matchId} not found", matchId);
+        }
     }
+
+    /// <summary>
+    /// Removes a web socket from the room and closes the connection
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="matchId"></param>
+    /// <returns></returns>
+    public async Task RemoveSocket(int userId, int matchId)
+    {
+        WebSocket? socket = RemoveSocketFromRoom(userId, matchId);
+        if (socket != null)
+        {
+            await socket.CloseConnection();
+        }
+    }
+
     public async Task CloseRoom(int matchId)
     {
         var room = GetOrCreateRoom(matchId);
@@ -80,17 +116,22 @@ public class WebSocketRoomManager
         {
             await socket.CloseConnection();
         }
-        ChatRooms.TryRemove(matchId, out _);
+        _chatRooms.TryRemove(matchId, out _);
     }
-    // Private methods
+    // --------------- Private methods --------------- //
     private WebSocketRoom GetOrCreateRoom(int matchId)
     {
-        return ChatRooms.GetOrAdd(matchId, id => new WebSocketRoom(id));
+        return _chatRooms.GetOrAdd(matchId, id => new WebSocketRoom(id));
     }
-    private void RemoveSocket(int userId, int matchId)
+    private WebSocket? RemoveSocketFromRoom(int userId, int matchId)
     {
-        WebSocketRoom room = GetOrCreateRoom(matchId);
-        room.ConnectedUsers.TryRemove(userId, out _);
+        if (!_chatRooms.TryGetValue(matchId, out WebSocketRoom? room) || room == null)
+        {
+            _logger.LogWarning("RemoveSocketFromRoom FAIL, Web socket room with id {matchId} not found", matchId);
+            return null;
+        }
+        room.ConnectedUsers.TryRemove(userId, out WebSocket? socket);
+        return socket!;
     }
     private class WebSocketRoom
     {

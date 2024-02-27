@@ -1,8 +1,10 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { MatchesService } from '../../services/matches.service';
-import { HttpStatusCode } from '@angular/common/http';
 import { MatchStates } from '../../models/match.model';
 
+/**
+ * The main screen for the game. It is responsible for redirecting the user to the correct match state.
+ */
 @Component({
   selector: 'app-game-main-screen',
   templateUrl: './game-main-screen.component.html',
@@ -32,19 +34,25 @@ export class GameMainScreenComponent {
     this.matchState = MatchStates.inProgress;
   }
 
-  leaveMatch() {
+  redirectToMatchList() {
     this.matchId = undefined;
     this.matchState = undefined;
   }
 
+  /**
+   * Redirects to the correct match state if the user is in a match.
+   */
   private handleIsInMatch() {
     this.matchesService.getCurrentMatch().subscribe((response) => {
-      if (!response.data) { // Not in a match
+      if (!response.data) {
+        // Not in a match
         this.matchState = undefined;
-      } else if (response.data.matchState === MatchStates.inProgress) { // In a match
+      } else if (response.data.matchState === MatchStates.inProgress) {
+        // In a match
         this.matchId = response.data.id;
         this.redirectToMatch();
-      } else { // In a match lobby
+      } else {
+        // In a match lobby
         this.redirectToLobby(response.data.id);
       }
       this.cd.detectChanges();

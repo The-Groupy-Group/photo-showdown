@@ -1,19 +1,18 @@
 <mat-toolbar color="primary">
-  <p>
+  <p id="info-text">
     <strong [routerLink]="['/']">Photo Showdown</strong>
-    Shalom {{ username != undefined ? username : "" }}
+    <strong *ngIf="isLoggedIn">Welcome, {{ username }}</strong>
   </p>
 
   <ul *ngIf="!isLoggedIn" class="menu-container">
-    <li><a [routerLink]="['/']" mat-button>Home</a></li>
-    <li><a [routerLink]="['/login']" mat-button>Login</a></li>
-    <li><a [routerLink]="['/register']" mat-button>Register</a></li>
+    <li><button mat-button [routerLink]="['/login']">Login</button></li>
+    <li><button mat-button [routerLink]="['/register']">Register</button></li>
   </ul>
 
   <ul *ngIf="isLoggedIn" class="menu-container">
-    <li><a [routerLink]="['/']" mat-button>Home</a></li>
-    <li><a [routerLink]="['/pictures']" mat-button>Pictures</a></li>
-    <li><a [routerLink]="['/game']" mat-button>Play</a></li>
+    <li><button mat-button [routerLink]="['/']">Home</button></li>
+    <li><button mat-button [routerLink]="['/pictures']">Pictures</button></li>
+    <li><button mat-button [routerLink]="['/game']">Play</button></li>
     <li><button mat-button (click)="logout()">Logout</button></li>
   </ul>
 </mat-toolbar>

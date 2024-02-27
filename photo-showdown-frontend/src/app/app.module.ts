@@ -9,6 +9,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AppRoutingModule } from './app-routing.module';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
 import { AppComponent } from './app.component';
 import { UserRegistrationComponent } from './users/components/user-registration/user-registration.component';
 import { UserLoginComponent } from './users/components/user-login/user-login.component';
@@ -63,6 +65,8 @@ import { ButtonSingleUseComponent } from './shared/components/button-single-use/
     MatProgressBarModule,
     NotifierModule,
     MatDialogModule,
+    MatListModule,
+    MatIconModule,
   ],
   providers: [
     {

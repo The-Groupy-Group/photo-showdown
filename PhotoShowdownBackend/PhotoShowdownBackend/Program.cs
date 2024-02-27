@@ -38,7 +38,7 @@ Directory.CreateDirectory(Path.Combine(builder.Environment.ContentRootPath, "www
 // Add Serilog
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
-    .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Debug)
+    .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
     .WriteTo.File(
         "Logs\\log.txt",
         rollingInterval: RollingInterval.Day,
@@ -52,6 +52,7 @@ builder.Host.UseSerilog();
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 try
 {
+    Log.Logger.Information("Building the DB");
     var migrationExecutor = new SQLServerMigrationExecutor(connectionString);
     migrationExecutor.ExecutePendingScripts();
 }
@@ -73,10 +74,13 @@ builder.Services.AddDbContext<PhotoShowdownDbContext>(options =>
 );
 
 // Init the DB by ending all in progress matches (In case the server was restarted)
+Log.Logger.Information("Initializing the DB");
 DbContextOptions<PhotoShowdownDbContext> options = new DbContextOptionsBuilder<PhotoShowdownDbContext>()
     .UseSqlServer(connectionString)
     .Options;
-DatabaseInitializer.Initialize(new PhotoShowdownDbContext(options));
+var dbContext = new PhotoShowdownDbContext(options);
+await DatabaseInitializer.Initialize(dbContext);
+await dbContext.DisposeAsync();
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {

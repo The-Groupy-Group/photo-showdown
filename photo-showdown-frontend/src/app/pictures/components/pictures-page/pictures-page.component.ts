@@ -76,4 +76,9 @@ export class PicturesPageComponent implements OnInit {
       },
     });
   }
+
+  cancelUpload() {
+    this.pictureDisplayURL = undefined;
+    this.pictureFileToUpload = undefined;
+  }
 }

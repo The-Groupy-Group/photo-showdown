@@ -19,6 +19,7 @@ using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Services.Pictures;
 using PhotoShowdownBackend.Services.Rounds;
 using PhotoShowdownBackend.WebSockets;
+using System.Collections.Concurrent;
 
 
 
@@ -36,13 +37,14 @@ public class MatchesService : IMatchesService
     private readonly IServiceProvider _serviceProvider;
     private readonly IMapper _mapper;
     private readonly ILogger<MatchesService> _logger;
+
     private const int ROUND_WINNER_DISPLAY_SECONDS = SystemSettings.ROUND_WINNER_DISPLAY_SECONDS;
+    private static readonly ConcurrentDictionary<int, CancellationTokenSource> _cancelationTokens = new();
 
     public MatchesService(
         IMatchesRepository matchesRepository,
         IMatchConnectionsService matchConnectionsService,
         IRoundsService roundsService,
-        IPicturesService picturesService,
         WebSocketRoomManager webSocketRoomManager,
         IServiceProvider serviceProvider,
         IMapper mapper,
@@ -122,7 +124,7 @@ public class MatchesService : IMatchesService
         {
             throw new NotFoundException(matchId);
         }
-        // TODO: Swap with m.HasMatchStarted if possible
+        
         bool hasMatchStarted = await _matchesRepo
             .AnyAsync(m =>
                 m.Id == matchId &&
@@ -161,7 +163,7 @@ public class MatchesService : IMatchesService
         // Send a message to the room
         var playerLeftWsMessage = new PlayerLeftWebSocketMessage(userToRemove);
         await _webSocketRoomManager.SendMessageToRoom(userToRemove.Id, matchId, playerLeftWsMessage);
-        await _webSocketRoomManager.CloseConnection(userToRemove.Id, matchId);
+        await _webSocketRoomManager.RemoveSocket(userToRemove.Id, matchId);
 
 
         // If the leaving user is the owner, assign a new owner
@@ -207,7 +209,36 @@ public class MatchesService : IMatchesService
 
         MatchStartedWebSocketMessage matchStartedWsMessage = new();
         await _webSocketRoomManager.SendMessageToRoom(null, match.Id, matchStartedWsMessage);
-        _ = Task.Run(() => ExecuteMatchLogic(match));
+
+        CancellationTokenSource cancellationTokenSource = new();
+        _cancelationTokens[match.Id] = cancellationTokenSource;
+        _ = Task.Run(() => ExecuteMatchLogic(match, _serviceProvider.CreateScope(), cancellationTokenSource.Token));
+    }
+
+    public async Task EndMatch(int matchId)
+    {
+        Match match = await _matchesRepo.GetAsync(m => m.Id == matchId) ??
+            throw new NotFoundException();
+
+        if (match.EndDate != null)
+        {
+            throw new MatchAlreadyEndedException();
+        }
+        // TODO: Send a message to the room https://groupy-group.atlassian.net/browse/PHSH-142
+
+        // End the match
+        match.EndDate = DateTime.UtcNow;
+        await _matchesRepo.UpdateAsync(match);
+
+        await _matchConnectionsService.DeleteAllMatchConnections(matchId);
+        await _webSocketRoomManager.CloseRoom(matchId);
+
+        if (_cancelationTokens.TryGetValue(matchId, out CancellationTokenSource? cancellationTokenSource))
+        {
+            cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+            _cancelationTokens.TryRemove(matchId, out _);
+        }
     }
 
     public async Task<RoundDTO> GetCurrentRound(int matchId)
@@ -243,7 +274,7 @@ public class MatchesService : IMatchesService
             throw new MatchDidNotStartYetException();
 
         PictureSelectedDTO pictureSelectedDto = await _roundsService
-            .VoteForSelectedPicture(roundPictureId,matchId, roundIndex, userId);
+            .VoteForSelectedPicture(roundPictureId, matchId, roundIndex, userId);
 
         UserVotedToPictureWebSocketMessage userVotedToPictureWsMessage = new(pictureSelectedDto);
         await _webSocketRoomManager.SendMessageToRoom(null, match.Id, userVotedToPictureWsMessage);
@@ -251,12 +282,16 @@ public class MatchesService : IMatchesService
     }
 
     // ------------ Private methods ------------ //
-    private async Task ExecuteMatchLogic(Match match)
+    private static async Task ExecuteMatchLogic(Match match, IServiceScope scope, CancellationToken cancellationToken)
     {
+        // Get the services
+        var roundsService = scope.ServiceProvider.GetRequiredService<IRoundsService>();
+        var matchesService = scope.ServiceProvider.GetRequiredService<IMatchesService>();
+        var webSocketRoomManager = scope.ServiceProvider.GetRequiredService<WebSocketRoomManager>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<MatchesService>>();
         try
         {
-            using var scope = _serviceProvider.CreateScope();
-            var roundsService = scope.ServiceProvider.GetRequiredService<IRoundsService>();
+
             int roundIndex = 0;
             while (!(match.NumOfRounds == roundIndex + 1/* || match.NumOfVotesToWin == userWithMaxVotes*/)) // Check winning condition
             {
@@ -268,48 +303,52 @@ public class MatchesService : IMatchesService
                 }
                 catch (CantFetchSentenceException)
                 {
-                    // TODO: end the match prematurely
-                    _logger.LogError("Cant fetch sentence for match {matchId}", match.Id);
+                    logger.LogInformation("Cant fetch sentence for match {matchId}", match.Id);
                     break;
                 }
                 RoundStateChangeWebSocketMessage roundWsMessage = new(roundDto);
-                await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
-                await Task.Delay(match.PictureSelectionTimeSeconds * 1000);
+                await webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
+                await Task.Delay(match.PictureSelectionTimeSeconds * 1000, cancellationToken);
 
                 // ------- Start voting phase ------- //
                 roundDto = await roundsService.StartVotePhase(match.Id, roundIndex);
                 roundWsMessage.Data = roundDto;
-                await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
-                await Task.Delay(match.VoteTimeSeconds * 1000);
+                await webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
+                await Task.Delay(match.VoteTimeSeconds * 1000, cancellationToken);
 
                 // ------- Ending a round ------- //
                 roundDto = await roundsService.EndRound(match.Id, roundIndex);
                 roundWsMessage.Data = roundDto;
-                await _webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
-                // TODO: Implement round winner logic
-                await Task.Delay(ROUND_WINNER_DISPLAY_SECONDS * 1000);
+                await webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
+
+                await Task.Delay(ROUND_WINNER_DISPLAY_SECONDS * 1000, cancellationToken);
                 roundIndex++;
+
+                // Check if the match was ended
+                cancellationToken.ThrowIfCancellationRequested();
             }
-            
+            await matchesService.EndMatch(match.Id);
+        }
+        catch (OperationCanceledException)
+        {
+            // Handle cancellation
+            logger.LogInformation("ExecuteMatchLogic was canceled by CancellationToken for match {matchId}", match.Id);
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error occurred while executing match logic for match {matchId}", match.Id);
+            logger.LogError(e, "An error occurred while executing match logic for match {matchId}", match.Id);
+            await matchesService.EndMatch(match.Id);
         }
         finally
         {
-            await EndMatch(match.Id);
+            scope.Dispose();
         }
     }
 
     private async Task DeleteMatch(int matchId)
     {
-        Match? m = await _matchesRepo.GetAsync(m => m.Id == matchId);
-
-        if (m == null)
-        {
+        Match? m = await _matchesRepo.GetAsync(m => m.Id == matchId) ??
             throw new NotFoundException("Match not found");
-        }
 
         await _matchesRepo.DeleteAsync(m);
     }
@@ -317,22 +356,6 @@ public class MatchesService : IMatchesService
     private async Task<bool> IsUserConnectedToMatch(int userId)
     {
         return await _matchConnectionsService.IsUserConnectedToMatch(userId);
-    }
-
-    private async Task EndMatch(int matchId)
-    {
-        Match match = await _matchesRepo.GetAsync(m => m.Id == matchId) ??
-            throw new NotFoundException();
-
-        if (match.EndDate != null)
-        {
-            throw new MatchAlreadyEndedException();
-        }
-        // TODO: Send a message to the room, etc...
-        match.EndDate = DateTime.UtcNow;
-        await _matchesRepo.UpdateAsync(match);
-        await _matchConnectionsService.DeleteAllMatchConnections(matchId);
-        await _webSocketRoomManager.CloseRoom(matchId);
     }
 
     private async Task<bool> DoesMatchExists(int matchId)

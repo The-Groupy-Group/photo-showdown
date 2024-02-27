@@ -11,6 +11,8 @@ mat-card{
   width: fit-content;
   margin-top: 10%;
   padding: 10px;
+  display: flex;
+  flex-direction: column;
 }
 
 .registration-title {

@@ -1,6 +1,6 @@
 export interface UserPublicDetails
 {
-  id?:number;
+  id:number;
   username:string;
   firstName:string;
   lastName:string;

@@ -1,22 +1,24 @@
-<h3>Vote</h3>
 <div class="pictures-grid">
-  <!-- TODO: fix pictures-grid needing to be placed twice -->
-  <div *ngFor="let selectedPicture of picturesToVote" class="pictures-grid">
-    <strong *ngIf="currentRound?.roundState === RoundStates.ended"
-      >Selected By: {{ selectedPicture.selectedByUser!.username }}</strong
+  <div *ngFor="let selectedPicture of picturesToVote" class="grid-item">
+    <p
+      class="picture-info"
+      *ngIf="currentRound?.roundState === RoundStates.ended"
     >
+      <strong
+        >Selected By: {{ selectedPicture.selectedByUser!.username }}</strong
+      >
+      <strong>Votes: {{ selectedPicture.numOfVotes }}</strong>
+    </p>
     <app-picture-item
       [picture]="selectedPicture"
-      class="grid-item"
-      (click)="onPictureVoted(selectedPicture)"
+      (click)="selectPicture(selectedPicture)"
       [class.voted-picture]="selectedPicture.id === votedPictureId"
-      [class.disabled]="userPictureIds.has(selectedPicture.pictureId)"
+      [class.disabled-picture]="userPictureIds.has(selectedPicture.pictureId)"
       [class.winning-picture]="
         currentRound.roundWinner != undefined &&
         selectedPicture.selectedByUser?.id === currentRound.roundWinner.id
       "
     ></app-picture-item>
-    <strong>Votes: {{ selectedPicture.numOfVotes }}</strong>
   </div>
 </div>
 <button
@@ -24,7 +26,7 @@
   mat-raised-button
   color="primary"
   [disabled]="!votedPictureId || lockedIn"
-  (click)="onLockIn()"
+  (click)="lockIn()"
 >
   Lock-in Selection
 </button>
