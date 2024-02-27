@@ -16,14 +16,14 @@
         class="disconnect-button"
         color="warn"
         mat-raised-button
-        (click)="onLeaveMatchClicked()"
+        (click)="leaveMatch()"
       >
         Disconnect
       </button>
     </div>
 
     <!-- Match Settings Form -->
-    <div *ngIf="isOwner" id="matchSettingsForm" class="match-settings-form">
+    <div *ngIf="this.match?.owner?.id === this.userId" id="matchSettingsForm" class="match-settings-form">
       <h2>Match Settings:</h2>
       <form>
         <div class="form-group">
@@ -136,9 +136,6 @@
             </mat-error>
           </mat-form-field>
         </div>
-        <mat-error *ngIf="errorMessage">
-          {{ errorMessage }}
-        </mat-error>
       </form>
       <app-button-single-use (buttonClick)="startMatch()">
         Start

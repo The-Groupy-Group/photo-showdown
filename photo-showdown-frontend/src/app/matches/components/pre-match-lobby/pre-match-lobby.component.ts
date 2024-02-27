@@ -18,19 +18,19 @@ import {
 import { UserPublicDetails } from 'src/app/users/models/user-public-details.model';
 import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
 import { MatchSettings } from '../../models/match-settings.model';
-import { NgModel } from '@angular/forms';
 
+/**
+ * A component that displays the pre-match lobby.
+ */
 @Component({
   selector: 'app-pre-match-lobby',
   templateUrl: './pre-match-lobby.component.html',
   styleUrls: ['./pre-match-lobby.component.css'],
 })
 export class PreMatchLobbyComponent implements OnInit {
-  userId: number = this.authService.getUserId();
-  isOwner = false;
+  userId: number;
   match?: Match;
   allSentences = '';
-  errorMessage = '';
   isLoading = true;
   matchSettings: MatchSettings = {
     matchId: 0,
@@ -41,27 +41,29 @@ export class PreMatchLobbyComponent implements OnInit {
     voteTimeSeconds: 35,
   };
 
-  @Input() matchId!: number;
-  @Output() onLeaveMatch: EventEmitter<undefined> = new EventEmitter();
-  @Output() onMatchStart: EventEmitter<undefined> = new EventEmitter();
+  @Input({ required: true }) matchId!: number;
+  @Output() onLeaveMatch = new EventEmitter<void>();
+  @Output() onMatchStart = new EventEmitter<void>();
 
   constructor(
-    private readonly notifier: NotifierService,
     private readonly matchesService: MatchesService,
     private readonly authService: AuthService,
     private readonly webSocketService: WebSocketService,
+    private readonly notifier: NotifierService,
     private readonly cd: ChangeDetectorRef
-  ) {}
+  ) {
+    this.userId = this.authService.getUserId();
+  }
 
   ngOnInit() {
     // Get the match details
     this.matchesService.getMatchById(this.matchId).subscribe((response) => {
       this.match = response.data;
       this.matchSettings.matchId = this.match.id;
-      this.isOwner = this.match.owner.id === this.userId;
       this.isLoading = false;
       this.cd.detectChanges();
     });
+
     // Listen for player joined events
     this.webSocketService.onWebSocketEvent<WebSocketMessage<UserPublicDetails>>(
       WebSocketMessageType.playerJoined,
@@ -70,6 +72,7 @@ export class PreMatchLobbyComponent implements OnInit {
         this.cd.detectChanges();
       }
     );
+
     // Listen for player left events
     this.webSocketService.onWebSocketEvent<WebSocketMessage<UserPublicDetails>>(
       WebSocketMessageType.playerLeft,
@@ -83,17 +86,18 @@ export class PreMatchLobbyComponent implements OnInit {
         this.cd.detectChanges();
       }
     );
+
     // Listen for new owner events
     this.webSocketService.onWebSocketEvent<WebSocketMessage<UserPublicDetails>>(
       WebSocketMessageType.newOwner,
       (wsMessage) => {
         if (this.match) {
           this.match.owner = wsMessage.data;
-          this.isOwner = this.match.owner.id === this.userId;
         }
         this.cd.detectChanges();
       }
     );
+
     // Listen for match start events
     this.webSocketService.onWebSocketEvent<EmptyWebSocketMessage>(
       WebSocketMessageType.matchStarted,
@@ -104,20 +108,20 @@ export class PreMatchLobbyComponent implements OnInit {
   }
 
   startMatch() {
-    if (!this.match || !this.isOwner) {
+    if (!this.match || !(this.match.owner.id === this.userId)) {
       return;
     }
     this.matchSettings.sentences =
       this.allSentences.length > 0 ? this.allSentences.split('\n') : [];
-      
+
     this.matchesService.startMatch(this.matchSettings).subscribe({
       error: (response) => {
-        this.errorMessage = response.error.message;
+        this.notifier.notify('error', response.error.message);
       },
     });
   }
 
-  onLeaveMatchClicked() {
+  leaveMatch() {
     this.matchesService.leaveMatch(this.matchId).subscribe({
       next: () => {
         this.onLeaveMatch.emit();
