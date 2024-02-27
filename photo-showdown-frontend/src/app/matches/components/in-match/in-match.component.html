@@ -32,16 +32,17 @@
       this.currentRound != undefined
     "
     [pictures]="this.usersPictures"
-    [currentRound]="this.currentRound!"
+    [currentRound]="this.currentRound"
   ></app-in-match-picture-selection>
 
   <app-in-match-vote-picture
     *ngIf="
-      currentRound?.roundState === RoundStates.voting ||
-      currentRound?.roundState === RoundStates.ended
+      (currentRound?.roundState === RoundStates.voting ||
+        currentRound?.roundState === RoundStates.ended) &&
+      this.currentRound != undefined
     "
     [picturesToVote]="this.currentRound!.picturesSelected"
     [userPictureIds]="this.userPictureIds"
-    [currentRound]="this.currentRound!"
+    [currentRound]="this.currentRound"
   ></app-in-match-vote-picture>
 </div>

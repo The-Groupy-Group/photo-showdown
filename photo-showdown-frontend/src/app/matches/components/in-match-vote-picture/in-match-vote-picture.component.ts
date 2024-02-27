@@ -4,6 +4,9 @@ import { MatchesService } from '../../services/matches.service';
 import { Round, RoundStates } from '../../models/round.model';
 import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
 
+/**
+ * A component that displays the picture selection view in a match.
+ */
 @Component({
   selector: 'app-in-match-vote-picture',
   templateUrl: './in-match-vote-picture.component.html',
@@ -16,7 +19,7 @@ export class InMatchVotePictureComponent {
 
   @Input() picturesToVote: PictureSelected[] = [];
   @Input() userPictureIds: Set<number> = new Set();
-  @Input() currentRound!: Round;
+  @Input({ required: true }) currentRound!: Round;
 
   readonly RoundStates = RoundStates;
 
@@ -27,7 +30,7 @@ export class InMatchVotePictureComponent {
     this.userId = this.authService.getUserId();
   }
 
-  onPictureVoted(picture: PictureSelected) {
+  selectPicture(picture: PictureSelected) {
     // Cant vote to your own picture
     if (this.userId === picture.selectedByUser?.id) {
       return;
@@ -40,7 +43,12 @@ export class InMatchVotePictureComponent {
     this.votedPictureId = picture.id;
   }
 
-  onLockIn() {
+  lockIn() {
+    // Cant vote if no picture was selected
+    if (this.votedPictureId === 0) {
+      return;
+    }
+
     this.lockedIn = true;
     this.matchesService
       .voteForPicture(

@@ -8,9 +8,9 @@
     <app-picture-item
       [picture]="selectedPicture"
       class="grid-item"
-      (click)="onPictureVoted(selectedPicture)"
+      (click)="selectPicture(selectedPicture)"
       [class.voted-picture]="selectedPicture.id === votedPictureId"
-      [class.disabled]="userPictureIds.has(selectedPicture.pictureId)"
+      [class.disabled-picture]="userPictureIds.has(selectedPicture.pictureId)"
       [class.winning-picture]="
         currentRound.roundWinner != undefined &&
         selectedPicture.selectedByUser?.id === currentRound.roundWinner.id
@@ -24,7 +24,7 @@
   mat-raised-button
   color="primary"
   [disabled]="!votedPictureId || lockedIn"
-  (click)="onLockIn()"
+  (click)="lockIn()"
 >
   Lock-in Selection
 </button>
