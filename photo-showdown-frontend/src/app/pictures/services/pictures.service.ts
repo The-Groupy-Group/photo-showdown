@@ -36,9 +36,7 @@ export class PicturesService {
       .pipe(
         map((response) => {
           response.data.forEach((picture) => {
-            picture.picturePath = UrlUtils.getBasePicturesURL(
-              picture.picturePath
-            );
+            picture.picturePath = UrlUtils.getPictureURL(picture.picturePath);
           });
           return response;
         })

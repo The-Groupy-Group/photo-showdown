@@ -17,10 +17,11 @@ import { PicturesService } from 'src/app/pictures/services/pictures.service';
 import { Picture } from 'src/app/pictures/models/picture.model';
 import { DateTimeUtils } from 'src/app/shared/utils/date-time-utils';
 import { Observable, timer, map, takeWhile } from 'rxjs';
-import { Router } from '@angular/router';
-import { environment } from 'src/environments/environment';
 import { UrlUtils } from 'src/app/shared/utils/url-utils';
 
+/**
+ * A component that displays the in-match view.
+ */
 @Component({
   selector: 'app-in-match',
   templateUrl: './in-match.component.html',
@@ -33,8 +34,8 @@ export class InMatchComponent {
   selectedPicture?: Picture;
   countdown$?: Observable<number>;
 
-  @Input() matchId!: number;
-  @Output() onLeaveMatch: EventEmitter<undefined> = new EventEmitter();
+  @Input({ required: true }) matchId!: number;
+  @Output() onLeaveMatch = new EventEmitter<void>();
 
   readonly RoundStates = RoundStates;
 
@@ -54,12 +55,13 @@ export class InMatchComponent {
       this.cd.detectChanges();
     });
 
+    // Get the current round
     this.matchesService.getCurrentRound(this.matchId).subscribe((response) => {
       this.handleRoundStateChange(response.data);
       this.cd.detectChanges();
     });
 
-    // Listen for new round started
+    // Listen for round state change
     this.webSocketService.onWebSocketEvent<WebSocketMessage<Round>>(
       WebSocketMessageType.roundStateChange,
       (wsMessage) => {
@@ -69,7 +71,7 @@ export class InMatchComponent {
     );
   }
 
-  onLeaveMatchClicked() {
+  leaveMatch() {
     this.matchesService.leaveMatch(this.matchId).subscribe({
       next: () => {
         this.onLeaveMatch.emit();
@@ -107,8 +109,10 @@ export class InMatchComponent {
         );
         break;
     }
+
+    // Set the base URL for the pictures
     round.picturesSelected.forEach((picture) => {
-      picture.picturePath = UrlUtils.getBasePicturesURL(picture.picturePath);
+      picture.picturePath = UrlUtils.getPictureURL(picture.picturePath);
     });
     this.currentRound = round;
   }
