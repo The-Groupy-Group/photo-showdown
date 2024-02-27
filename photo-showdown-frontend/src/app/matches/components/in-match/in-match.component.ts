@@ -139,10 +139,12 @@ export class InMatchComponent {
         this.countdown$ = this.setTimer(
           DateTimeUtils.getSecondsUntil(round.roundEndDate)
         );
-        this.score.set(
-          round.roundWinner!.id,
-          this.score.get(round.roundWinner!.id)! + 1
-        );
+        if (round.roundWinner?.id) {
+          this.score.set(
+            round.roundWinner!.id,
+            this.score.get(round.roundWinner!.id)! + 1
+          );
+        }
         break;
     }
 

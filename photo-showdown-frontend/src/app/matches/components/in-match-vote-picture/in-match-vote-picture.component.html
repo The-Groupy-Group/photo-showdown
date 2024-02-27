@@ -1,8 +1,14 @@
 <div class="pictures-grid">
   <div *ngFor="let selectedPicture of picturesToVote" class="grid-item">
-    <strong *ngIf="currentRound?.roundState === RoundStates.ended"
-      >Selected By: {{ selectedPicture.selectedByUser!.username }}</strong
+    <p
+      class="picture-info"
+      *ngIf="currentRound?.roundState === RoundStates.ended"
     >
+      <strong
+        >Selected By: {{ selectedPicture.selectedByUser!.username }}</strong
+      >
+      <strong>Votes: {{ selectedPicture.numOfVotes }}</strong>
+    </p>
     <app-picture-item
       [picture]="selectedPicture"
       (click)="selectPicture(selectedPicture)"
@@ -13,7 +19,6 @@
         selectedPicture.selectedByUser?.id === currentRound.roundWinner.id
       "
     ></app-picture-item>
-    <strong>Votes: {{ selectedPicture.numOfVotes }}</strong>
   </div>
 </div>
 <button

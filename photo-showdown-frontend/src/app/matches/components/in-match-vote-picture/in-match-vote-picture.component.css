@@ -11,6 +11,12 @@
   box-sizing: border-box;
 }
 
+.picture-info{
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+}
+
 .voted-picture {
   border: 2px solid rgb(255, 8, 0);
 }
