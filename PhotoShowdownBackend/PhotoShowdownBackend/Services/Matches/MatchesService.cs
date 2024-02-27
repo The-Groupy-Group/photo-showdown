@@ -15,6 +15,7 @@ using PhotoShowdownBackend.Models;
 using PhotoShowdownBackend.Repositories.RoundPictures;
 using PhotoShowdownBackend.Repositories.RoundVotes;
 using PhotoShowdownBackend.Repositories.Users;
+using PhotoShowdownBackend.Services.CustomSentences;
 using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Services.Pictures;
 using PhotoShowdownBackend.Services.Rounds;
@@ -33,6 +34,7 @@ public class MatchesService : IMatchesService
     private readonly IMatchesRepository _matchesRepo;
     private readonly IMatchConnectionsService _matchConnectionsService;
     private readonly IRoundsService _roundsService;
+    private readonly ISentencesService _sentencesService;
     private readonly WebSocketRoomManager _webSocketRoomManager;
     private readonly IServiceProvider _serviceProvider;
     private readonly IMapper _mapper;
@@ -45,6 +47,7 @@ public class MatchesService : IMatchesService
         IMatchesRepository matchesRepository,
         IMatchConnectionsService matchConnectionsService,
         IRoundsService roundsService,
+        ISentencesService sentencesService,
         WebSocketRoomManager webSocketRoomManager,
         IServiceProvider serviceProvider,
         IMapper mapper,
@@ -53,6 +56,7 @@ public class MatchesService : IMatchesService
         _matchesRepo = matchesRepository;
         _matchConnectionsService = matchConnectionsService;
         _roundsService = roundsService;
+        _sentencesService = sentencesService;
         _webSocketRoomManager = webSocketRoomManager;
         _serviceProvider = serviceProvider;
         _mapper = mapper;
@@ -124,7 +128,7 @@ public class MatchesService : IMatchesService
         {
             throw new NotFoundException(matchId);
         }
-        
+
         bool hasMatchStarted = await _matchesRepo
             .AnyAsync(m =>
                 m.Id == matchId &&
@@ -202,6 +206,12 @@ public class MatchesService : IMatchesService
         match.NumOfRounds = startMatchDTO.NumOfRounds;
 
         await _matchesRepo.UpdateAsync(match);
+
+        // Set the custom sentences
+        if (startMatchDTO.Sentences.Count > 0)
+        {
+            await _sentencesService.SetCustomSentences(startMatchDTO.Sentences, match.Id);
+        }
 
         // Start the match logic
         // Get the match from the database to avoid concurrency issues

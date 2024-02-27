@@ -39,6 +39,7 @@ public interface IRepository<T> where T : class
         int? pageIndex = null,
         int? pageSize = null);
     public Task<T> CreateAsync(T entity);
+    public Task CreateRangeAsync(T[] entities);
     public Task<T> UpdateAsync(T entity);
     public Task<T> DeleteAsync(T entity);
     public Task DeleteRangeAsync(T[] entities);

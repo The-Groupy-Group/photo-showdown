@@ -50,7 +50,7 @@ export class PreMatchLobbyComponent implements OnInit {
     private readonly webSocketService: WebSocketService,
     private readonly notifier: NotifierService,
     private readonly cd: ChangeDetectorRef,
-    authService: AuthService,
+    authService: AuthService
   ) {
     this.userId = authService.getUserId();
   }
@@ -111,8 +111,12 @@ export class PreMatchLobbyComponent implements OnInit {
     if (!this.match || !(this.match.owner.id === this.userId)) {
       return;
     }
+
+    // Split the sentences by new line and remove empty strings
     this.matchSettings.sentences =
-      this.allSentences.length > 0 ? this.allSentences.split('\n') : [];
+      this.allSentences.length > 0
+        ? this.allSentences.split('\n').filter((s) => s.length > 0)
+        : [];
 
     this.matchesService.startMatch(this.matchSettings).subscribe({
       error: (response) => {
