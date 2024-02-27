@@ -18,7 +18,8 @@ import { Picture } from 'src/app/pictures/models/picture.model';
 import { DateTimeUtils } from 'src/app/shared/utils/date-time-utils';
 import { Observable, timer, map, takeWhile } from 'rxjs';
 import { UrlUtils } from 'src/app/shared/utils/url-utils';
-import { PictureSelected } from 'src/app/pictures/models/picture-selected.model';
+import { Match } from '../../models/match.model';
+import { UserPublicDetails } from 'src/app/users/models/user-public-details.model';
 
 /**
  * A component that displays the in-match view.
@@ -29,11 +30,13 @@ import { PictureSelected } from 'src/app/pictures/models/picture-selected.model'
   styleUrls: ['./in-match.component.css'],
 })
 export class InMatchComponent {
+  match?: Match;
+  currentRound?: Round;
   usersPictures: Picture[] = [];
   userPictureIds: Set<number> = new Set();
-  currentRound?: Round;
   selectedPicture?: Picture;
   countdown$?: Observable<number>;
+  score = new Map<number, number>(); // TODO: https://groupy-group.atlassian.net/browse/PHSH-153
 
   @Input({ required: true }) matchId!: number;
   @Output() onLeaveMatch = new EventEmitter<void>();
@@ -56,10 +59,22 @@ export class InMatchComponent {
       this.cd.detectChanges();
     });
 
-    // Get the current round
-    this.matchesService.getCurrentRound(this.matchId).subscribe((response) => {
-      this.handleRoundStateChange(response.data);
-      this.cd.detectChanges();
+    // Get the current match
+    this.matchesService.getCurrentMatch().subscribe((response) => {
+      this.match = response.data;
+      // Get the current round
+      // TODO: https://groupy-group.atlassian.net/browse/PHSH-153
+      this.matchesService
+        .getCurrentRound(this.matchId)
+        .subscribe((response) => {
+          this.handleRoundStateChange(response.data);
+          this.match!.currentRound = this.currentRound;
+          this.cd.detectChanges();
+        });
+
+      this.match.users.forEach((user) => {
+        this.score.set(user.id, 0);
+      });
     });
 
     // Listen for round state change
@@ -67,6 +82,21 @@ export class InMatchComponent {
       WebSocketMessageType.roundStateChange,
       (wsMessage) => {
         this.handleRoundStateChange(wsMessage.data);
+        this.cd.detectChanges();
+      }
+    );
+
+    // Listen for players leaving the match
+    this.webSocketService.onWebSocketEvent<WebSocketMessage<UserPublicDetails>>(
+      WebSocketMessageType.playerLeft,
+      (wsMessage) => {
+        const newUserLists = this.match?.users.filter(
+          (u) => u.id !== wsMessage.data.id
+        );
+        if (this.match) {
+          this.match.users = newUserLists || [];
+        }
+        this.score.delete(wsMessage.data.id);
         this.cd.detectChanges();
       }
     );
@@ -92,6 +122,7 @@ export class InMatchComponent {
     round.votingEndDate = DateTimeUtils.convertUtcToLocal(round.votingEndDate);
     round.roundEndDate = DateTimeUtils.convertUtcToLocal(round.roundEndDate);
 
+    // Handle state specific logic
     // Set the timer based on the current round state
     switch (round.roundState) {
       case RoundStates.pictureSelection:
@@ -107,6 +138,10 @@ export class InMatchComponent {
       case RoundStates.ended:
         this.countdown$ = this.setTimer(
           DateTimeUtils.getSecondsUntil(round.roundEndDate)
+        );
+        this.score.set(
+          round.roundWinner!.id,
+          this.score.get(round.roundWinner!.id)! + 1
         );
         break;
     }

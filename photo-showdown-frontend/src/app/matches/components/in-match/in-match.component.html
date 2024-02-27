@@ -2,29 +2,41 @@
   <h2>
     Sentence:<strong> {{ this.currentRound?.sentence }}</strong>
   </h2>
-  <mat-card class="round-details">
-    <h2>Current Round Details:</h2>
-    <p>Round Index: {{ this.currentRound?.roundIndex }}</p>
-    <p>
-      Round State: <strong>{{ this.currentRound?.roundState }}</strong>
-    </p>
-    <p>
-      Round Time: <strong>{{ this.countdown$ | async }}</strong>
-    </p>
-    <p *ngIf="currentRound?.roundState === RoundStates.ended">
-      <strong
-        >Winner: {{ currentRound!.roundWinner?.username ?? "Draw" }}</strong
-      >
-    </p>
-    <button
-      mat-raised-button
-      color="warn"
-      [disabled]="!this.currentRound?.picturesSelected"
-      (click)="leaveMatch()"
+
+  <!-- Round Info -->
+  <div class="round-info">
+
+    <!-- Players -->
+    <mat-card class="round-players">
+      <ul>
+        <li *ngFor="let player of this.match?.users">
+          <p><strong>{{ player.username }}: </strong>
+          Score: {{ score.get(player.id) }}</p>
+        </li>
+      </ul></mat-card
     >
-      Disconnect
-    </button>
-  </mat-card>
+
+    <!-- Round Details -->
+    <mat-card class="round-details">
+      <h2>Current Round Details:</h2>
+      <p>Round Index: {{ this.currentRound?.roundIndex }}</p>
+      <p>
+        Round State: <strong>{{ this.currentRound?.roundState }}</strong>
+      </p>
+      <p>
+        Round Time: <strong>{{ this.countdown$ | async }}</strong>
+      </p>
+      <p *ngIf="currentRound?.roundState === RoundStates.ended">
+        <strong
+          >Winner: {{ currentRound!.roundWinner?.username ?? "Draw" }}</strong
+        >
+      </p>
+      <button mat-raised-button color="warn" (click)="leaveMatch()">
+        Disconnect
+      </button>
+    </mat-card>
+  </div>
+
 
   <app-in-match-picture-selection
     *ngIf="
