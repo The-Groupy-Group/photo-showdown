@@ -27,9 +27,12 @@
   </mat-card>
 
   <app-in-match-picture-selection
-    *ngIf="currentRound?.roundState === RoundStates.pictureSelection"
+    *ngIf="
+      currentRound?.roundState === RoundStates.pictureSelection &&
+      this.currentRound != undefined
+    "
     [pictures]="this.usersPictures"
-    [currentRound]="this.currentRound"
+    [currentRound]="this.currentRound!"
   ></app-in-match-picture-selection>
 
   <app-in-match-vote-picture
