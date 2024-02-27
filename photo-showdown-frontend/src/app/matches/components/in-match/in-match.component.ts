@@ -108,7 +108,9 @@ export class InMatchComponent {
         break;
     }
     round.picturesSelected.forEach((picture) => {
-      picture.picturePath = `${UrlUtils.getBasePicturesURL()}/${picture.picturePath}`;
+      picture.picturePath = `${UrlUtils.getBasePicturesURL()}/${
+        picture.picturePath
+      }`;
     });
     this.currentRound = round;
   }

@@ -9,7 +9,7 @@
   <app-pre-match-lobby
     *ngSwitchCase="MatchStates.notStarted"
     [matchId]="matchId!"
-    (onLeaveMatch)="leaveMatch()"
+    (onLeaveMatch)="redirectToMatchList()"
     (onMatchStart)="redirectToMatch()"
   ></app-pre-match-lobby>
   
@@ -17,6 +17,6 @@
   <app-in-match
     *ngSwitchCase="MatchStates.inProgress"
     [matchId]="matchId!"
-    (onLeaveMatch)="leaveMatch()"
+    (onLeaveMatch)="redirectToMatchList()"
   ></app-in-match>
 </div>

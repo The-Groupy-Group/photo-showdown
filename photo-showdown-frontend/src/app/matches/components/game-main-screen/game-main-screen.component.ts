@@ -8,6 +8,9 @@ import { MatchStates } from '../../models/match.model';
   templateUrl: './game-main-screen.component.html',
   styleUrls: ['./game-main-screen.component.css'],
 })
+/**
+ * The main screen for the game. This component is responsible for redirecting the user to the correct match state.
+ */
 export class GameMainScreenComponent {
   matchState?: MatchStates = undefined;
   matchId?: number;
@@ -32,19 +35,25 @@ export class GameMainScreenComponent {
     this.matchState = MatchStates.inProgress;
   }
 
-  leaveMatch() {
+  redirectToMatchList() {
     this.matchId = undefined;
     this.matchState = undefined;
   }
 
+  /**
+   * Redirects to the correct match state if the user is in a match.
+   */
   private handleIsInMatch() {
     this.matchesService.getCurrentMatch().subscribe((response) => {
-      if (!response.data) { // Not in a match
+      if (!response.data) {
+        // Not in a match
         this.matchState = undefined;
-      } else if (response.data.matchState === MatchStates.inProgress) { // In a match
+      } else if (response.data.matchState === MatchStates.inProgress) {
+        // In a match
         this.matchId = response.data.id;
         this.redirectToMatch();
-      } else { // In a match lobby
+      } else {
+        // In a match lobby
         this.redirectToLobby(response.data.id);
       }
       this.cd.detectChanges();
