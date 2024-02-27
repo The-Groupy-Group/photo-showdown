@@ -1,9 +1,9 @@
 <mat-card class="match-container">
   <h3>Match id: {{ match.id }}</h3>
-  <h3 >Match owner: {{ match.owner.username }}</h3>
+  <h3>Match owner: {{ match.owner.username }}</h3>
   <h3>Connected users:</h3>
   <ul>
-    <li  *ngFor="let user of match.users">{{ user.username }}</li>
+    <li *ngFor="let user of match.users">{{ user.username }}</li>
   </ul>
 
   <button

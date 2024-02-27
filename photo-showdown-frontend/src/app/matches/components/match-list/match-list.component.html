@@ -13,7 +13,7 @@
     <app-match-list-item
       *ngFor="let match of this.matches"
       [match]="match"
-      (onJoinMatch)="joinedMatch($event)"
+      (onJoinMatch)="matchJoined($event)"
     ></app-match-list-item>
   </mat-card-content>
 </mat-card>

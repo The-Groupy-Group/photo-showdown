@@ -1,9 +1,11 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { MatchesService } from '../../services/matches.service';
 import { Match, MatchStates } from '../../models/match.model';
-import { Router } from '@angular/router';
 import { NotifierService } from 'angular-notifier';
 
+/**
+ * A component that displays a list of matches.
+ */
 @Component({
   selector: 'app-match-list',
   templateUrl: './match-list.component.html',
@@ -15,7 +17,6 @@ export class MatchListComponent implements OnInit {
 
   constructor(
     private readonly matchesService: MatchesService,
-    private readonly router: Router,
     private readonly notifier: NotifierService
   ) {}
 
@@ -26,7 +27,7 @@ export class MatchListComponent implements OnInit {
   createMatch() {
     this.matchesService.createNewMatch().subscribe({
       next: (response) => {
-        this.onJoinMatch.emit(response.data.id);
+        this.matchJoined(response.data.id);
       },
       error: (response) => {
         this.notifier.notify('error', response.error.message);
@@ -43,7 +44,7 @@ export class MatchListComponent implements OnInit {
     });
   }
 
-  joinedMatch(matchId: number) {
+  matchJoined(matchId: number) {
     this.onJoinMatch.emit(matchId);
   }
 }

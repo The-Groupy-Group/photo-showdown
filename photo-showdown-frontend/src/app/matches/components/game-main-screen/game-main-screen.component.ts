@@ -1,16 +1,15 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { MatchesService } from '../../services/matches.service';
-import { HttpStatusCode } from '@angular/common/http';
 import { MatchStates } from '../../models/match.model';
 
+/**
+ * The main screen for the game. It is responsible for redirecting the user to the correct match state.
+ */
 @Component({
   selector: 'app-game-main-screen',
   templateUrl: './game-main-screen.component.html',
   styleUrls: ['./game-main-screen.component.css'],
 })
-/**
- * The main screen for the game. This component is responsible for redirecting the user to the correct match state.
- */
 export class GameMainScreenComponent {
   matchState?: MatchStates = undefined;
   matchId?: number;
