@@ -124,7 +124,7 @@ public class MatchesService : IMatchesService
         {
             throw new NotFoundException(matchId);
         }
-        // TODO: Swap with m.HasMatchStarted if possible
+        
         bool hasMatchStarted = await _matchesRepo
             .AnyAsync(m =>
                 m.Id == matchId &&
@@ -224,7 +224,7 @@ public class MatchesService : IMatchesService
         {
             throw new MatchAlreadyEndedException();
         }
-        // TODO: Send a message to the room, etc...
+        // TODO: Send a message to the room https://groupy-group.atlassian.net/browse/PHSH-142
 
         // End the match
         match.EndDate = DateTime.UtcNow;
@@ -303,8 +303,7 @@ public class MatchesService : IMatchesService
                 }
                 catch (CantFetchSentenceException)
                 {
-                    // TODO: end the match prematurely
-                    logger.LogError("Cant fetch sentence for match {matchId}", match.Id);
+                    logger.LogInformation("Cant fetch sentence for match {matchId}", match.Id);
                     break;
                 }
                 RoundStateChangeWebSocketMessage roundWsMessage = new(roundDto);
@@ -321,7 +320,7 @@ public class MatchesService : IMatchesService
                 roundDto = await roundsService.EndRound(match.Id, roundIndex);
                 roundWsMessage.Data = roundDto;
                 await webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
-                // TODO: Implement round winner logic
+
                 await Task.Delay(ROUND_WINNER_DISPLAY_SECONDS * 1000, cancellationToken);
                 roundIndex++;
 
