@@ -20,6 +20,7 @@ import { Observable, timer, map, takeWhile } from 'rxjs';
 import { UrlUtils } from 'src/app/shared/utils/url-utils';
 import { Match } from '../../models/match.model';
 import { UserPublicDetails } from 'src/app/users/models/user-public-details.model';
+import { environment } from 'src/environments/environment';
 
 /**
  * A component that displays the in-match view.
@@ -104,13 +105,13 @@ export class InMatchComponent {
 
   leaveMatch() {
     this.matchesService.leaveMatch(this.matchId).subscribe({
-      next: () => {
-        this.onLeaveMatch.emit();
-      },
       error: (response) => {
-        this.notifier.notify('error', response.error.message);
+        if (!environment.production) {
+          console.error(response.error);
+        }
       },
     });
+    this.onLeaveMatch.emit();
   }
 
   private handleRoundStateChange(round: Round) {

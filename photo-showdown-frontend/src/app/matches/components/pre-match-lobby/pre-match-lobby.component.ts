@@ -18,6 +18,7 @@ import {
 import { UserPublicDetails } from 'src/app/users/models/user-public-details.model';
 import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
 import { MatchSettings } from '../../models/match-settings.model';
+import { environment } from 'src/environments/environment';
 
 /**
  * A component that displays the pre-match lobby.
@@ -127,12 +128,12 @@ export class PreMatchLobbyComponent implements OnInit {
 
   leaveMatch() {
     this.matchesService.leaveMatch(this.matchId).subscribe({
-      next: () => {
-        this.onLeaveMatch.emit();
-      },
       error: (response) => {
-        this.notifier.notify('error', response.error.message);
+        if(!environment.production) {
+          console.error(response.error.message);
+        }
       },
     });
+    this.onLeaveMatch.emit();
   }
 }
