@@ -9,39 +9,63 @@ import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
 import { EmptyWebSocketMessage } from '../models/web-socket-message.model';
 import { WebSocketMessageType } from '../models/web-socket-message.model';
 import { environment } from 'src/environments/environment';
+import { UrlUtils } from 'src/app/shared/utils/url-utils';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WebSocketService {
   private socket$: WebSocketSubject<any>;
-  readonly wsURL = environment.apiUrl.replace('http', 'ws') + '/ws';
-  constructor(readonly authService: AuthService) {
-    let token = authService.getJwtToken();
-    this.socket$ = new WebSocketSubject(this.wsURL + '?jwt=' + token);
+  readonly wsURL = UrlUtils.getWebSocketUrl();
+
+  constructor(private readonly authService: AuthService) {
+    this.socket$ = this.initSocket();
   }
 
+  /**
+   * Sends a message to the server
+   * @param message
+   */
   sendMessage(message: any): void {
     this.socket$.next(message);
   }
 
-  receiveMessages<
-    T extends EmptyWebSocketMessage = EmptyWebSocketMessage
-  >(): Observable<T> {
-    return this.socket$.asObservable();
-  }
+  /**
+   * Listens to messages from the server
+   * @returns
+   */
   onWebSocketEvent<T extends EmptyWebSocketMessage = EmptyWebSocketMessage>(
     type: WebSocketMessageType,
     f: (wsMessage: T) => void
   ): void {
-    this.receiveMessages<T>().subscribe((message) => {
-      if (message.type === type) {
-        f(message);
-      }
+    this.socket$.asObservable().subscribe({
+      next: (message) => {
+        if (message.type === type) {
+          f(message);
+        }
+      },
+      error: (error) => {
+        if (!environment.production) {
+          console.error('WebSocket error: ', error);
+        }
+      },
+      complete: () => {
+        if (!environment.production) {
+          console.log('WebSocket connection closed by the server');
+        }
+      },
     });
   }
 
+  /**
+   * Closes the connection
+   */
   closeConnection(): void {
     this.socket$.complete();
+  }
+
+  private initSocket(): WebSocketSubject<any> {
+    let token = this.authService.getJwtToken();
+    return new WebSocketSubject(this.wsURL + '?jwt=' + token);
   }
 }

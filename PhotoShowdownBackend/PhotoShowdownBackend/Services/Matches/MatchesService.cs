@@ -160,7 +160,7 @@ public class MatchesService : IMatchesService
         // Send a message to the room
         var playerLeftWsMessage = new PlayerLeftWebSocketMessage(userToRemove);
         await _webSocketRoomManager.SendMessageToRoom(userToRemove.Id, matchId, playerLeftWsMessage);
-        await _webSocketRoomManager.CloseConnection(userToRemove.Id, matchId);
+        await _webSocketRoomManager.RemoveSocket(userToRemove.Id, matchId);
 
 
         // If the leaving user is the owner, assign a new owner
@@ -208,7 +208,6 @@ public class MatchesService : IMatchesService
         await _webSocketRoomManager.SendMessageToRoom(null, match.Id, matchStartedWsMessage);
         _ = Task.Run(() => ExecuteMatchLogic(match, _serviceProvider.CreateScope()));
     }
-
 
     public async Task EndMatch(int matchId)
     {

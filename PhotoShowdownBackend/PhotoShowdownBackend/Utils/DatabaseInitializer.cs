@@ -8,18 +8,19 @@ namespace PhotoShowdownBackend.Utils;
 /// </summary>
 public static class DatabaseInitializer
 {
-    public static void Initialize(PhotoShowdownDbContext dbContext)
+    public static async Task Initialize(PhotoShowdownDbContext dbContext)
     {
         // Set all Match rows to "ended"
-        foreach (var match in dbContext.Matches.Where(m => 
-            !m.EndDate.HasValue || 
-            DateTime.UtcNow < m.EndDate)
-            .Include(m=> m.MatchConnections))
+        foreach (var match in await dbContext.Matches.Where(m => 
+                !m.EndDate.HasValue || 
+                DateTime.UtcNow < m.EndDate ||
+                m.MatchConnections.Count == 0)
+            .Include(m=> m.MatchConnections).ToListAsync())
         {
             match.EndDate = DateTime.UtcNow;
             dbContext.MatchConnections.RemoveRange(match.MatchConnections);
         }
 
-        dbContext.SaveChanges();
+        await dbContext.SaveChangesAsync();
     }
 }

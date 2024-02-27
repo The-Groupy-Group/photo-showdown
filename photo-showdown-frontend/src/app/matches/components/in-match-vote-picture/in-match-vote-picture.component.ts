@@ -18,7 +18,7 @@ export class InMatchVotePictureComponent {
   lockedIn = false;
 
   @Input() picturesToVote: PictureSelected[] = [];
-  @Input() userPictureIds: Set<number> = new Set();
+  @Input() userPictureIds = new Set<number>();
   @Input({ required: true }) currentRound!: Round;
 
   readonly RoundStates = RoundStates;
