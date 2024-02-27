@@ -47,12 +47,12 @@ export class PreMatchLobbyComponent implements OnInit {
 
   constructor(
     private readonly matchesService: MatchesService,
-    private readonly authService: AuthService,
     private readonly webSocketService: WebSocketService,
     private readonly notifier: NotifierService,
-    private readonly cd: ChangeDetectorRef
+    private readonly cd: ChangeDetectorRef,
+    authService: AuthService,
   ) {
-    this.userId = this.authService.getUserId();
+    this.userId = authService.getUserId();
   }
 
   ngOnInit() {

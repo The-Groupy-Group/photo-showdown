@@ -11,7 +11,7 @@
   box-sizing: border-box;
 }
 
-.selected {
+.selected-picture {
   border: 2px solid blue;
 }
 

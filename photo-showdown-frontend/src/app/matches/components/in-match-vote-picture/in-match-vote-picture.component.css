@@ -2,6 +2,8 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 16px;
+  overflow-y: scroll;
+  height: 59vh; /* Stretched to the bottom of the screen */
 }
 
 .grid-item {

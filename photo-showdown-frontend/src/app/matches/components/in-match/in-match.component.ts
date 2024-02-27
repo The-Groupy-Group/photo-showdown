@@ -18,6 +18,7 @@ import { Picture } from 'src/app/pictures/models/picture.model';
 import { DateTimeUtils } from 'src/app/shared/utils/date-time-utils';
 import { Observable, timer, map, takeWhile } from 'rxjs';
 import { UrlUtils } from 'src/app/shared/utils/url-utils';
+import { PictureSelected } from 'src/app/pictures/models/picture-selected.model';
 
 /**
  * A component that displays the in-match view.
@@ -114,6 +115,7 @@ export class InMatchComponent {
     round.picturesSelected.forEach((picture) => {
       picture.picturePath = UrlUtils.getPictureURL(picture.picturePath);
     });
+
     this.currentRound = round;
   }
 

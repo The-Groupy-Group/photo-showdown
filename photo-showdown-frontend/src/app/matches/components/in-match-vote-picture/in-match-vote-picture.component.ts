@@ -25,9 +25,9 @@ export class InMatchVotePictureComponent {
 
   constructor(
     private readonly matchesService: MatchesService,
-    private readonly authService: AuthService
+    authService: AuthService
   ) {
-    this.userId = this.authService.getUserId();
+    this.userId = authService.getUserId();
   }
 
   selectPicture(picture: PictureSelected) {
