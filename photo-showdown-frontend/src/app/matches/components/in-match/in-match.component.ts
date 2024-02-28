@@ -40,7 +40,7 @@ export class InMatchComponent {
   score = new Map<number, number>(); // TODO: https://groupy-group.atlassian.net/browse/PHSH-153
 
   @Input({ required: true }) matchId!: number;
-  @Output() onLeaveMatch = new EventEmitter<void>();
+  @Output() matchLeft = new EventEmitter<void>();
 
   readonly RoundStates = RoundStates;
 
@@ -111,7 +111,7 @@ export class InMatchComponent {
         }
       },
     });
-    this.onLeaveMatch.emit();
+    this.matchLeft.emit();
   }
 
   private handleRoundStateChange(round: Round) {

@@ -43,8 +43,8 @@ export class PreMatchLobbyComponent implements OnInit {
   };
 
   @Input({ required: true }) matchId!: number;
-  @Output() onLeaveMatch = new EventEmitter<void>();
-  @Output() onMatchStart = new EventEmitter<void>();
+  @Output() matchLeft = new EventEmitter<void>();
+  @Output() matchStarted = new EventEmitter<void>();
 
   constructor(
     private readonly matchesService: MatchesService,
@@ -103,7 +103,7 @@ export class PreMatchLobbyComponent implements OnInit {
     this.webSocketService.onWebSocketEvent<EmptyWebSocketMessage>(
       WebSocketMessageType.matchStarted,
       (wsMessage) => {
-        this.onMatchStart.emit();
+        this.matchStarted.emit();
       }
     );
   }
@@ -134,6 +134,6 @@ export class PreMatchLobbyComponent implements OnInit {
         }
       },
     });
-    this.onLeaveMatch.emit();
+    this.matchLeft.emit();
   }
 }

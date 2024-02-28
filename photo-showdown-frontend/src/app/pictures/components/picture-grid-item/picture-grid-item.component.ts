@@ -10,7 +10,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class PictureGridItemComponent {
   @Input() picture!: Picture;
   @Input() allowDelete: boolean = true;
-  @Output() pictureDeleted: EventEmitter<number> = new EventEmitter();
+  @Output() pictureDeleted = new EventEmitter<number>();
 
   constructor(private readonly picturesService: PicturesService) {}
 

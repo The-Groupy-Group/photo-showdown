@@ -2,21 +2,21 @@
   <!-- Match List -->
   <app-match-list
     *ngSwitchCase="undefined"
-    (onJoinMatch)="redirectToLobby($event)"
+    (joinedMatch)="redirectToLobby($event)"
   ></app-match-list>
 
   <!-- Pre-Match Lobby -->
   <app-pre-match-lobby
     *ngSwitchCase="MatchStates.notStarted"
     [matchId]="matchId!"
-    (onLeaveMatch)="redirectToMatchList()"
-    (onMatchStart)="redirectToMatch()"
+    (matchLeft)="redirectToMatchList()"
+    (matchStarted)="redirectToMatch()"
   ></app-pre-match-lobby>
   
   <!-- In-Match -->
   <app-in-match
     *ngSwitchCase="MatchStates.inProgress"
     [matchId]="matchId!"
-    (onLeaveMatch)="redirectToMatchList()"
+    (matchLeft)="redirectToMatchList()"
   ></app-in-match>
 </div>
