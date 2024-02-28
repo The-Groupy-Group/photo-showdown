@@ -2,7 +2,6 @@ import { Picture } from './../../models/picture.model';
 
 import { NgForm } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { PicturesService } from '../../services/pictures.service';
 import { NotifierService } from 'angular-notifier';
@@ -14,8 +13,7 @@ import { NotifierService } from 'angular-notifier';
 })
 export class PicturesPageComponent implements OnInit {
   usersPictures: Picture[] = [];
-  pictureFileToUpload?: File = undefined;
-  pictureDisplayURL?: string;
+  picturesToUpload?: FileList;
   isDeletable: boolean = true;
 
   constructor(
@@ -27,38 +25,29 @@ export class PicturesPageComponent implements OnInit {
     this.loadList();
   }
 
-  removePicture(id: number) {
+  onPictureDeleted(id: number) {
     this.usersPictures.find((picture) => picture.id === id);
-    this.usersPictures = [
-      ...this.usersPictures.filter((picture) => id !== picture.id),
-    ];
+    this.usersPictures = this.usersPictures.filter(
+      (picture) => id !== picture.id
+    );
   }
 
-  showUpload(imagePath: string) {
-    this.pictureDisplayURL = imagePath;
-    this.pictureFileToUpload = undefined;
-  }
-
-  getFile(event: Event) {
+  onFileChange(event: Event) {
     const inputElement = event.target as HTMLInputElement;
     if (inputElement.files && inputElement.files.length > 0) {
-      this.showUpload(URL.createObjectURL(inputElement.files[0]));
-      this.pictureFileToUpload = inputElement.files[0];
+      this.picturesToUpload = inputElement.files;
     }
   }
 
-  onSubmit(form: NgForm) {
-    let formData = new FormData();
-    if (this.pictureFileToUpload == undefined) {
-      throw new Error('No file selected');
+  uploadPictures() {
+    if (!this.picturesToUpload || this.picturesToUpload.length === 0) {
+      return;
     }
-    formData.append('pictureFile', this.pictureFileToUpload);
-    this.picturesService.uploadPicture(formData).subscribe({
+    this.picturesService.uploadPictures(this.picturesToUpload).subscribe({
       next: () => {
-        this.pictureDisplayURL = undefined;
-        this.pictureFileToUpload = undefined;
+        this.picturesToUpload = undefined;
         this.loadList();
-        form.resetForm();
+        //form.resetForm();
       },
       error: (error: HttpErrorResponse) => {
         this.notifier.notify('error', error.error.message);
@@ -66,7 +55,11 @@ export class PicturesPageComponent implements OnInit {
     });
   }
 
-  loadList() {
+  cancelUpload() {
+    this.picturesToUpload = undefined;
+  }
+
+  private loadList() {
     this.usersPictures = [];
     this.picturesService.getMyPictures().subscribe({
       next: (response) => {
@@ -75,10 +68,5 @@ export class PicturesPageComponent implements OnInit {
         });
       },
     });
-  }
-
-  cancelUpload() {
-    this.pictureDisplayURL = undefined;
-    this.pictureFileToUpload = undefined;
   }
 }

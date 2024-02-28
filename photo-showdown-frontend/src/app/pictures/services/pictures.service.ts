@@ -55,12 +55,16 @@ export class PicturesService {
     );
   }
   /**
-   * uploads a user picture to db
-   * @param formData the picture's data
-   * @returns the picture the user uploaded
+   * Uploads pictures to the server for the user
+   * @param pictureFiles the picture files
+   * @returns the pictures the user uploaded
    */
-  uploadPicture(formData: FormData): Observable<APIResponse<Picture>> {
-    return this.http.post<APIResponse<Picture>>(
+  uploadPictures(pictureFiles: FileList): Observable<APIResponse<Picture[]>> {
+    const formData = new FormData();
+    for (let i = 0; i < pictureFiles.length; i++) {
+      formData.append('pictureFiles', pictureFiles[i]);
+    }
+    return this.http.post<APIResponse<Picture[]>>(
       this.apiURL + '/UploadPicture',
       formData,
       this.httpUploadOptions
