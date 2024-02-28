@@ -21,6 +21,7 @@ import { UrlUtils } from 'src/app/shared/utils/url-utils';
 import { Match } from '../../models/match.model';
 import { UserPublicDetails } from 'src/app/users/models/user-public-details.model';
 import { environment } from 'src/environments/environment';
+import { PictureSelected } from 'src/app/pictures/models/picture-selected.model';
 
 /**
  * A component that displays the in-match view.

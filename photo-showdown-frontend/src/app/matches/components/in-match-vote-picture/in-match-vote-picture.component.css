@@ -7,8 +7,10 @@
 }
 
 .grid-item {
+  display: grid; /* TODO: why is this required for voted-picture or winning-picture to work? */
   width: 100%;
   box-sizing: border-box;
+  gap: 16px;
 }
 
 .picture-info {
@@ -22,7 +24,7 @@
 }
 
 .winning-picture {
-  border: 3px solid rgb(255, 251, 0);
+  border: 2px solid rgb(255, 251, 0);
 }
 
 .disabled-picture {

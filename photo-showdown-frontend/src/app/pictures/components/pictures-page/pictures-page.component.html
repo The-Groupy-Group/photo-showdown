@@ -23,7 +23,7 @@
       mat-raised-button
       color="warn"
       (click)="cancelUpload()"
-      [disabled]="this.picturesToUpload == undefined"
+      [hidden]="this.picturesToUpload == undefined"
     >
       Cancel
     </button>

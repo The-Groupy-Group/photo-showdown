@@ -1,5 +1,5 @@
 <div class="pictures-grid">
-  <div *ngFor="let selectedPicture of picturesToVote" class="grid-item">
+  <div *ngFor="let selectedPicture of picturesToVote" >
     <p
       class="picture-info"
       *ngIf="currentRound?.roundState === RoundStates.ended"
@@ -10,6 +10,7 @@
       <strong>Votes: {{ selectedPicture.numOfVotes }}</strong>
     </p>
     <app-picture-item
+    class="grid-item"
       [picture]="selectedPicture"
       (click)="selectPicture(selectedPicture)"
       [class.voted-picture]="selectedPicture.id === votedPictureId"
