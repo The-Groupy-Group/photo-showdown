@@ -35,16 +35,29 @@ public class WebSocketRoomManager
     /// <param name="socket"></param>
     public async Task AddWebSocket(int userId, int matchId, WebSocket socket)
     {
-        WebSocketRoom room = GetOrCreateRoom(matchId);
-
-        if (!room.ConnectedUsers.TryAdd(userId, socket))
-        {
-            _logger.LogWarning("Failed to add web socket for user {userId} to match {matchId} because it already exists", userId, matchId);
-        }
-
         _logger.LogInformation("Adding web socket for user {userId} to match {matchId}", userId, matchId);
 
+        WebSocketRoom room = GetOrCreateRoom(matchId);
+
+        // Add the socket to the room, if a existing socket is already connected, close it
+        if (room.ConnectedUsers.TryGetValue(userId, out WebSocket? existingSocket))
+        {
+            _logger.LogWarning("Web socket for user {userId} in match {matchId} already exists, closing the existing socket", userId, matchId);
+            await existingSocket.CloseConnection();
+        }
+        room.ConnectedUsers[userId] = socket;
+
         await HandleWebSocket(socket, userId, matchId);
+
+        // Refuse to add the socket if it already exists method
+        //if (!room.ConnectedUsers.TryAdd(userId, socket))
+        //{
+        //    _logger.LogWarning("Failed to add web socket for user {userId} to match {matchId} because it already exists", userId, matchId);
+        //}
+        //else
+        //{
+        //    await HandleWebSocket(socket, userId, matchId);
+        //}
     }
 
     /// <summary>
