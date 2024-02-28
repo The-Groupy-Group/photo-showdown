@@ -17,6 +17,8 @@ public static class DatabaseInitializer
                 m.MatchConnections.Count == 0)
             .Include(m=> m.MatchConnections).ToListAsync())
         {
+            if(!match.StartDate.HasValue)
+                match.StartDate = DateTime.UtcNow;
             match.EndDate = DateTime.UtcNow;
             dbContext.MatchConnections.RemoveRange(match.MatchConnections);
         }
