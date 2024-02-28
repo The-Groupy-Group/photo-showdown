@@ -141,7 +141,7 @@ builder.Services.AddSwaggerGen(options =>
             new OpenApiInfo
             {
                 Title = "Donfil API",
-                Version = "v1"
+                Version = "0.3.0"
             });
 
     // Add JWT support for swagger

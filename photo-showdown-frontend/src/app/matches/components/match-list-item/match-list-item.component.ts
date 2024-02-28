@@ -13,7 +13,7 @@ import { NotifierService } from 'angular-notifier';
 })
 export class MatchListItemComponent {
   @Input() match!: Match;
-  @Output() onJoinMatch: EventEmitter<number> = new EventEmitter();
+  @Output() matchJoined = new EventEmitter<number>();
 
   constructor(
     private readonly matchesService: MatchesService,
@@ -25,7 +25,7 @@ export class MatchListItemComponent {
 
     this.matchesService.joinMatch(matchId).subscribe({
       next: () => {
-        this.onJoinMatch.emit(this.match.id);
+        this.matchJoined.emit(this.match.id);
       },
       error: (response) => {
         this.notifier.notify('error', response.error.message);

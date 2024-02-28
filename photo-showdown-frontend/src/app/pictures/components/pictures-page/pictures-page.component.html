@@ -1,53 +1,42 @@
 <mat-card>
-  <h2>Upload your pictures</h2>
-  <!-- Upload Pictures -->
-  <div class="upload-container">
-    <form
-      class="form"
-      (submit)="onSubmit(pictureForm)"
-      enctype="multipart/form-data"
-      #pictureForm="ngForm"
+  <!-- Upload container -->
+  <mat-card class="upload-container">
+    <h2>Upload your pictures</h2>
+    <input
+      type="file"
+      name="file"
+      multiple
+      [accept]="'image/jpeg,image/png'"
+      (change)="onFileChange($event)"
+      [(ngModel)]="picturesToUpload"
+      
+    />
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="uploadPictures()"
+      [disabled]="this.picturesToUpload == undefined"
     >
-      <input
-        type="file"
-        class="file-button"
-        [accept]="'image/jpeg,image/png'"
-        name="file"
-        (change)="getFile($event)"
-        ngModel
-        required
-        placeholder="Please choose a file"
-      />
-      <button
-        mat-raised-button
-        color="primary"
-        type="submit"
-        [disabled]="this.pictureFileToUpload == undefined"
-      >
-        Upload
-      </button>
-      <button
-        mat-raised-button
-        color="warn"
-        (click)="cancelUpload()"
-        [hidden]="this.pictureFileToUpload == undefined"
-      >
-        Cancel
-      </button>
-    </form>
-    <app-picture-item
-      *ngIf="pictureDisplayURL != null"
-      [picture]="{ id: 0, picturePath: pictureDisplayURL }"
-    ></app-picture-item>
-  </div>
-  <!-- Uploaded Pictures -->
+      Upload
+    </button>
+    <button
+      mat-raised-button
+      color="warn"
+      (click)="cancelUpload()"
+      [disabled]="this.picturesToUpload == undefined"
+    >
+      Cancel
+    </button>
+  </mat-card>
+
+  <!-- Users pictures container -->
   <div *ngIf="usersPictures.length > 0">
     <h2>Your pictures</h2>
     <app-picture-grid-item
       *ngFor="let picture of this.usersPictures"
       [picture]="picture"
       [allowDelete]="isDeletable"
-      (onDeletePicture)="removePicture($event)"
+      (pictureDeleted)="onPictureDeleted($event)"
     />
   </div>
 </mat-card>

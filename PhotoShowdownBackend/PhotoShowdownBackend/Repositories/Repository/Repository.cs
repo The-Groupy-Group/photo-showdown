@@ -64,6 +64,11 @@ public class Repository<T> : IRepository<T> where T : class
         await _db.SaveChangesAsync();
         return entity;
     }
+    virtual public async Task CreateRangeAsync(T[] entities)
+    {
+        await _dbSet.AddRangeAsync(entities);
+        await _db.SaveChangesAsync();
+    }
     virtual public async Task<T> UpdateAsync(T entity)
     {
         _dbSet.Entry(entity).State = EntityState.Modified;

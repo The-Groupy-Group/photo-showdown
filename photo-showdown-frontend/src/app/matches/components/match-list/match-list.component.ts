@@ -13,7 +13,7 @@ import { NotifierService } from 'angular-notifier';
 })
 export class MatchListComponent implements OnInit {
   matches: Match[] = [];
-  @Output() onJoinMatch: EventEmitter<number> = new EventEmitter();
+  @Output() joinedMatch = new EventEmitter<number>();
 
   constructor(
     private readonly matchesService: MatchesService,
@@ -27,7 +27,7 @@ export class MatchListComponent implements OnInit {
   createMatch() {
     this.matchesService.createNewMatch().subscribe({
       next: (response) => {
-        this.matchJoined(response.data.id);
+        this.OnMatchJoined(response.data.id);
       },
       error: (response) => {
         this.notifier.notify('error', response.error.message);
@@ -44,7 +44,7 @@ export class MatchListComponent implements OnInit {
     });
   }
 
-  matchJoined(matchId: number) {
-    this.onJoinMatch.emit(matchId);
+  OnMatchJoined(matchId: number) {
+    this.joinedMatch.emit(matchId);
   }
 }

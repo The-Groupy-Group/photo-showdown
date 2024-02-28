@@ -40,7 +40,6 @@ namespace PhotoShowdownBackend.Services.CustomSentences
 
         public async Task<string?> FetchSentence(int matchId)
         {
-
             var customSentence = await _customSentencesRepo.GetAsync(cs => cs.MatchId == matchId);
 
             if (customSentence == null)
@@ -54,6 +53,18 @@ namespace PhotoShowdownBackend.Services.CustomSentences
                 await _customSentencesRepo.DeleteAsync(customSentence);
                 return customSentence.Sentence;
             }
+        }
+
+        public async Task SetCustomSentences(List<string> sentenes, int matchId)
+        {
+            await _customSentencesRepo.CreateRangeAsync(
+                sentenes
+                .Select(s => new CustomSentence
+                {
+                    Sentence = s,
+                    MatchId = matchId
+                })
+                .ToArray());
         }
 
         private static ConcurrentBag<string> InitDefaultSentencesForMatch()

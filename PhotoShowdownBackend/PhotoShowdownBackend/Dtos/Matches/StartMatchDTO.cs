@@ -5,7 +5,7 @@ namespace PhotoShowdownBackend.Dtos.Matches;
 public class StartMatchDTO
 {
     public int MatchId { get; set; }
-    public string[] Sentences { get; set; } = new string[0];
+    public List<string> Sentences { get; set; } = new();
     public int PictureSelectionTimeSeconds { get; set; }
     public int VoteTimeSeconds { get; set; }
     [Range(1, 100)]

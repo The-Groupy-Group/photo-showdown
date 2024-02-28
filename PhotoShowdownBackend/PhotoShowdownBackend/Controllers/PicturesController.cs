@@ -32,25 +32,37 @@ public class PicturesController : ControllerBase
     }
 
     /// <summary>
-    /// Upload a picture. Pictures can be retrived by accessing the path /pictures/{picturePath}
+    /// Upload pictures. Pictures can be retrived by accessing the path /pictures/{picturePath}
     /// </summary>
-    /// <param name="pictureFile">File containing the picture</param>
+    /// <param name="pictureFiles">A collection of files containing pictures</param>
     /// <returns></returns>
     [HttpPost]
-    [ProducesResponseType(typeof(APIResponse<PictureDTO>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(APIResponse<List<PictureDTO>>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(APIResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> UploadPicture(IFormFile pictureFile)
+    public async Task<IActionResult> UploadPicture(IFormFileCollection pictureFiles)
     {
-        var response = new APIResponse<PictureDTO>();
-
-        if (!pictureFile.ContentType.Contains("image"))
-            return BadRequest(response.ErrorResponse("Uploaded file is not a image"));
+        var response = new APIResponse<List<PictureDTO>>
+        {
+            Data = new List<PictureDTO>(pictureFiles.Count)   
+        };
 
         var currentUserId = _sessionService.GetCurrentUserId();
-        var picture = await _picturesService.UploadPicture(pictureFile, currentUserId);
 
-        response.Data = picture;
+        // Validate files are images
+        var invalidFile = pictureFiles
+            .FirstOrDefault(p => !p.ContentType.Contains("image"));
+        if (invalidFile is not null)
+        {
+            return BadRequest(response.ErrorResponse($"Uploaded file named: {invalidFile.FileName} is not a image"));
+        }
+
+        // Upload pictures
+        foreach (var pictureFile in pictureFiles)
+        {
+            var picture = await _picturesService.UploadPicture(pictureFile, currentUserId);
+            response.Data.Add(picture);
+        }
 
         return StatusCode(StatusCodes.Status201Created, response);
     }

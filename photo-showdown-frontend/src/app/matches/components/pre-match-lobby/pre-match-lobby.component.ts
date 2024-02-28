@@ -18,6 +18,7 @@ import {
 import { UserPublicDetails } from 'src/app/users/models/user-public-details.model';
 import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
 import { MatchSettings } from '../../models/match-settings.model';
+import { environment } from 'src/environments/environment';
 
 /**
  * A component that displays the pre-match lobby.
@@ -42,15 +43,15 @@ export class PreMatchLobbyComponent implements OnInit {
   };
 
   @Input({ required: true }) matchId!: number;
-  @Output() onLeaveMatch = new EventEmitter<void>();
-  @Output() onMatchStart = new EventEmitter<void>();
+  @Output() matchLeft = new EventEmitter<void>();
+  @Output() matchStarted = new EventEmitter<void>();
 
   constructor(
     private readonly matchesService: MatchesService,
     private readonly webSocketService: WebSocketService,
     private readonly notifier: NotifierService,
     private readonly cd: ChangeDetectorRef,
-    authService: AuthService,
+    authService: AuthService
   ) {
     this.userId = authService.getUserId();
   }
@@ -102,7 +103,7 @@ export class PreMatchLobbyComponent implements OnInit {
     this.webSocketService.onWebSocketEvent<EmptyWebSocketMessage>(
       WebSocketMessageType.matchStarted,
       (wsMessage) => {
-        this.onMatchStart.emit();
+        this.matchStarted.emit();
       }
     );
   }
@@ -111,8 +112,12 @@ export class PreMatchLobbyComponent implements OnInit {
     if (!this.match || !(this.match.owner.id === this.userId)) {
       return;
     }
+
+    // Split the sentences by new line and remove empty strings
     this.matchSettings.sentences =
-      this.allSentences.length > 0 ? this.allSentences.split('\n') : [];
+      this.allSentences.length > 0
+        ? this.allSentences.split('\n').filter((s) => s.length > 0)
+        : [];
 
     this.matchesService.startMatch(this.matchSettings).subscribe({
       error: (response) => {
@@ -123,12 +128,12 @@ export class PreMatchLobbyComponent implements OnInit {
 
   leaveMatch() {
     this.matchesService.leaveMatch(this.matchId).subscribe({
-      next: () => {
-        this.onLeaveMatch.emit();
-      },
       error: (response) => {
-        this.notifier.notify('error', response.error.message);
+        if(!environment.production) {
+          console.error(response.error.message);
+        }
       },
     });
+    this.matchLeft.emit();
   }
 }
