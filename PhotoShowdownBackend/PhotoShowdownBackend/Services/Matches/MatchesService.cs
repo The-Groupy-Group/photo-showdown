@@ -100,9 +100,9 @@ public class MatchesService : IMatchesService
         return matchDTO;
     }
 
-    public async Task<MatchCreationResponseDTO> CreateNewMatch(int ownerId)
+    public async Task<MatchCreationResponseDTO> CreateNewMatch(UserPublicDetailsDTO owner)
     {
-        if (await _matchConnectionsService.IsUserConnectedToMatch(ownerId))
+        if (await _matchConnectionsService.IsUserConnectedToMatch(owner.Id))
         {
             throw new UserAlreadyConnectedException();
         }
@@ -110,11 +110,13 @@ public class MatchesService : IMatchesService
         // Map the request to a Match object
         var match = new Match()
         {
-            OwnerId = ownerId
+            OwnerId = owner.Id
         };
 
         // Create the match
         await _matchesRepo.CreateAsync(match);
+
+        await AddUserToMatch(owner, match.Id);
 
         // Create the response
         var response = _mapper.Map<MatchCreationResponseDTO>(match);
