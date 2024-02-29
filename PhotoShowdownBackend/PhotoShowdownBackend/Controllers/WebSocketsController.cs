@@ -107,6 +107,12 @@ public class WebSocketsController : ControllerBase
         return StatusCode(StatusCodes.Status501NotImplemented);
     }
 
+    [HttpGet(nameof(WebSocketMessage.MessageType.RoundStateChange))]
+    public ActionResult<UserVotedToPictureWebSocketMessage> RoundStateChange()
+    {
+        return StatusCode(StatusCodes.Status501NotImplemented);
+    }
+
     // ----------------- Private functions ----------------- //
     private static bool ValidateJwtToken(string token, string secret, out int userId)
     {

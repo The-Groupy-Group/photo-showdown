@@ -43,7 +43,7 @@ Log.Logger = new LoggerConfiguration()
         "Logs\\log.txt",
         rollingInterval: RollingInterval.Day,
         restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information,
-        retainedFileCountLimit: 7)
+        retainedFileCountLimit: 3)
     .CreateLogger();
 
 builder.Host.UseSerilog();
