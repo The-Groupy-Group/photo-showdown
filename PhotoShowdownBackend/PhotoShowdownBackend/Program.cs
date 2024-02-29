@@ -219,8 +219,6 @@ app.MapControllers();
 
 app.UseWebSockets();
 
-app.UseMiddleware<WebSocketHandlerMiddleware>();
-
 app.UseRateLimiter();
 
 app.Run();

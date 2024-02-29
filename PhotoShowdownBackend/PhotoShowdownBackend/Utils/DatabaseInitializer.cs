@@ -11,16 +11,19 @@ public static class DatabaseInitializer
     public static async Task Initialize(PhotoShowdownDbContext dbContext)
     {
         // Set all Match rows to "ended"
-        foreach (var match in await dbContext.Matches.Where(m => 
-                !m.EndDate.HasValue || 
+        foreach (var match in await dbContext.Matches.Where(m =>
+                !m.EndDate.HasValue ||
                 DateTime.UtcNow < m.EndDate ||
                 m.MatchConnections.Count == 0)
-            .Include(m=> m.MatchConnections).ToListAsync())
+            .Include(m => m.MatchConnections)
+            .Include(m => m.CustomSentences)
+            .ToListAsync())
         {
-            if(!match.StartDate.HasValue)
+            if (!match.StartDate.HasValue)
                 match.StartDate = DateTime.UtcNow;
             match.EndDate = DateTime.UtcNow;
             dbContext.MatchConnections.RemoveRange(match.MatchConnections);
+            dbContext.CustomSentences.RemoveRange(match.CustomSentences);
         }
 
         await dbContext.SaveChangesAsync();

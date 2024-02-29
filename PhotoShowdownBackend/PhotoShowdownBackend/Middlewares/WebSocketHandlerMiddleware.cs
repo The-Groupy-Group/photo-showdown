@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace PhotoShowdownBackend.Middlewares;
 
-
+// DEPRECATED SWAPPED FOR WebSocketsController
 public class WebSocketHandlerMiddleware
 {
     private readonly RequestDelegate _next;

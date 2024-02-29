@@ -1,6 +1,8 @@
-﻿namespace PhotoShowdownBackend.Dtos.WebSocketMessages;
+﻿using System.ComponentModel;
 
-public class MatchStartedWebSocketMessage: WebSocketMessage
+namespace PhotoShowdownBackend.Dtos.WebSocketMessages;
+
+public class MatchStartedWebSocketMessage : WebSocketMessage
 {
     public MatchStartedWebSocketMessage() : base(MessageType.MatchStarted)
     {
