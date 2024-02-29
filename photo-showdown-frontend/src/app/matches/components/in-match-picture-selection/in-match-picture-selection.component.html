@@ -4,7 +4,7 @@
     [picture]="picture"
     class="grid-item"
     (click)="selectPicture(picture)"
-    [class.selected-picture]="picture.id === selectedPictureId"
+    [selected]="picture.id === selectedPictureId"
   ></app-picture-item>
 </div>
 <button

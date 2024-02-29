@@ -11,10 +11,6 @@
   box-sizing: border-box;
 }
 
-.selected-picture {
-  border: 2px solid blue;
-}
-
 .lock-in-button {
   margin-top: 10px;
   left: 50%;

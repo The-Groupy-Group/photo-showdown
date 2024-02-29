@@ -12,3 +12,20 @@
   object-fit: contain; /* Maintain aspect ratio and fit inside the container */
   display: block;
 }
+
+.selected-picture {
+  border: 2px solid blue;
+}
+
+.voted-picture {
+  border: 2px solid rgb(255, 8, 0);
+}
+
+.winning-picture {
+  border: 2px solid rgb(255, 251, 0);
+}
+
+.disabled-picture {
+  pointer-events: none;
+  opacity: 0.5;
+}
