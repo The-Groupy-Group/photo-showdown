@@ -71,7 +71,7 @@ public class WebSocketsController : ControllerBase
         // Accept the websocket request and add it to the web socket manager
         var socket = await context.WebSockets.AcceptWebSocketAsync();
         await _webSocketRoomManager.AddWebSocket(userId, match.Id, socket);
-        return StatusCode(1000);
+        return new EmptyResult();
     }
 
     // ----------------- Websocket messages documentation ----------------- //
