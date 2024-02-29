@@ -1,22 +1,15 @@
 <div class="in-match-container">
-  <h2>
-    Sentence:<strong> {{ this.currentRound?.sentence }}</strong>
-  </h2>
+
+  <div class="sentence-container">
+    <mat-card class="sentence-card">
+      <h2>
+        Sentence:<strong> {{ this.currentRound?.sentence }}</strong>
+      </h2>
+    </mat-card>
+  </div>
 
   <!-- Round Info Headerish thingy -->
-  <div class="round-info">
-    <!-- Players -->
-    <mat-card class="round-players">
-      <ul>
-        <li *ngFor="let player of this.match?.users">
-          <p>
-            <strong>{{ player.username }}: </strong> Score:
-            {{ score.get(player.id) }}
-          </p>
-        </li>
-      </ul></mat-card
-    >
-
+  <div class="round-info-container">
     <!-- Round Details -->
     <mat-card class="round-details">
       <h2>Current Round Details:</h2>
@@ -36,6 +29,18 @@
         Disconnect
       </button>
     </mat-card>
+
+    <!-- Players -->
+    <mat-card class="round-players">
+      <ul>
+        <li *ngFor="let player of this.match?.users">
+          <p>
+            <strong>{{ player.username }}: </strong> Score:
+            {{ score.get(player.id) }}
+          </p>
+        </li>
+      </ul></mat-card
+    >
   </div>
 
   <!-- Picture Selection or Voting -->

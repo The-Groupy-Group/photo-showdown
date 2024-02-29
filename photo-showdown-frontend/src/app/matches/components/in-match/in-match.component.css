@@ -1,8 +1,10 @@
 .in-match-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: [left] minmax(15vw, 1fr) [right] 5fr;
+  grid-template-rows: [top] 1fr [bottom] 4fr;
+  grid-template-areas:
+    "round-details sentence"
+    "round-details pictures-container";
   background-color: #f2f2f2;
   padding: 20px;
   border-radius: 5px;
@@ -10,16 +12,34 @@
   max-height: 100vh;
 }
 
-.round-info {
+.sentence-container {
+  grid-area: sentence;
   display: flex;
-  justify-content: space-between;
-  flex-direction: row;
-  width: 40%;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-width: 50%;
+}
+
+.sentence-card {
+  padding-top: 5px;
+  padding: 0px 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.round-info-container {
+  grid-area: round-details;
+  display: flex;
+  flex-direction: column;
 }
 
 .round-players {
-  width: 45%;
-  margin-bottom: 20px;
   padding: 10px;
   overflow-y: scroll;
 }
@@ -29,4 +49,8 @@
   justify-content: space-between;
   margin-bottom: 20px;
   padding: 10px;
+}
+
+.pictures-container {
+  grid-area: pictures-container;
 }

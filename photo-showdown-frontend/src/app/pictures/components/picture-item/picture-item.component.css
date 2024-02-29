@@ -2,8 +2,8 @@
   overflow: hidden;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 20vw; /* Set the width to 30% of the viewport width */
-  height: 20vw; /* Set the height to 30% of the viewport width */
+  width: 17vw; /* Set the width to 30% of the viewport width */
+  height: 17vw; /* Set the height to 30% of the viewport width */
 }
 
 .image {

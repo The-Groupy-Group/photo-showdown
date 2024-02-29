@@ -19,7 +19,7 @@
         selectedPicture.selectedByUser?.id === currentRound.roundWinner.id
       "
       [disabled]="
-        currentRound?.roundState !== RoundStates.ended &&
+        currentRound.roundState !== RoundStates.ended &&
         userPictureIds.has(selectedPicture.pictureId)
       "
     ></app-picture-item>
