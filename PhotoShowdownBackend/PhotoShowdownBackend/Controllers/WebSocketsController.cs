@@ -76,37 +76,60 @@ public class WebSocketsController : ControllerBase
 
     // ----------------- Websocket messages documentation ----------------- //
 
+    /// <summary>
+    /// A message that is sent when a new owner is selected
+    /// </summary>
+    /// <returns> New owner message </returns>
     [HttpGet(nameof(WebSocketMessage.MessageType.NewOwner))]
     public ActionResult<NewOwnerWebSocketMessage> NewOwner()
     {
         return StatusCode(StatusCodes.Status501NotImplemented);
     }
 
+    /// <summary>
+    /// A message that is sent when a match is started
+    /// </summary>
+    /// <returns></returns>
     [HttpGet(nameof(WebSocketMessage.MessageType.MatchStarted))]
     public ActionResult<MatchStartedWebSocketMessage> MatchStarted()
     {
         return StatusCode(StatusCodes.Status501NotImplemented);
     }
 
+    /// <summary>
+    /// A message that is sent when a player joins the match
+    /// </summary>
+    /// <returns></returns>
     [HttpGet(nameof(WebSocketMessage.MessageType.PlayerJoined))]
     public ActionResult<PlayerJoinedWebSocketMessage> PlayerJoined()
     {
         return StatusCode(StatusCodes.Status501NotImplemented);
     }
 
-
+    /// <summary>
+    /// A message that is sent when a player leaves the match
+    /// </summary>
+    /// <returns></returns>
     [HttpGet(nameof(WebSocketMessage.MessageType.PlayerLeft))]
     public ActionResult<PlayerLeftWebSocketMessage> PlayerLeft()
     {
         return StatusCode(StatusCodes.Status501NotImplemented);
     }
 
+    /// <summary>
+    /// A message that is sent when a player locks in
+    /// </summary>
+    /// <returns>The user id</returns>
     [HttpGet(nameof(WebSocketMessage.MessageType.UserLockedIn))]
     public ActionResult<UserLockedInWebSocketMessage> UserLockedIn()
     {
         return StatusCode(StatusCodes.Status501NotImplemented);
     }
 
+    /// <summary>
+    /// A message that is sent when the round state changes
+    /// </summary>
+    /// <returns>The intire round</returns>
     [HttpGet(nameof(WebSocketMessage.MessageType.RoundStateChange))]
     public ActionResult<RoundStateChangeWebSocketMessage> RoundStateChange()
     {

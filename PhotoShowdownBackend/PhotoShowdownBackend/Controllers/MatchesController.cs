@@ -74,7 +74,6 @@ public class MatchesController : ControllerBase
         }
         catch (UserAlreadyConnectedException ex)
         {
-            _logger.LogError(ex, $"{nameof(CreateNewMatch)} Error");
             return BadRequest(response.ErrorResponse(ex.Message));
         }
     }
