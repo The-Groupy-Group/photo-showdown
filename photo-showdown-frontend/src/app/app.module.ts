@@ -11,6 +11,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { AppRoutingModule } from './app-routing.module';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+
 import { AppComponent } from './app.component';
 import { UserRegistrationComponent } from './users/components/user-registration/user-registration.component';
 import { UserLoginComponent } from './users/components/user-login/user-login.component';
@@ -69,6 +71,7 @@ import { InMatchPicturesGridComponent } from './shared/components/in-match-pictu
     MatDialogModule,
     MatListModule,
     MatIconModule,
+    MatCheckboxModule,
   ],
   providers: [
     {

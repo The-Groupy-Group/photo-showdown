@@ -28,7 +28,7 @@ public abstract class WebSocketMessage
         NewOwner,
         MatchStarted,
         RoundStateChange,
-        UserVotedToPicture,
+        UserLockedIn,
     }
 }
 

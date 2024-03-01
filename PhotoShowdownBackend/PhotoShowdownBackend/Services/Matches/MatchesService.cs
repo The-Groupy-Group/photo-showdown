@@ -158,6 +158,7 @@ public class MatchesService : IMatchesService
         if (!(DateTime.UtcNow > match.StartDate) && isMatchEmpty)
         {
             await DeleteMatch(matchId);
+            await _webSocketRoomManager.CloseRoom(matchId);
             return;
         }
         else if (isMatchEmpty) // If the match is empty and has started, end the match
@@ -275,6 +276,9 @@ public class MatchesService : IMatchesService
             throw new MatchDidNotStartYetException();
 
         await _roundsService.SelectPicture(pictureId, matchId, roundIndex, userId);
+
+        UserLockedInWebSocketMessage userLockedInWsMessage = new(userId);
+        await _webSocketRoomManager.SendMessageToRoom(userId, match.Id, userLockedInWsMessage);
     }
 
     public async Task VoteForSelectedPicture(int roundPictureId, int matchId, int roundIndex, int userId)
@@ -285,12 +289,10 @@ public class MatchesService : IMatchesService
         if (match.StartDate == null || DateTime.UtcNow < match.StartDate)
             throw new MatchDidNotStartYetException();
 
-        PictureSelectedDTO pictureSelectedDto = await _roundsService
-            .VoteForSelectedPicture(roundPictureId, matchId, roundIndex, userId);
+        await _roundsService.VoteForSelectedPicture(roundPictureId, matchId, roundIndex, userId);
 
-        UserVotedToPictureWebSocketMessage userVotedToPictureWsMessage = new(pictureSelectedDto);
-        await _webSocketRoomManager.SendMessageToRoom(null, match.Id, userVotedToPictureWsMessage);
-
+        UserLockedInWebSocketMessage userLockedInWsMessage = new(userId);
+        await _webSocketRoomManager.SendMessageToRoom(userId, match.Id, userLockedInWsMessage);
     }
 
     // ------------ Private methods ------------ //

@@ -101,14 +101,14 @@ public class WebSocketsController : ControllerBase
         return StatusCode(StatusCodes.Status501NotImplemented);
     }
 
-    [HttpGet(nameof(WebSocketMessage.MessageType.UserVotedToPicture))]
-    public ActionResult<UserVotedToPictureWebSocketMessage> UserVotedToPicture()
+    [HttpGet(nameof(WebSocketMessage.MessageType.UserLockedIn))]
+    public ActionResult<UserLockedInWebSocketMessage> UserLockedIn()
     {
         return StatusCode(StatusCodes.Status501NotImplemented);
     }
 
     [HttpGet(nameof(WebSocketMessage.MessageType.RoundStateChange))]
-    public ActionResult<UserVotedToPictureWebSocketMessage> RoundStateChange()
+    public ActionResult<RoundStateChangeWebSocketMessage> RoundStateChange()
     {
         return StatusCode(StatusCodes.Status501NotImplemented);
     }

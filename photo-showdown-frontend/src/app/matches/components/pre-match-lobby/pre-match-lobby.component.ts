@@ -128,12 +128,14 @@ export class PreMatchLobbyComponent implements OnInit {
 
   leaveMatch() {
     this.matchesService.leaveMatch(this.matchId).subscribe({
+      next: () => {
+        this.matchLeft.emit();
+      },
       error: (response) => {
         if(!environment.production) {
           console.error(response.error.message);
         }
       },
     });
-    this.matchLeft.emit();
   }
 }

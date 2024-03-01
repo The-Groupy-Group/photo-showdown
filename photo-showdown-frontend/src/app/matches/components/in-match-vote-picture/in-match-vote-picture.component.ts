@@ -13,13 +13,14 @@ import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
   styleUrls: ['./in-match-vote-picture.component.css'],
 })
 export class InMatchVotePictureComponent {
-  votedPictureId: number = 0;
+  votedPictureId?: number;
   userId: number;
   lockedIn = false;
 
   @Input() picturesToVote: PictureSelected[] = [];
   @Input() userPictureIds = new Set<number>();
   @Input({ required: true }) currentRound!: Round;
+  @Output() lockedInPicture = new EventEmitter<void>();
 
   readonly RoundStates = RoundStates;
 
@@ -45,11 +46,12 @@ export class InMatchVotePictureComponent {
 
   lockIn() {
     // Cant vote if no picture was selected
-    if (this.votedPictureId === 0) {
+    if (this.votedPictureId === undefined) {
       return;
     }
 
     this.lockedIn = true;
+    this.lockedInPicture.emit();
     this.matchesService
       .voteForPicture(
         this.currentRound!.matchId,

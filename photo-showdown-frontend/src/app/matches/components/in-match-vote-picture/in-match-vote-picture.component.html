@@ -13,7 +13,8 @@
       class="grid-item"
       [picture]="selectedPicture"
       (click)="selectPicture(selectedPicture)"
-      [voted]="selectedPicture.id === votedPictureId"
+      [voted]="selectedPicture.id === votedPictureId &&
+        currentRound.roundState === RoundStates.voting"
       [winning]="
         currentRound.roundWinner != undefined &&
         selectedPicture.selectedByUser?.id === currentRound.roundWinner.id

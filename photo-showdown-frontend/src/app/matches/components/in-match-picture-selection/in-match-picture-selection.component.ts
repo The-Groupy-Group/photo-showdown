@@ -17,6 +17,7 @@ export class InMatchPictureSelectionComponent {
 
   @Input() pictures: Picture[] = [];
   @Input() currentRound!: Round;
+  @Output() lockedInPicture = new EventEmitter<void>();
 
   constructor(private readonly matchesService: MatchesService) {}
 
@@ -28,12 +29,16 @@ export class InMatchPictureSelectionComponent {
   }
 
   lockIn() {
+    if (this.selectedPictureId === undefined) {
+      return;
+    }
     this.lockedIn = true;
+    this.lockedInPicture.emit();
     this.matchesService
       .selectPictureForRound(
         this.currentRound!.matchId,
         this.currentRound!.roundIndex,
-        this.selectedPictureId!
+        this.selectedPictureId
       )
       .subscribe();
   }
