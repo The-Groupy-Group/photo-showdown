@@ -64,7 +64,7 @@ public class MatchesController : ControllerBase
         try
         {
             int ownerId = _sessionService.GetCurrentUserId();
-            UserPublicDetailsDTO owner = await _usersService.GetUserPublicDetails(ownerId);
+            UserInMatchDTO owner = await _usersService.GetUserPublicDetails(ownerId);
 
             var newMatchDetails = await _matchesService.CreateNewMatch(owner);
 
@@ -130,7 +130,7 @@ public class MatchesController : ControllerBase
         try
         {
             int userId = _sessionService.GetCurrentUserId();
-            UserPublicDetailsDTO user = await _usersService.GetUserPublicDetails(userId);
+            UserInMatchDTO user = await _usersService.GetUserPublicDetails(userId);
 
             if (!await _usersService.DoesUserExist(userId))
             {
@@ -165,7 +165,7 @@ public class MatchesController : ControllerBase
         try
         {
             int userId = _sessionService.GetCurrentUserId();
-            UserPublicDetailsDTO user = await _usersService.GetUserPublicDetails(userId);
+            UserInMatchDTO user = await _usersService.GetUserPublicDetails(userId);
 
             await _matchesService.RemoveUserFromMatch(user, matchId);
 

@@ -11,6 +11,6 @@ public interface IUsersService
     Task<RegisterationResponseDTO> CreateUser(RegisterationRequestDTO registerationRequest);
     Task<LoginResponseDTO> Login(LoginRequestDTO loginRequest);
     Task<UserDTO> GetUser(int id);
-    Task<UserPublicDetailsDTO> GetUserPublicDetails(int id);
+    Task<UserInMatchDTO> GetUserPublicDetails(int id);
     Task<bool> DoesUserExist(int userId);
 }

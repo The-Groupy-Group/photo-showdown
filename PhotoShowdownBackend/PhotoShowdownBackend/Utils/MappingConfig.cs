@@ -21,7 +21,7 @@ public class MappingConfig : Profile
         // Users
         CreateMap<RegisterationRequestDTO, User>();
         CreateMap<UserDTO, User>().ReverseMap();
-        CreateMap<UserPublicDetailsDTO, User>().ReverseMap();
+        CreateMap<UserInMatchDTO, User>().ReverseMap();
 
         // Pictures
         CreateMap<Picture, PictureDTO>();

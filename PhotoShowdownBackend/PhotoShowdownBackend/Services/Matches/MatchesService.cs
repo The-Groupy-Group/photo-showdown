@@ -101,7 +101,7 @@ public class MatchesService : IMatchesService
         return matchDTO;
     }
 
-    public async Task<MatchCreationResponseDTO> CreateNewMatch(UserPublicDetailsDTO owner)
+    public async Task<MatchCreationResponseDTO> CreateNewMatch(UserInMatchDTO owner)
     {
         if (await _matchConnectionsService.IsUserConnectedToMatch(owner.Id))
         {
@@ -125,7 +125,7 @@ public class MatchesService : IMatchesService
         return response;
     }
 
-    public async Task AddUserToMatch(UserPublicDetailsDTO user, int matchId)
+    public async Task AddUserToMatch(UserInMatchDTO user, int matchId)
     {
         if (!await DoesMatchExists(matchId))
         {
@@ -148,7 +148,7 @@ public class MatchesService : IMatchesService
         await _webSocketRoomManager.SendMessageToRoom(user.Id, matchId, wsMessage);
     }
 
-    public async Task RemoveUserFromMatch(UserPublicDetailsDTO userToRemove, int matchId)
+    public async Task RemoveUserFromMatch(UserInMatchDTO userToRemove, int matchId)
     {
         // Delete the connection
         await _matchConnectionsService.DeleteMatchConnection(userToRemove.Id, matchId);
@@ -182,7 +182,7 @@ public class MatchesService : IMatchesService
             await _matchesRepo.UpdateAsync(match);
 
             // Send a message to the room
-            var newOwnerWsMessage = new NewOwnerWebSocketMessage(_mapper.Map<UserPublicDetailsDTO>(newOwner));
+            var newOwnerWsMessage = new NewOwnerWebSocketMessage(_mapper.Map<UserInMatchDTO>(newOwner));
             await _webSocketRoomManager.SendMessageToRoom(userToRemove.Id, matchId, newOwnerWsMessage);
         }
     }
