@@ -162,9 +162,10 @@ public class WebSocketRoomManager
     }
     private WebSocket? RemoveSocketFromRoom(int userId, int matchId)
     {
+        _logger.LogInformation("Removing web socket for user {userId} from match {matchId}", userId, matchId);
         if (!_chatRooms.TryGetValue(matchId, out WebSocketRoom? room) || room == null)
         {
-            _logger.LogWarning("RemoveSocketFromRoom FAIL, Web socket room with id {matchId} not found", matchId);
+            _logger.LogWarning("RemoveSocketFromRoom FAIL, Web socket room with id {matchId} not found for user {userId}", matchId, userId);
             return null;
         }
         room.ConnectedUsers.TryRemove(userId, out WebSocket? socket);
