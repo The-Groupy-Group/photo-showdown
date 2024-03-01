@@ -36,14 +36,18 @@ var builder = WebApplication.CreateBuilder(args);
 Directory.CreateDirectory(Path.Combine(builder.Environment.ContentRootPath, "wwwroot", SystemSettings.PicturesFolderName));
 
 // Add Serilog
+string outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}\n";
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
-    .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
+    .WriteTo.Console(
+        restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information,
+        outputTemplate: outputTemplate)
     .WriteTo.File(
         "Logs\\log.txt",
+        outputTemplate: outputTemplate,
         rollingInterval: RollingInterval.Day,
         restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information,
-        retainedFileCountLimit: 7)
+        retainedFileCountLimit: 3)
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -141,7 +145,7 @@ builder.Services.AddSwaggerGen(options =>
             new OpenApiInfo
             {
                 Title = "Donfil API",
-                Version = "0.3.0"
+                Version = "0.4.0"
             });
 
     // Add JWT support for swagger
@@ -218,8 +222,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.UseWebSockets();
-
-app.UseMiddleware<WebSocketHandlerMiddleware>();
 
 app.UseRateLimiter();
 

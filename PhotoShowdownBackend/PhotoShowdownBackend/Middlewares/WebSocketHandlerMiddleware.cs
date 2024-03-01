@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace PhotoShowdownBackend.Middlewares;
 
-
+// DEPRECATED SWAPPED FOR WebSocketsController
 public class WebSocketHandlerMiddleware
 {
     private readonly RequestDelegate _next;
@@ -58,9 +58,7 @@ public class WebSocketHandlerMiddleware
 
         // Accept the websocket request and add it to the web socket manager
         var socket = await context.WebSockets.AcceptWebSocketAsync();
-        webSocketManager.AddWebSocket(userId, match.Id, socket);
-
-        await webSocketManager.HandleWebSocket(socket, userId, match.Id);
+        await webSocketManager.AddWebSocket(userId, match.Id, socket);
     }
 
     private static bool ValidateJwtToken(string token, string secret, out int userId)

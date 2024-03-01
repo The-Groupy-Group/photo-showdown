@@ -1,33 +1,13 @@
-.pictures-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 16px;
-  overflow-y: scroll;
-  height: 54vh; /* Stretched to the bottom of the screen */
-}
-
 .grid-item {
   width: 100%;
   box-sizing: border-box;
+  gap: 16px;
 }
 
 .picture-info {
   display: flex;
   justify-content: space-between;
   flex-direction: row;
-}
-
-.voted-picture {
-  border: 2px solid rgb(255, 8, 0);
-}
-
-.winning-picture {
-  border: 3px solid rgb(255, 251, 0);
-}
-
-.disabled-picture {
-  pointer-events: none;
-  opacity: 0.5;
 }
 
 .lock-in-button {

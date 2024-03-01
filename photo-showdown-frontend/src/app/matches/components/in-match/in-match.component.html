@@ -1,21 +1,15 @@
 <div class="in-match-container">
-  <h2>
-    Sentence:<strong> {{ this.currentRound?.sentence }}</strong>
-  </h2>
 
-  <!-- Round Info -->
-  <div class="round-info">
+  <div class="sentence-container">
+    <mat-card class="sentence-card">
+      <h2>
+        Sentence:<strong> {{ this.currentRound?.sentence }}</strong>
+      </h2>
+    </mat-card>
+  </div>
 
-    <!-- Players -->
-    <mat-card class="round-players">
-      <ul>
-        <li *ngFor="let player of this.match?.users">
-          <p><strong>{{ player.username }}: </strong>
-          Score: {{ score.get(player.id) }}</p>
-        </li>
-      </ul></mat-card
-    >
-
+  <!-- Round Info Headerish thingy -->
+  <div class="round-info-container">
     <!-- Round Details -->
     <mat-card class="round-details">
       <h2>Current Round Details:</h2>
@@ -35,26 +29,40 @@
         Disconnect
       </button>
     </mat-card>
+
+    <!-- Players -->
+    <mat-card class="round-players">
+      <ul>
+        <li *ngFor="let player of this.match?.users">
+          <p>
+            <strong>{{ player.username }}: </strong> Score:
+            {{ score.get(player.id) }}
+          </p>
+        </li>
+      </ul></mat-card
+    >
   </div>
 
+  <!-- Picture Selection or Voting -->
+  <div>
+    <app-in-match-picture-selection
+      *ngIf="
+        currentRound?.roundState === RoundStates.pictureSelection &&
+        this.currentRound != undefined
+      "
+      [pictures]="this.usersPictures"
+      [currentRound]="this.currentRound"
+    ></app-in-match-picture-selection>
 
-  <app-in-match-picture-selection
-    *ngIf="
-      currentRound?.roundState === RoundStates.pictureSelection &&
-      this.currentRound != undefined
-    "
-    [pictures]="this.usersPictures"
-    [currentRound]="this.currentRound"
-  ></app-in-match-picture-selection>
-
-  <app-in-match-vote-picture
-    *ngIf="
-      (currentRound?.roundState === RoundStates.voting ||
-        currentRound?.roundState === RoundStates.ended) &&
-      this.currentRound != undefined
-    "
-    [picturesToVote]="this.currentRound!.picturesSelected"
-    [userPictureIds]="this.userPictureIds"
-    [currentRound]="this.currentRound"
-  ></app-in-match-vote-picture>
+    <app-in-match-vote-picture
+      *ngIf="
+        (currentRound?.roundState === RoundStates.voting ||
+          currentRound?.roundState === RoundStates.ended) &&
+        this.currentRound != undefined
+      "
+      [picturesToVote]="this.currentRound!.picturesSelected"
+      [userPictureIds]="this.userPictureIds"
+      [currentRound]="this.currentRound"
+    ></app-in-match-vote-picture>
+  </div>
 </div>

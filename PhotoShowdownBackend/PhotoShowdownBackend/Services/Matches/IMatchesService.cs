@@ -11,7 +11,7 @@ namespace PhotoShowdownBackend.Services.Matches;
 /// </summary>
 public interface IMatchesService
 {
-    Task<MatchCreationResponseDTO> CreateNewMatch(int ownerId);
+    Task<MatchCreationResponseDTO> CreateNewMatch(UserPublicDetailsDTO ownerId);
     Task<List<MatchDTO>> GetAllMatches(MatchStates? state);
     Task<MatchDTO> GetMatchById(int matchId);
     Task AddUserToMatch(UserPublicDetailsDTO user, int matchId);

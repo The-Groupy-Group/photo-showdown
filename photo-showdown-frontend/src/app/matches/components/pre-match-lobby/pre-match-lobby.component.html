@@ -95,6 +95,7 @@
         <div class="form-group">
           <mat-form-field>
             <label for="numOfVotesToWin">Number of Votes to Win</label>
+            (this doesn't work)
             <input
               type="number"
               id="numOfVotesToWin"
@@ -125,6 +126,7 @@
               name="numOfRounds"
               #numOfRounds="ngModel"
               ngModel
+              [(ngModel)]="matchSettings.numOfRounds"
             />
             <mat-error
               *ngIf="

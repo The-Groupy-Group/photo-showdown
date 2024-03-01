@@ -1,4 +1,5 @@
-﻿using PhotoShowdownBackend.Dtos;
+﻿using Microsoft.AspNetCore.Http;
+using PhotoShowdownBackend.Dtos;
 using PhotoShowdownBackend.Exceptions;
 using PhotoShowdownBackend.Extentions;
 using System.Collections.Concurrent;
@@ -25,32 +26,6 @@ public class WebSocketRoomManager
 
     // --------------- Public methods --------------- //
 
-    /// <summary>
-    /// Handles the web socket connection
-    /// </summary>
-    /// <param name="webSocket"></param>
-    /// <param name="userId"></param>
-    /// <param name="matchId"></param>
-    /// <returns></returns>
-    public async Task HandleWebSocket(WebSocket webSocket, int userId, int matchId)
-    {
-        // Handle the web socket
-        while (webSocket.State == WebSocketState.Open)
-        {
-            var buffer = new ArraySegment<byte>(new byte[1024]);
-            var result = await webSocket.ReceiveAsync(buffer, CancellationToken.None);
-            if (result.MessageType == WebSocketMessageType.Text)
-            {
-                var message = Encoding.UTF8.GetString(buffer.Array!, 0, result.Count);
-
-                await webSocket.SendMessageAsync(JsonSerializer.Serialize("Echo: " + message));
-            }
-            if (result.MessageType == WebSocketMessageType.Close)
-            {
-                RemoveSocketFromRoom(userId, matchId);
-            }
-        }
-    }
 
     /// <summary>
     /// Adds a web socket to the room
@@ -58,16 +33,31 @@ public class WebSocketRoomManager
     /// <param name="userId"></param>
     /// <param name="matchId"></param>
     /// <param name="socket"></param>
-    public void AddWebSocket(int userId, int matchId, WebSocket socket)
+    public async Task AddWebSocket(int userId, int matchId, WebSocket socket)
     {
+        _logger.LogInformation("Adding web socket for user {userId} to match {matchId}", userId, matchId);
+
         WebSocketRoom room = GetOrCreateRoom(matchId);
 
-        if (!room.ConnectedUsers.TryAdd(userId, socket))
+        // Add the socket to the room, if a existing socket is already connected, close it
+        if (room.ConnectedUsers.TryGetValue(userId, out WebSocket? existingSocket))
         {
-            _logger.LogWarning("Failed to add web socket for user {userId} to match {matchId}", userId, matchId);
+            _logger.LogWarning("Web socket for user {userId} in match {matchId} already exists, closing the existing socket", userId, matchId);
+            await existingSocket.CloseConnection();
         }
+        room.ConnectedUsers[userId] = socket;
 
-        _logger.LogInformation("Adding web socket for user {userId} to match {matchId}", userId, matchId);
+        await HandleWebSocket(socket, userId, matchId);
+
+        // Refuse to add the socket if it already exists method
+        //if (!room.ConnectedUsers.TryAdd(userId, socket))
+        //{
+        //    _logger.LogWarning("Failed to add web socket for user {userId} to match {matchId} because it already exists", userId, matchId);
+        //}
+        //else
+        //{
+        //    await HandleWebSocket(socket, userId, matchId);
+        //}
     }
 
     /// <summary>
@@ -119,6 +109,53 @@ public class WebSocketRoomManager
         _chatRooms.TryRemove(matchId, out _);
     }
     // --------------- Private methods --------------- //
+
+    /// <summary>
+    /// Handles the web socket connection
+    /// </summary>
+    /// <param name="webSocket"></param>
+    /// <param name="userId"></param>
+    /// <param name="matchId"></param>
+    /// <returns></returns>
+    private async Task HandleWebSocket(WebSocket webSocket, int userId, int matchId)
+    {
+        // Handle the web socket
+        try
+        {
+            while (webSocket.State == WebSocketState.Open)
+            {
+                var buffer = new ArraySegment<byte>(new byte[1024]);
+                var result = await webSocket.ReceiveAsync(buffer, CancellationToken.None);
+                if (result.MessageType == WebSocketMessageType.Text)
+                {
+                    _logger.LogInformation("Received web socket message from user {userId} in match {matchId}", userId, matchId);
+
+                    var message = Encoding.UTF8.GetString(buffer.Array!, 0, result.Count);
+
+                    await webSocket.SendMessageAsync(JsonSerializer.Serialize("Echo: " + message));
+                }
+                else if (result.MessageType == WebSocketMessageType.Binary)
+                {
+                    _logger.LogWarning("Received binary web socket message from user {userId} in match {matchId}", userId, matchId);
+
+                    var message = Encoding.UTF8.GetString(buffer.Array!, 0, result.Count);
+
+                    await webSocket.SendMessageAsync(JsonSerializer.Serialize("Echo: " + message));
+                }
+                else if (result.MessageType == WebSocketMessageType.Close)
+                {
+                    _logger.LogInformation("Received web socket close message from user {userId} in match {matchId}", userId, matchId);
+
+                    RemoveSocketFromRoom(userId, matchId);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to handle web socket connection for user {userId}", userId);
+            RemoveSocketFromRoom(userId, matchId);
+        }
+    }
     private WebSocketRoom GetOrCreateRoom(int matchId)
     {
         return _chatRooms.GetOrAdd(matchId, id => new WebSocketRoom(id));

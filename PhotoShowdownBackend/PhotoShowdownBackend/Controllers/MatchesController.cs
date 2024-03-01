@@ -66,8 +66,7 @@ public class MatchesController : ControllerBase
             int ownerId = _sessionService.GetCurrentUserId();
             UserPublicDetailsDTO owner = await _usersService.GetUserPublicDetails(ownerId);
 
-            var newMatchDetails = await _matchesService.CreateNewMatch(ownerId);
-            await _matchesService.AddUserToMatch(owner, newMatchDetails.Id);
+            var newMatchDetails = await _matchesService.CreateNewMatch(owner);
 
             response.Data = newMatchDetails;
 

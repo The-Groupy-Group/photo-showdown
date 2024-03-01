@@ -31,6 +31,7 @@ import { PictureItemComponent } from './pictures/components/picture-item/picture
 import { InMatchPictureSelectionComponent } from './matches/components/in-match-picture-selection/in-match-picture-selection.component';
 import { InMatchVotePictureComponent } from './matches/components/in-match-vote-picture/in-match-vote-picture.component';
 import { ButtonSingleUseComponent } from './shared/components/button-single-use/button-single-use.component';
+import { InMatchPicturesGridComponent } from './shared/components/in-match-pictures-grid/in-match-pictures-grid.component';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { ButtonSingleUseComponent } from './shared/components/button-single-use/
     InMatchPictureSelectionComponent,
     InMatchVotePictureComponent,
     ButtonSingleUseComponent,
+    InMatchPicturesGridComponent,
   ],
   imports: [
     BrowserModule,

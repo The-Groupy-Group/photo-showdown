@@ -1,16 +1,31 @@
-/* image.component.css */
 .image-container {
-    overflow: hidden;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 20vw; /* Set the width to 30% of the viewport width */
-    height: 20vw; /* Set the height to 30% of the viewport width */
-  }
-  
-  .image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain; /* Maintain aspect ratio and fit inside the container */
-    display: block;
-  }
-  
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 17vw; /* Set the width to 30% of the viewport width */
+  height: 17vw; /* Set the height to 30% of the viewport width */
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Maintain aspect ratio and fit inside the container */
+  display: block;
+}
+
+.selected-picture {
+  border: 2px solid blue;
+}
+
+.voted-picture {
+  border: 2px solid rgb(255, 8, 0);
+}
+
+.winning-picture {
+  border: 2px solid rgb(255, 251, 0);
+}
+
+.disabled-picture {
+  pointer-events: none;
+  opacity: 0.5;
+}

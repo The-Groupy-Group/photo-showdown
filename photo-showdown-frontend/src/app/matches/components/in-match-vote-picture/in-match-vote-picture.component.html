@@ -1,5 +1,5 @@
-<div class="pictures-grid">
-  <div *ngFor="let selectedPicture of picturesToVote" class="grid-item">
+<app-in-match-pictures-grid>
+  <div *ngFor="let selectedPicture of picturesToVote">
     <p
       class="picture-info"
       *ngIf="currentRound?.roundState === RoundStates.ended"
@@ -10,17 +10,21 @@
       <strong>Votes: {{ selectedPicture.numOfVotes }}</strong>
     </p>
     <app-picture-item
+      class="grid-item"
       [picture]="selectedPicture"
       (click)="selectPicture(selectedPicture)"
-      [class.voted-picture]="selectedPicture.id === votedPictureId"
-      [class.disabled-picture]="userPictureIds.has(selectedPicture.pictureId)"
-      [class.winning-picture]="
+      [voted]="selectedPicture.id === votedPictureId"
+      [winning]="
         currentRound.roundWinner != undefined &&
         selectedPicture.selectedByUser?.id === currentRound.roundWinner.id
       "
+      [disabled]="
+        currentRound.roundState !== RoundStates.ended &&
+        userPictureIds.has(selectedPicture.pictureId)
+      "
     ></app-picture-item>
   </div>
-</div>
+</app-in-match-pictures-grid>
 <button
   class="lock-in-button"
   mat-raised-button

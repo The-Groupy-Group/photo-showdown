@@ -9,4 +9,8 @@ import { PictureSelected } from '../../models/picture-selected.model';
 })
 export class PictureItemComponent {
   @Input() picture!: Picture | PictureSelected;
+  @Input() selected: boolean = false;
+  @Input() voted: boolean = false;
+  @Input() winning: boolean = false;
+  @Input() disabled: boolean = false;
 }

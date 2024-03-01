@@ -49,11 +49,6 @@ export class WebSocketService {
           console.error('WebSocket error: ', error);
         }
       },
-      complete: () => {
-        if (!environment.production) {
-          console.log('WebSocket connection closed by the server');
-        }
-      },
     });
   }
 

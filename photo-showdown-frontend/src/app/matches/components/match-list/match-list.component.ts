@@ -27,7 +27,7 @@ export class MatchListComponent implements OnInit {
   createMatch() {
     this.matchesService.createNewMatch().subscribe({
       next: (response) => {
-        this.OnMatchJoined(response.data.id);
+        this.onMatchJoined(response.data.id);
       },
       error: (response) => {
         this.notifier.notify('error', response.error.message);
@@ -44,7 +44,7 @@ export class MatchListComponent implements OnInit {
     });
   }
 
-  OnMatchJoined(matchId: number) {
+  onMatchJoined(matchId: number) {
     this.joinedMatch.emit(matchId);
   }
 }
