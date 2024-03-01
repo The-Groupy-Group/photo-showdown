@@ -97,6 +97,7 @@ public class MatchesService : IMatchesService
         }
         Match? match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId, tracked: false))!;
         MatchDTO matchDTO = _mapper.Map<MatchDTO>(match);
+        matchDTO.Round = await _roundsService.GetCurrentRound(matchId.Value);
         return matchDTO;
     }
 
