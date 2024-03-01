@@ -305,7 +305,7 @@ public class MatchesService : IMatchesService
         {
 
             int roundIndex = 0;
-            while (!(match.NumOfRounds == roundIndex + 1/* || match.NumOfVotesToWin == userWithMaxVotes*/)) // Check winning condition
+            while (!(match.NumOfRounds == roundIndex/* || match.NumOfVotesToWin == userWithMaxVotes*/)) // Check winning condition
             {
                 // ------- Start a new round ------- //
                 RoundDTO roundDto;
