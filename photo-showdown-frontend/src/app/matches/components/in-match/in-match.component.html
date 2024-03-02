@@ -46,8 +46,9 @@
     ></mat-card>
   </div>
 
-  <!-- Picture Selection or Voting -->
+  <!-- Match Pictures screen (selection / voting) -->
   <div>
+    <!-- Picture Selection -->
     <app-in-match-picture-selection
       *ngIf="
         match?.currentRound?.roundState === RoundStates.pictureSelection &&
@@ -58,6 +59,7 @@
       (lockedInPicture)="onLockedInPicture()"
     ></app-in-match-picture-selection>
 
+    <!-- Picture Voting -->
     <app-in-match-vote-picture
       *ngIf="
         (match?.currentRound?.roundState === RoundStates.voting ||
