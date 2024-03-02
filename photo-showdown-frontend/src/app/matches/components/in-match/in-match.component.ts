@@ -34,13 +34,12 @@ import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
 })
 export class InMatchComponent {
   match?: Match;
-  currentRound?: Round;
   usersPictures: Picture[] = [];
   userPictureIds: Set<number> = new Set();
   selectedPicture?: Picture;
   countdown$?: Observable<number>;
-  score = new Map<number, number>(); // TODO: https://groupy-group.atlassian.net/browse/PHSH-153
-  lockedInUserIds: Set<number> = new Set();
+  score = new Map<number, number>(); // TODO: https://groupy-group.atlassian.net/browse/PHSH-153 (score should only be received from the server)
+  lockedInUserIds: Set<number> = new Set(); // TODO: https://groupy-group.atlassian.net/browse/PHSH-153 (lock ins should only be received from the server)
   userId: number = 0;
 
   @Input({ required: true }) matchId!: number;
@@ -76,7 +75,6 @@ export class InMatchComponent {
         .getCurrentRound(this.matchId)
         .subscribe((response) => {
           this.handleRoundStateChange(response.data);
-          this.match!.currentRound = this.currentRound;
           this.cd.detectChanges();
         });
 
@@ -174,7 +172,7 @@ export class InMatchComponent {
       picture.picturePath = UrlUtils.getPictureURL(picture.picturePath);
     });
 
-    this.currentRound = round;
+    this.match!.currentRound = round;
 
     // Reset locked in user ids
     this.lockedInUserIds.clear();
