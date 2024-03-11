@@ -40,6 +40,9 @@ export interface RoundStateChangeWSMessage extends WebSocketMessage<Round> {
 export interface UserLockedInWSMessage extends WebSocketMessage<number> {
   type: WebSocketMessageType.userLockedIn;
 }
+export interface MatchEndedWSMessage extends EmptyWebSocketMessage {
+  type: WebSocketMessageType.matchEnded;
+}
 
 /**
  * This enum represents the different types of messages that can be sent over a WebSocket connection.
@@ -51,4 +54,5 @@ export enum WebSocketMessageType {
   matchStarted = 'matchStarted',
   roundStateChange = 'roundStateChange',
   userLockedIn = 'userLockedIn',
+  matchEnded = 'matchEnded',
 }

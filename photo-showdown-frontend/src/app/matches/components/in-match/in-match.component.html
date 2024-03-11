@@ -1,5 +1,5 @@
 <div class="in-match-container">
-  <div class="sentence-container">
+  <div class="sentence-container" *ngIf="match?.matchState!=MatchStates.ended">
     <mat-card class="sentence-card">
       <h2>
         Sentence:<strong> {{ match?.currentRound?.sentence }}</strong>
@@ -47,7 +47,7 @@
   </div>
 
   <!-- Match Pictures screen (selection / voting) -->
-  <div>
+  <div *ngIf="match?.matchState!=MatchStates.ended">
     <!-- Picture Selection -->
     <app-in-match-picture-selection
       *ngIf="
@@ -72,4 +72,13 @@
       (lockedInPicture)="onLockedInPicture()"
     ></app-in-match-vote-picture>
   </div>
+  <!-- Summary Screen-->
+  <app-in-match-summary-screen
+  *ngIf="
+  (match?.matchState==MatchStates.ended)
+  "
+  [users]="match!.users"
+  [score]="score"
+
+  ></app-in-match-summary-screen>
 </div>

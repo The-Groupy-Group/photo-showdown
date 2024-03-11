@@ -34,6 +34,7 @@ import { InMatchPictureSelectionComponent } from './matches/components/in-match-
 import { InMatchVotePictureComponent } from './matches/components/in-match-vote-picture/in-match-vote-picture.component';
 import { ButtonSingleUseComponent } from './shared/components/button-single-use/button-single-use.component';
 import { InMatchPicturesGridComponent } from './shared/components/in-match-pictures-grid/in-match-pictures-grid.component';
+import { InMatchSummaryScreenComponent } from './matches/components/in-match-summary-screen/in-match-summary-screen.component';
 
 @NgModule({
   declarations: [
@@ -54,6 +55,7 @@ import { InMatchPicturesGridComponent } from './shared/components/in-match-pictu
     InMatchVotePictureComponent,
     ButtonSingleUseComponent,
     InMatchPicturesGridComponent,
+    InMatchSummaryScreenComponent,
   ],
   imports: [
     BrowserModule,

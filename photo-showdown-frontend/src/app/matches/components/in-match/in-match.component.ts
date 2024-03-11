@@ -10,6 +10,7 @@ import { WebSocketService } from '../../services/web-socket.service';
 import { NotifierService } from 'angular-notifier';
 import { MatchesService } from '../../services/matches.service';
 import {
+  MatchEndedWSMessage,
   WebSocketMessage,
   WebSocketMessageType,
 } from '../../models/web-socket-message.model';
@@ -18,7 +19,7 @@ import { Picture } from 'src/app/pictures/models/picture.model';
 import { DateTimeUtils } from 'src/app/shared/utils/date-time-utils';
 import { Observable, timer, map, takeWhile } from 'rxjs';
 import { UrlUtils } from 'src/app/shared/utils/url-utils';
-import { Match } from '../../models/match.model';
+import { Match, MatchStates } from '../../models/match.model';
 import { UserPublicDetails } from 'src/app/users/models/user-public-details.model';
 import { environment } from 'src/environments/environment';
 import { PictureSelected } from 'src/app/pictures/models/picture-selected.model';
@@ -46,7 +47,7 @@ export class InMatchComponent {
   @Output() matchLeft = new EventEmitter<void>();
 
   readonly RoundStates = RoundStates;
-
+  readonly MatchStates = MatchStates;
   constructor(
     private readonly webSocketService: WebSocketService,
     private readonly matchesService: MatchesService,
@@ -58,7 +59,8 @@ export class InMatchComponent {
     this.userId = authService.getUserId();
   }
 
-  ngOnInit() {
+  ngOnInit()
+  {
     // Get all pictures for the current user
     this.picturesService.getMyPictures().subscribe((response) => {
       this.usersPictures = response.data;
@@ -115,6 +117,14 @@ export class InMatchComponent {
         this.cd.detectChanges();
       }
     );
+
+    this.webSocketService.onWebSocketEvent<MatchEndedWSMessage>(
+      WebSocketMessageType.matchEnded,
+      (wsMessage) => {
+        this.match!.matchState=MatchStates.ended;
+      }
+    )
+
   }
 
   leaveMatch() {
