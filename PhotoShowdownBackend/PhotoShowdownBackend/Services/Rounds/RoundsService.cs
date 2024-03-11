@@ -119,7 +119,7 @@ public class RoundsService : IRoundsService
         await _roundPicturesRepository.CreateAsync(roundPicture);
     }
 
-    public async Task<PictureSelectedDTO> VoteForSelectedPicture(int roundPictureId, int matchId, int roundIndex, int userId)
+    public async Task VoteForSelectedPicture(int roundPictureId, int matchId, int roundIndex, int userId)
     {
         bool isRoundInVotingState = await _roundsRepo
             .AnyAsync(r =>
@@ -139,13 +139,6 @@ public class RoundsService : IRoundsService
         };
 
         await _roundVotesRepository.CreateAsync(roundVote);
-
-        PictureSelectedDTO pictureSelectedDto = await _roundPicturesRepository.GetAsync(
-            filter: rp => rp.Id == roundPictureId,
-            map: rp => _mapper.Map<PictureSelectedDTO>(rp)) ??
-            throw new NotFoundException("Invalid round picture id");
-
-        return pictureSelectedDto;
     }
 
     private static int? CalculateRoundWinner(Round round)

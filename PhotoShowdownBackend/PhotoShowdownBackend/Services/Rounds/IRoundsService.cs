@@ -9,6 +9,6 @@ public interface IRoundsService
     Task<RoundDTO> EndRound(int matchId, int roundIndex);
     Task<RoundDTO> GetCurrentRound(int matchId);
     Task SelectPicture(int pictureId, int matchId, int roundIndex, int userId);
-    Task<PictureSelectedDTO> VoteForSelectedPicture(int roundPictureId, int matchId, int roundIndex, int userId);
+    Task VoteForSelectedPicture(int roundPictureId, int matchId, int roundIndex, int userId);
     Task<RoundDTO> StartVotePhase(int matchId, int roundIndex);
 }

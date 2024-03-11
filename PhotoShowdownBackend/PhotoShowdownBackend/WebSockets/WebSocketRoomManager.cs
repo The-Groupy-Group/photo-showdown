@@ -93,7 +93,7 @@ public class WebSocketRoomManager
     public async Task RemoveSocket(int userId, int matchId)
     {
         WebSocket? socket = RemoveSocketFromRoom(userId, matchId);
-        if (socket != null)
+        if (socket != null && socket.State == WebSocketState.Open)
         {
             await socket.CloseConnection();
         }
@@ -101,12 +101,14 @@ public class WebSocketRoomManager
 
     public async Task CloseRoom(int matchId)
     {
-        var room = GetOrCreateRoom(matchId);
-        foreach (var (_, socket) in room.ConnectedUsers)
+        if(_chatRooms.TryRemove(matchId, out var room))
         {
-            await socket.CloseConnection();
+            foreach (var (_, socket) in room.ConnectedUsers)
+            {
+                await socket.CloseConnection();
+            }
         }
-        _chatRooms.TryRemove(matchId, out _);
+
     }
     // --------------- Private methods --------------- //
 
@@ -160,11 +162,19 @@ public class WebSocketRoomManager
     {
         return _chatRooms.GetOrAdd(matchId, id => new WebSocketRoom(id));
     }
+
+    /// <summary>
+    /// Removes a web socket from the room without closing the connection
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="matchId"></param>
+    /// <returns></returns>
     private WebSocket? RemoveSocketFromRoom(int userId, int matchId)
     {
+        _logger.LogInformation("Removing web socket for user {userId} from match {matchId}", userId, matchId);
         if (!_chatRooms.TryGetValue(matchId, out WebSocketRoom? room) || room == null)
         {
-            _logger.LogWarning("RemoveSocketFromRoom FAIL, Web socket room with id {matchId} not found", matchId);
+            _logger.LogWarning("RemoveSocketFromRoom FAIL, Web socket room with id {matchId} not found for user {userId}", matchId, userId);
             return null;
         }
         room.ConnectedUsers.TryRemove(userId, out WebSocket? socket);

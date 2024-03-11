@@ -22,6 +22,7 @@ import { Match } from '../../models/match.model';
 import { UserPublicDetails } from 'src/app/users/models/user-public-details.model';
 import { environment } from 'src/environments/environment';
 import { PictureSelected } from 'src/app/pictures/models/picture-selected.model';
+import { AuthService } from 'src/app/shared/services/auth-service/auth.service';
 
 /**
  * A component that displays the in-match view.
@@ -33,12 +34,13 @@ import { PictureSelected } from 'src/app/pictures/models/picture-selected.model'
 })
 export class InMatchComponent {
   match?: Match;
-  currentRound?: Round;
   usersPictures: Picture[] = [];
   userPictureIds: Set<number> = new Set();
   selectedPicture?: Picture;
   countdown$?: Observable<number>;
-  score = new Map<number, number>(); // TODO: https://groupy-group.atlassian.net/browse/PHSH-153
+  score = new Map<number, number>(); // TODO: https://groupy-group.atlassian.net/browse/PHSH-153 (score should only be received from the server)
+  lockedInUserIds: Set<number> = new Set(); // TODO: https://groupy-group.atlassian.net/browse/PHSH-153 (lock ins should only be received from the server)
+  userId: number = 0;
 
   @Input({ required: true }) matchId!: number;
   @Output() matchLeft = new EventEmitter<void>();
@@ -50,8 +52,11 @@ export class InMatchComponent {
     private readonly matchesService: MatchesService,
     private readonly picturesService: PicturesService,
     private readonly notifier: NotifierService,
-    private readonly cd: ChangeDetectorRef
-  ) {}
+    private readonly cd: ChangeDetectorRef,
+    authService: AuthService
+  ) {
+    this.userId = authService.getUserId();
+  }
 
   ngOnInit() {
     // Get all pictures for the current user
@@ -70,7 +75,6 @@ export class InMatchComponent {
         .getCurrentRound(this.matchId)
         .subscribe((response) => {
           this.handleRoundStateChange(response.data);
-          this.match!.currentRound = this.currentRound;
           this.cd.detectChanges();
         });
 
@@ -102,6 +106,15 @@ export class InMatchComponent {
         this.cd.detectChanges();
       }
     );
+
+    // Listen for players locking in their picture
+    this.webSocketService.onWebSocketEvent<WebSocketMessage<number>>(
+      WebSocketMessageType.userLockedIn,
+      (wsMessage) => {
+        this.lockedInUserIds.add(wsMessage.data);
+        this.cd.detectChanges();
+      }
+    );
   }
 
   leaveMatch() {
@@ -113,6 +126,10 @@ export class InMatchComponent {
       },
     });
     this.matchLeft.emit();
+  }
+
+  onLockedInPicture() {
+    this.lockedInUserIds.add(this.userId);
   }
 
   private handleRoundStateChange(round: Round) {
@@ -155,7 +172,10 @@ export class InMatchComponent {
       picture.picturePath = UrlUtils.getPictureURL(picture.picturePath);
     });
 
-    this.currentRound = round;
+    this.match!.currentRound = round;
+
+    // Reset locked in user ids
+    this.lockedInUserIds.clear();
   }
 
   private setTimer(seconds: number) {
