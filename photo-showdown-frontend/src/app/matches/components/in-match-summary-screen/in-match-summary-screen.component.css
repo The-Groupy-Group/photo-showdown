@@ -1,11 +1,11 @@
-.winner{
-display: flex;
-flex-direction: column;
-align-items: center;
-height: 25vh;
-margin-top: 5%;
-justify-content: center;
-font-size: 500%;
-
+.winner
+{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 25vh;
+  margin-top: 5%;
+  justify-content: center;
+  font-size: 500%;
 }
 

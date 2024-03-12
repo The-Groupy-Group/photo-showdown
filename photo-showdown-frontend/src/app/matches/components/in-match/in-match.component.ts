@@ -122,6 +122,7 @@ export class InMatchComponent {
       WebSocketMessageType.matchEnded,
       (wsMessage) => {
         this.match!.matchState=MatchStates.ended;
+        this.cd.detectChanges();
       }
     )
 

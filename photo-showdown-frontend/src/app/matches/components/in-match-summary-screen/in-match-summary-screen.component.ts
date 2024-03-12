@@ -8,14 +8,15 @@ import { UserPublicDetails } from 'src/app/users/models/user-public-details.mode
 })
 export class InMatchSummaryScreenComponent
 {
- @Input({required:true}) users!:UserPublicDetails[];
- @Input({required:true}) score!:Map<number, number>;
+  @Input({required:true}) users!:UserPublicDetails[];
+  @Input({required:true}) score!:Map<number, number>;
   winnerUsername:string='';
 
-ngOnInit(){
- this.winnerUsername=this.calculateWinner().toUpperCase();
-}
-calculateWinner():string
+  ngOnInit()
+  {
+    this.winnerUsername=this.calculateWinner().toUpperCase();
+  }
+  calculateWinner():string
   {
     let max:number=0;
     let winner:UserPublicDetails=this.users[0];
