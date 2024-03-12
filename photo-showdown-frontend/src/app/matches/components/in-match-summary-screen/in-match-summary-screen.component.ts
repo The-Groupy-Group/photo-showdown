@@ -10,10 +10,10 @@ export class InMatchSummaryScreenComponent
 {
  @Input({required:true}) users!:UserPublicDetails[];
  @Input({required:true}) score!:Map<number, number>;
-  winner:string='';
+  winnerUsername:string='';
 
 ngOnInit(){
- this.winner=this.calculateWinner();
+ this.winnerUsername=this.calculateWinner().toUpperCase();
 }
 calculateWinner():string
   {
@@ -25,7 +25,7 @@ calculateWinner():string
       if(max<temp)
       {
         max=temp;
-        winner=this.users[i]
+        winner=this.users[i];
       }
     }
     return winner.username;
