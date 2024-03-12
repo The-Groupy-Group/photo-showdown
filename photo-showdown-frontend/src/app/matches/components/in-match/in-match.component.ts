@@ -163,6 +163,13 @@ export class InMatchComponent {
             round.roundWinner!.id,
             this.score.get(round.roundWinner!.id)! + 1
           );
+
+           this.match?.users.sort((userA, userB) => {
+            const scoreA= this.score.get(userA.id)!;
+            const scoreB= this.score.get(userB.id)!;
+            return scoreB - scoreA;
+           })
+
         }
         break;
     }
