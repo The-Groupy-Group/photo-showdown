@@ -1,84 +1,70 @@
 <div class="in-match-container">
-  <div class="sentence-container" *ngIf="match?.matchState!=MatchStates.ended">
-    <mat-card class="sentence-card">
-      <h2>
-        Sentence:<strong> {{ match?.currentRound?.sentence }}</strong>
-      </h2>
-    </mat-card>
-  </div>
+	<div class="sentence-container" *ngIf="match?.matchState !== MatchStates.ended">
+		<mat-card class="sentence-card">
+			<h2>
+				Sentence:
+				<strong>{{ match?.currentRound?.sentence }}</strong>
+			</h2>
+		</mat-card>
+	</div>
 
-  <!-- Round Info Aside thingy -->
-  <div class="round-info-container">
-    <!-- Round Details -->
-    <mat-card class="round-details">
-      <h2>Current Round Details:</h2>
-      <p>Round Index: {{ match?.currentRound?.roundIndex }}</p>
-      <p>
-        Round State: <strong>{{ match?.currentRound?.roundState }}</strong>
-      </p>
-      <p>
-        Round Time: <strong>{{ countdown$ | async }}</strong>
-      </p>
-      <p *ngIf="match?.currentRound?.roundState === RoundStates.ended">
-        <strong
-          >Winner: {{ match?.currentRound!.roundWinner?.username ?? "Draw" }}</strong
-        >
-      </p>
-      <button mat-raised-button color="warn" (click)="leaveMatch()">
-        Disconnect
-      </button>
-    </mat-card>
+	<!-- Round Info Aside thingy -->
+	<div class="round-info-container">
+		<!-- Round Details -->
+		<mat-card class="round-details">
+			<h2>Current Round Details:</h2>
+			<p>Round Index: {{ match?.currentRound?.roundIndex }}</p>
+			<p>
+				Round State:
+				<strong>{{ match?.currentRound?.roundState }}</strong>
+			</p>
+			<p>
+				Round Time:
+				<strong>{{ countdown$ | async }}</strong>
+			</p>
+			<p *ngIf="match?.currentRound?.roundState === RoundStates.ended">
+				<strong>Winner: {{ (match?.currentRound)!.roundWinner?.username ?? "Draw" }}</strong>
+			</p>
+			<button mat-raised-button color="warn" (click)="leaveMatch()">Disconnect</button>
+		</mat-card>
 
-    <!-- Players -->
-    <mat-card class="round-players">
-      <ul>
-        <li *ngFor="let player of match?.users">
-          <p>
-            <strong>{{ player.username }}: </strong>
-            Score: {{ score.get(player.id) }}
-            <mat-checkbox
-              [checked]="lockedInUserIds.has(player.id)"
-              color="primary"
-              disabled
-            ></mat-checkbox>
-          </p>
-        </li></ul
-    ></mat-card>
-  </div>
+		<!-- Players -->
+		<mat-card class="round-players">
+			<ul>
+				<li *ngFor="let player of match?.users">
+					<p>
+						<strong>{{ player.username }}:</strong>
+						Score: {{ score.get(player.id) }}
+						<mat-checkbox [checked]="lockedInUserIds.has(player.id)" color="primary" disabled></mat-checkbox>
+					</p>
+				</li>
+			</ul>
+		</mat-card>
+	</div>
 
-  <!-- Match Pictures screen (selection / voting) -->
-  <div *ngIf="match?.matchState!=MatchStates.ended">
-    <!-- Picture Selection -->
-    <app-in-match-picture-selection
-      *ngIf="
-        match?.currentRound?.roundState === RoundStates.pictureSelection &&
-        match?.currentRound != undefined
-      "
-      [pictures]="usersPictures"
-      [currentRound]="match!.currentRound!"
-      (lockedInPicture)="onLockedInPicture()"
-    ></app-in-match-picture-selection>
+	<!-- Match Pictures screen (selection / voting) -->
+	<div *ngIf="match?.matchState !== MatchStates.ended">
+		<!-- Picture Selection -->
+		<app-in-match-picture-selection
+			*ngIf="match?.currentRound?.roundState === RoundStates.pictureSelection && match?.currentRound"
+			[pictures]="usersPictures"
+			[currentRound]="match!.currentRound!"
+			(lockedInPicture)="onLockedInPicture()"></app-in-match-picture-selection>
 
-    <!-- Picture Voting -->
-    <app-in-match-vote-picture
-      *ngIf="
-        (match?.currentRound?.roundState === RoundStates.voting ||
-        match?.currentRound?.roundState === RoundStates.ended) &&
-        match?.currentRound != undefined
-      "
-      [picturesToVote]="match?.currentRound!.picturesSelected"
-      [userPictureIds]="userPictureIds"
-      [currentRound]="match!.currentRound!"
-      (lockedInPicture)="onLockedInPicture()"
-    ></app-in-match-vote-picture>
-  </div>
-  <!-- Summary Screen-->
-  <app-in-match-summary-screen
-  *ngIf="
-  (match?.matchState==MatchStates.ended)
-  "
-  [users]="match!.users"
-  [score]="score"
-
-  ></app-in-match-summary-screen>
+		<!-- Picture Voting -->
+		<app-in-match-vote-picture
+			*ngIf="
+				(match?.currentRound?.roundState === RoundStates.voting || match?.currentRound?.roundState === RoundStates.ended) &&
+				match?.currentRound !== undefined
+			"
+			[picturesToVote]="(match?.currentRound)!.picturesSelected"
+			[userPictureIds]="userPictureIds"
+			[currentRound]="match!.currentRound!"
+			(lockedInPicture)="onLockedInPicture()"></app-in-match-vote-picture>
+	</div>
+	<!-- Summary Screen-->
+	<app-in-match-summary-screen
+		*ngIf="match?.matchState === MatchStates.ended"
+		[users]="match!.users"
+		[score]="score"></app-in-match-summary-screen>
 </div>

@@ -1,17 +1,12 @@
 <mat-card class="match-container">
-  <h3>Match id: {{ match.id }}</h3>
-  <h3>Match owner: {{ match.owner.username }}</h3>
-  <h3>Connected users:</h3>
-  <ul>
-    <li *ngFor="let user of match.users">{{ user.username }}</li>
-  </ul>
+	<h3>Match id: {{ match.id }}</h3>
+	<h3>Match owner: {{ match.owner.username }}</h3>
+	<h3>Connected users:</h3>
+	<ul>
+		<li *ngFor="let user of match.users">{{ user.username }}</li>
+	</ul>
 
-  <button
-    class="enter-match-button"
-    color="secondary"
-    mat-fab
-    (click)="joinMatch()"
-  >
-    <mat-icon>group_add</mat-icon>
-  </button>
+	<button class="enter-match-button" color="secondary" mat-fab (click)="joinMatch()">
+		<mat-icon>group_add</mat-icon>
+	</button>
 </mat-card>

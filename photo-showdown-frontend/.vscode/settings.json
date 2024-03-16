@@ -1,6 +1,20 @@
 {
-    "cSpell.words": [
-        "Donfil",
-        "Headerish"
-    ]
+	"cSpell.words": ["Donfil", "Headerish"],
+	"git.mergeEditor": false,
+	"typescript.preferences.importModuleSpecifier": "relative",
+	"eslint.format.enable": true,
+	"[html]": {
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint",
+		"editor.codeActionsOnSave": {
+			"source.fixAll.eslint": "explicit"
+		},
+		"editor.formatOnSave": false
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint",
+		"editor.codeActionsOnSave": {
+			"source.fixAll.eslint": "explicit"
+		},
+		"editor.formatOnSave": false
+	}
 }

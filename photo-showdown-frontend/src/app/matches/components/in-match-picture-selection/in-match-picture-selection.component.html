@@ -1,18 +1,11 @@
 <app-in-match-pictures-grid>
-  <app-picture-item
-    *ngFor="let picture of pictures"
-    [picture]="picture"
-    class="grid-item"
-    (click)="selectPicture(picture)"
-    [selected]="picture.id === selectedPictureId"
-  ></app-picture-item>
+	<app-picture-item
+		*ngFor="let picture of pictures"
+		[picture]="picture"
+		class="grid-item"
+		(click)="selectPicture(picture)"
+		[selected]="picture.id === selectedPictureId"></app-picture-item>
 </app-in-match-pictures-grid>
-<button
-  class="lock-in-button"
-  mat-raised-button
-  color="primary"
-  [disabled]="!selectedPictureId || lockedIn"
-  (click)="lockIn()"
->
-  Lock-in Selection
+<button class="lock-in-button" mat-raised-button color="primary" [disabled]="!selectedPictureId || lockedIn" (click)="lockIn()">
+	Lock-in Selection
 </button>
