@@ -1,42 +1,25 @@
 <mat-card>
-  <!-- Upload container -->
-  <mat-card class="upload-container">
-    <h2>Upload your pictures</h2>
-    <input
-      type="file"
-      name="file"
-      multiple
-      [accept]="'image/jpeg,image/png'"
-      (change)="onFileChange($event)"
-      [(ngModel)]="picturesToUpload"
-      
-    />
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="uploadPictures()"
-      [disabled]="this.picturesToUpload == undefined"
-    >
-      Upload
-    </button>
-    <button
-      mat-raised-button
-      color="warn"
-      (click)="cancelUpload()"
-      [hidden]="this.picturesToUpload == undefined"
-    >
-      Cancel
-    </button>
-  </mat-card>
+	<!-- Upload container -->
+	<mat-card class="upload-container">
+		<h2>Upload your pictures</h2>
+		<input
+			type="file"
+			name="file"
+			multiple
+			[accept]="'image/jpeg,image/png'"
+			(change)="onFileChange($event)"
+			[(ngModel)]="picturesToUpload" />
+		<button mat-raised-button color="primary" (click)="uploadPictures()" [disabled]="!this.picturesToUpload">Upload</button>
+		<button mat-raised-button color="warn" (click)="cancelUpload()" [hidden]="!this.picturesToUpload">Cancel</button>
+	</mat-card>
 
-  <!-- Users pictures container -->
-  <div *ngIf="usersPictures.length > 0">
-    <h2>Your pictures</h2>
-    <app-picture-grid-item
-      *ngFor="let picture of this.usersPictures"
-      [picture]="picture"
-      [allowDelete]="isDeletable"
-      (pictureDeleted)="onPictureDeleted($event)"
-    />
-  </div>
+	<!-- Users pictures container -->
+	<div *ngIf="usersPictures.length > 0">
+		<h2>Your pictures</h2>
+		<app-picture-grid-item
+			*ngFor="let picture of this.usersPictures"
+			[picture]="picture"
+			[allowDelete]="isDeletable"
+			(pictureDeleted)="onPictureDeleted($event)" />
+	</div>
 </mat-card>

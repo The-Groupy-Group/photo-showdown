@@ -1,37 +1,18 @@
 <app-in-match-pictures-grid>
-  <div *ngFor="let selectedPicture of picturesToVote">
-    <p
-      class="picture-info"
-      *ngIf="currentRound?.roundState === RoundStates.ended"
-    >
-      <strong
-        >Selected By: {{ selectedPicture.selectedByUser!.username }}</strong
-      >
-      <strong>Votes: {{ selectedPicture.numOfVotes }}</strong>
-    </p>
-    <app-picture-item
-      class="grid-item"
-      [picture]="selectedPicture"
-      (click)="selectPicture(selectedPicture)"
-      [voted]="selectedPicture.id === votedPictureId &&
-        currentRound.roundState === RoundStates.voting"
-      [winning]="
-        currentRound.roundWinner != undefined &&
-        selectedPicture.selectedByUser?.id === currentRound.roundWinner.id
-      "
-      [disabled]="
-        currentRound.roundState !== RoundStates.ended &&
-        userPictureIds.has(selectedPicture.pictureId)
-      "
-    ></app-picture-item>
-  </div>
+	<div *ngFor="let selectedPicture of picturesToVote">
+		<p class="picture-info" *ngIf="currentRound?.roundState === RoundStates.ended">
+			<strong>Selected By: {{ selectedPicture.selectedByUser!.username }}</strong>
+			<strong>Votes: {{ selectedPicture.numOfVotes }}</strong>
+		</p>
+		<app-picture-item
+			class="grid-item"
+			[picture]="selectedPicture"
+			(click)="selectPicture(selectedPicture)"
+			[voted]="selectedPicture.id === votedPictureId && currentRound.roundState === RoundStates.voting"
+			[winning]="!!currentRound.roundWinner && selectedPicture.selectedByUser?.id === currentRound.roundWinner.id"
+			[disabled]="currentRound.roundState !== RoundStates.ended && userPictureIds.has(selectedPicture.pictureId)"></app-picture-item>
+	</div>
 </app-in-match-pictures-grid>
-<button
-  class="lock-in-button"
-  mat-raised-button
-  color="primary"
-  [disabled]="!votedPictureId || lockedIn"
-  (click)="lockIn()"
->
-  Lock-in Selection
+<button class="lock-in-button" mat-raised-button color="primary" [disabled]="!votedPictureId || lockedIn" (click)="lockIn()">
+	Lock-in Selection
 </button>
