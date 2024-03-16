@@ -1,0 +1,33 @@
+name: Backend Unit Tests
+
+on:
+  pull_request:
+    branches: [dev, rc, prod]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 5
+
+    defaults:
+      run:
+        working-directory: ./PhotoShowdownBackend/PhotoShowdownBackend.Tests
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "8.0.0" # Replace with your desired .NET version
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet build --configuration Release
+
+      - name: Run unit tests
+        run: dotnet test --configuration Release --no-build --filter FullyQualifiedName~Namespace.Tests
