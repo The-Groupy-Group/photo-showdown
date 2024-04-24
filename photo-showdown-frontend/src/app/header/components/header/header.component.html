@@ -1,18 +1,18 @@
 <mat-toolbar color="primary">
-  <p id="info-text">
-    <strong [routerLink]="['/']">Photo Showdown</strong>
-    <strong *ngIf="isLoggedIn">Welcome, {{ username }}</strong>
-  </p>
+	<p id="info-text">
+		<strong [routerLink]="['/']">Photo Showdown</strong>
+		<strong *ngIf="isLoggedIn">Welcome, {{ username }}</strong>
+	</p>
 
-  <ul *ngIf="!isLoggedIn" class="menu-container">
-    <li><button mat-button [routerLink]="['/login']">Login</button></li>
-    <li><button mat-button [routerLink]="['/register']">Register</button></li>
-  </ul>
+	<ul *ngIf="!isLoggedIn" class="menu-container">
+		<li><button mat-button [routerLink]="['/login']">Login</button></li>
+		<li><button mat-button [routerLink]="['/register']">Register</button></li>
+	</ul>
 
-  <ul *ngIf="isLoggedIn" class="menu-container">
-    <li><button mat-button [routerLink]="['/']">Home</button></li>
-    <li><button mat-button [routerLink]="['/pictures']">Pictures</button></li>
-    <li><button mat-button [routerLink]="['/game']">Play</button></li>
-    <li><button mat-button (click)="logout()">Logout</button></li>
-  </ul>
+	<ul *ngIf="isLoggedIn" class="menu-container">
+		<li><button mat-button [routerLink]="['/']">Home</button></li>
+		<li><button mat-button [routerLink]="['/pictures']">Pictures</button></li>
+		<li><button mat-button [routerLink]="['/game']">Play</button></li>
+		<li><button mat-button (click)="logout()">Logout</button></li>
+	</ul>
 </mat-toolbar>

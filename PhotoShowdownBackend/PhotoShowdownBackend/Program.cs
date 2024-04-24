@@ -52,7 +52,8 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// Build the DB
+//string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")!;
+
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 try
 {
@@ -127,11 +128,20 @@ builder.Services.AddAutoMapper(typeof(MappingConfig).Assembly);
 builder.Services.AddHttpContextAccessor();
 
 // Add Cors
+const string CORS_DEV_POLICY = "CorsDevPolicy";
+const string CORS_PROD_POLICY = "CorsProdPolicy";
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("CorsPolicy", build =>
+    options.AddPolicy(CORS_DEV_POLICY, build =>
     {
         build.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+    });
+
+    options.AddPolicy(CORS_PROD_POLICY, build =>
+    {
+        build.WithOrigins("https://photo-showdown.vercel.app")
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
 
@@ -213,7 +223,7 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 // Use Cors
-app.UseCors("CorsPolicy");
+app.UseCors(app.Environment.IsDevelopment() ? CORS_DEV_POLICY : CORS_PROD_POLICY);
 
 app.UseHttpsRedirection();
 
