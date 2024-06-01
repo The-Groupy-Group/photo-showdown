@@ -69,19 +69,7 @@ public class WebSocketRoomManager
     /// <returns></returns>
     public async Task SendMessageToRoom(int? sendingUserId, int matchId, WebSocketMessage message)
     {
-        _logger.LogInformation("Sending web socket message by user {userId} to match {matchId}: {message}", sendingUserId, matchId, message);
-        if (_chatRooms.TryGetValue(matchId, out var room))
-        {
-            foreach (var (userId, userSocket) in room.ConnectedUsers)
-            {
-                if (userId != sendingUserId && userSocket.State == WebSocketState.Open)
-                    await userSocket.SendMessageAsync(message.ToString());
-            }
-        }
-        else
-        {
-            _logger.LogWarning("Sending web socket message FAIL, Match {matchId} not found", matchId);
-        }
+        await SendMessageToRoom(sendingUserId, matchId, message.ToString());
     }
 
     /// <summary>
@@ -101,7 +89,7 @@ public class WebSocketRoomManager
 
     public async Task CloseRoom(int matchId)
     {
-        if(_chatRooms.TryRemove(matchId, out var room))
+        if (_chatRooms.TryRemove(matchId, out var room))
         {
             foreach (var (_, socket) in room.ConnectedUsers)
             {
@@ -124,9 +112,13 @@ public class WebSocketRoomManager
         // Handle the web socket
         try
         {
+            // Buffer for the incoming message
+            var buffer = new ArraySegment<byte>(new byte[1024]);
+
+            // While the web socket is open, receive messages
             while (webSocket.State == WebSocketState.Open)
             {
-                var buffer = new ArraySegment<byte>(new byte[1024]);
+                // Await for the message
                 var result = await webSocket.ReceiveAsync(buffer, CancellationToken.None);
                 if (result.MessageType == WebSocketMessageType.Text)
                 {
@@ -134,7 +126,8 @@ public class WebSocketRoomManager
 
                     var message = Encoding.UTF8.GetString(buffer.Array!, 0, result.Count);
 
-                    await webSocket.SendMessageAsync(JsonSerializer.Serialize("Echo: " + message));
+                    // Echo the message back to the match
+                    await SendMessageToRoom(userId, matchId, message);
                 }
                 else if (result.MessageType == WebSocketMessageType.Binary)
                 {
@@ -158,6 +151,24 @@ public class WebSocketRoomManager
             RemoveSocketFromRoom(userId, matchId);
         }
     }
+
+    private async Task SendMessageToRoom(int? sendingUserId, int matchId, string message)
+    {
+        _logger.LogInformation("Sending web socket message by user {userId} to match {matchId}: {message}", sendingUserId, matchId, message);
+        if (_chatRooms.TryGetValue(matchId, out var room))
+        {
+            foreach (var (userId, userSocket) in room.ConnectedUsers)
+            {
+                if (userId != sendingUserId && userSocket.State == WebSocketState.Open)
+                    await userSocket.SendMessageAsync(message);
+            }
+        }
+        else
+        {
+            _logger.LogWarning("Sending web socket message FAIL, Match {matchId} not found", matchId);
+        }
+    }
+
     private WebSocketRoom GetOrCreateRoom(int matchId)
     {
         return _chatRooms.GetOrAdd(matchId, id => new WebSocketRoom(id));
