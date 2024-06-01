@@ -97,14 +97,14 @@ public class UsersService : IUsersService
         }
         return _mapper.Map<UserDTO>(user);
     }
-    public async Task<UserPublicDetailsDTO> GetUserPublicDetails(int id)
+    public async Task<UserInMatchDTO> GetUserPublicDetails(int id)
     {
         var user = await _usersRepo.GetAsync(u => u.Id == id);
         if (user == null)
         {
             throw new NotFoundException();
         }
-        return _mapper.Map<UserPublicDetailsDTO>(user);
+        return _mapper.Map<UserInMatchDTO>(user);
     }
 
     public async Task<bool> DoesUserExist(int userId)

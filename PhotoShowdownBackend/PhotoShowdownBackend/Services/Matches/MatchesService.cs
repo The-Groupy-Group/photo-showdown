@@ -97,10 +97,11 @@ public class MatchesService : IMatchesService
         }
         Match? match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId, tracked: false))!;
         MatchDTO matchDTO = _mapper.Map<MatchDTO>(match);
+        matchDTO.Round = await _roundsService.GetCurrentRound(matchId.Value);
         return matchDTO;
     }
 
-    public async Task<MatchCreationResponseDTO> CreateNewMatch(UserPublicDetailsDTO owner)
+    public async Task<MatchCreationResponseDTO> CreateNewMatch(UserInMatchDTO owner)
     {
         if (await _matchConnectionsService.IsUserConnectedToMatch(owner.Id))
         {
@@ -124,7 +125,7 @@ public class MatchesService : IMatchesService
         return response;
     }
 
-    public async Task AddUserToMatch(UserPublicDetailsDTO user, int matchId)
+    public async Task AddUserToMatch(UserInMatchDTO user, int matchId)
     {
         if (!await DoesMatchExists(matchId))
         {
@@ -147,7 +148,7 @@ public class MatchesService : IMatchesService
         await _webSocketRoomManager.SendMessageToRoom(user.Id, matchId, wsMessage);
     }
 
-    public async Task RemoveUserFromMatch(UserPublicDetailsDTO userToRemove, int matchId)
+    public async Task RemoveUserFromMatch(UserInMatchDTO userToRemove, int matchId)
     {
         // Delete the connection
         await _matchConnectionsService.DeleteMatchConnection(userToRemove.Id, matchId);
@@ -181,7 +182,7 @@ public class MatchesService : IMatchesService
             await _matchesRepo.UpdateAsync(match);
 
             // Send a message to the room
-            var newOwnerWsMessage = new NewOwnerWebSocketMessage(_mapper.Map<UserPublicDetailsDTO>(newOwner));
+            var newOwnerWsMessage = new NewOwnerWebSocketMessage(_mapper.Map<UserInMatchDTO>(newOwner));
             await _webSocketRoomManager.SendMessageToRoom(userToRemove.Id, matchId, newOwnerWsMessage);
         }
     }
@@ -252,19 +253,6 @@ public class MatchesService : IMatchesService
             cancellationTokenSource.Dispose();
             _cancelationTokens.TryRemove(matchId, out _);
         }
-    }
-
-    public async Task<RoundDTO> GetCurrentRound(int matchId)
-    {
-        Match match = await _matchesRepo.GetAsync(m => m.Id == matchId) ??
-             throw new NotFoundException();
-
-        if (match.StartDate == null || DateTime.UtcNow < match.StartDate)
-            throw new MatchDidNotStartYetException();
-
-        RoundDTO roundDTO = await _roundsService.GetCurrentRound(matchId);
-
-        return roundDTO;
     }
 
     public async Task SelectPictureForRound(int pictureId, int matchId, int roundIndex, int userId)

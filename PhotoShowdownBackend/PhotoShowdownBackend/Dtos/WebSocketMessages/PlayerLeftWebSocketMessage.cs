@@ -3,9 +3,9 @@ using PhotoShowdownBackend.Dtos.Users;
 
 namespace PhotoShowdownBackend.Dtos.Messages;
 
-public class PlayerLeftWebSocketMessage : WebSocketMessage<UserPublicDetailsDTO>
+public class PlayerLeftWebSocketMessage : WebSocketMessage<UserInMatchDTO>
 {
-    public PlayerLeftWebSocketMessage(UserPublicDetailsDTO user) : base(user, MessageType.PlayerLeft)
+    public PlayerLeftWebSocketMessage(UserInMatchDTO user) : base(user, MessageType.PlayerLeft)
     {
     }
 }

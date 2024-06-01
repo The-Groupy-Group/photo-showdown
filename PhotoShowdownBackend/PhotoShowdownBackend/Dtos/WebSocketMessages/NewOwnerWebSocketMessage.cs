@@ -3,10 +3,10 @@ using PhotoShowdownBackend.Dtos.Users;
 
 namespace PhotoShowdownBackend.Dtos.Messages;
 
-public class NewOwnerWebSocketMessage : WebSocketMessage<UserPublicDetailsDTO>
+public class NewOwnerWebSocketMessage : WebSocketMessage<UserInMatchDTO>
 {
 
-    public NewOwnerWebSocketMessage(UserPublicDetailsDTO user) : base(user, MessageType.NewOwner)
+    public NewOwnerWebSocketMessage(UserInMatchDTO user) : base(user, MessageType.NewOwner)
     {
     }
 }
