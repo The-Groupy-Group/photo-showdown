@@ -255,19 +255,6 @@ public class MatchesService : IMatchesService
         }
     }
 
-    public async Task<RoundDTO> GetCurrentRound(int matchId)
-    {
-        Match match = await _matchesRepo.GetAsync(m => m.Id == matchId) ??
-             throw new NotFoundException();
-
-        if (match.StartDate == null || DateTime.UtcNow < match.StartDate)
-            throw new MatchDidNotStartYetException();
-
-        RoundDTO roundDTO = await _roundsService.GetCurrentRound(matchId);
-
-        return roundDTO;
-    }
-
     public async Task SelectPictureForRound(int pictureId, int matchId, int roundIndex, int userId)
     {
         Match match = await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId) ??

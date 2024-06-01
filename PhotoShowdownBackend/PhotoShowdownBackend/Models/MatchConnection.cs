@@ -14,6 +14,10 @@ public class MatchConnection
     [ForeignKey("Match")]
     public int MatchId { get; set; }
 
+    public bool IsLockedIn { get; set; } = false;
+
+    public double Score { get; set; } = 0d;
+
     [ForeignKey("UserId")]
     public virtual User User { get; set; } = null!;
 

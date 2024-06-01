@@ -25,27 +25,27 @@ public class MappingConfig : Profile
 
         // Pictures
         CreateMap<Picture, PictureDTO>();
-        CreateMap<RoundPicture,PictureSelectedDTO>()
+        CreateMap<RoundPicture, PictureSelectedDTO>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.PicturePath, opt => opt.MapFrom(src => src.Picture.PicturePath))
             .ForMember(dest => dest.NumOfVotes, opt => opt.MapFrom(src => src.RoundVotes.Count))
-            .ForMember(dest => dest.SelectedByUser, opt => opt.MapFrom(src => src.User))
-            .ForMember(dest => dest.UsersVoted, opt => opt.MapFrom(src => src.RoundVotes.Select(rv => rv.User)));
+            .ForMember(dest => dest.SelectedByUserId, opt => opt.MapFrom(src => src.User.Id))
+            .ForMember(dest => dest.UsersVoted, opt => opt.MapFrom(src => src.RoundVotes.Select(rv => rv.User.Id)));
 
         // Matches
         CreateMap<Match, MatchDTO>()
             .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.MatchConnections.Select(mc => mc.User)))
             .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner))
-            .ForMember(dest => dest.MatchState, opt => opt.MapFrom(src => 
-                DateTime.UtcNow > src.EndDate ? MatchStates.Ended : 
-                DateTime.UtcNow > src.StartDate ? MatchStates.InProgress : 
+            .ForMember(dest => dest.MatchState, opt => opt.MapFrom(src =>
+                DateTime.UtcNow > src.EndDate ? MatchStates.Ended :
+                DateTime.UtcNow > src.StartDate ? MatchStates.InProgress :
                 MatchStates.NotStarted));
         CreateMap<Match, MatchCreationResponseDTO>();
 
         // Rounds
         CreateMap<Round, RoundDTO>()
             .ForMember(dest => dest.PicturesSelected, opt => opt.MapFrom(src => src.RoundPictures))
-            .ForMember(dest => dest.RoundWinner, opt => opt.MapFrom(src => src.Winner))
+            .ForMember(dest => dest.RoundWinnerId, opt => opt.MapFrom(src => src.Winner != null ? src.Winner.Id : (int?)null))
             .ForMember(dest => dest.PictureSelectionEndDate,
                 opt => opt.MapFrom(src => src.StartDate!.Value.AddSeconds(
                     src.Match.PictureSelectionTimeSeconds)))

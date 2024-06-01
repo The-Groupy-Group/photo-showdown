@@ -6,6 +6,6 @@ public class UserInMatchDTO
     public string Username { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
-    public int Score { get; set; } = 0;
-    public bool isLockedIn { get; set; } = false;
+    public bool IsLockedIn { get; set; } = false;
+    public double Score { get; set; } = 0d;
 }

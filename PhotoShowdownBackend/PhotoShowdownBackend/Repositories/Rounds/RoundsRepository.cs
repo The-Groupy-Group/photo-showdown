@@ -14,7 +14,7 @@ public class RoundsRepository : Repository<Round>, IRoundsRepository
         
     }
 
-    virtual public async Task<Round?> GetLastWithIncludes(
+    virtual public async Task<Round?> GetLastRoundByMatchIdWithIncludes(
         int matchId,
         bool tracked = true
         )
