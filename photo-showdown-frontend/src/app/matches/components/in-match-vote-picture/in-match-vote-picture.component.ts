@@ -33,7 +33,7 @@ export class InMatchVotePictureComponent {
 
 	selectPicture(picture: PictureSelected) {
 		// Cant vote to your own picture
-		if (this.userId === picture.selectedByUser?.id) {
+		if (this.userId === picture.selectedByUserId) {
 			return;
 		}
 

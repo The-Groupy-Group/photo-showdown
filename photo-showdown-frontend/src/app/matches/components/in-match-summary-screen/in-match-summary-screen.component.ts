@@ -1,5 +1,5 @@
 import { Component, Input } from "@angular/core";
-import { UserPublicDetails } from "src/app/users/models/user-public-details.model";
+import { UserInMatch } from "src/app/users/models/user-public-details.model";
 
 @Component({
 	selector: "app-in-match-summary-screen",
@@ -7,7 +7,7 @@ import { UserPublicDetails } from "src/app/users/models/user-public-details.mode
 	styleUrls: ["./in-match-summary-screen.component.css"]
 })
 export class InMatchSummaryScreenComponent {
-	@Input({ required: true }) users!: UserPublicDetails[];
+	@Input({ required: true }) users!: UserInMatch[];
 	@Input({ required: true }) score!: Map<number, number>;
 	winnerUsername = "";
 
@@ -16,7 +16,7 @@ export class InMatchSummaryScreenComponent {
 	}
 	calculateWinner(): string {
 		let max = 0;
-		let winner: UserPublicDetails = this.users[0];
+		let winner: UserInMatch = this.users[0];
 		for (let i = 0; i < this.users.length; i++) {
 			const temp = this.score.get(this.users[i].id)!;
 			if (max < temp) {

@@ -86,14 +86,6 @@ export class MatchesService {
 	}
 
 	// ------------------- In Match API Calls ------------------- //
-	/**
-	 *
-	 * @returns the current round
-	 */
-	getCurrentRound(matchId: number): Observable<APIResponse<Round>> {
-		return this.http.get<APIResponse<Round>>(`${this.apiURL}/GetCurrentRound?matchId=${matchId}`, this.httpOptions);
-	}
-
 	selectPictureForRound(matchId: number, roundIndex: number, pictureId: number): Observable<EmptyAPIResponse> {
 		return this.http.post<EmptyAPIResponse>(
 			this.apiURL + `/SelectPictureForRound`,

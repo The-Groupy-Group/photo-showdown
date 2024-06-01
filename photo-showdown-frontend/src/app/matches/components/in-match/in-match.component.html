@@ -23,7 +23,7 @@
 				<strong>{{ countdown$ | async }}</strong>
 			</p>
 			<p *ngIf="match?.currentRound?.roundState === RoundStates.ended">
-				<strong>Winner: {{ (match?.currentRound)!.roundWinner?.username ?? "Draw" }}</strong>
+				<strong>Winner: {{ roundWinnerUserName ?? "Draw" }}</strong>
 			</p>
 			<button mat-raised-button color="warn" (click)="leaveMatch()">Disconnect</button>
 		</mat-card>

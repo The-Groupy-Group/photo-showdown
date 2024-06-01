@@ -9,7 +9,7 @@
 			[picture]="selectedPicture"
 			(click)="selectPicture(selectedPicture)"
 			[voted]="selectedPicture.id === votedPictureId && currentRound.roundState === RoundStates.voting"
-			[winning]="!!currentRound.roundWinner && selectedPicture.selectedByUser?.id === currentRound.roundWinner.id"
+			[winning]="!!currentRound.roundWinnerId && selectedPicture.selectedByUserId === currentRound.roundWinnerId"
 			[disabled]="currentRound.roundState !== RoundStates.ended && userPictureIds.has(selectedPicture.pictureId)"></app-picture-item>
 	</div>
 </app-in-match-pictures-grid>

@@ -1,4 +1,4 @@
-import { UserPublicDetails } from "src/app/users/models/user-public-details.model";
+import { UserInMatch } from "src/app/users/models/user-public-details.model";
 import { Round } from "./round.model";
 
 /**
@@ -15,15 +15,15 @@ export interface WebSocketMessage<T> extends EmptyWebSocketMessage {
 	data: T;
 }
 
-export interface PlayerJoinedWSMessage extends WebSocketMessage<UserPublicDetails> {
+export interface PlayerJoinedWSMessage extends WebSocketMessage<UserInMatch> {
 	type: WebSocketMessageType.playerJoined;
 }
 
-export interface PlayerLeftWSMessage extends WebSocketMessage<UserPublicDetails> {
+export interface PlayerLeftWSMessage extends WebSocketMessage<UserInMatch> {
 	type: WebSocketMessageType.playerLeft;
 }
 
-export interface NewOwnerWSMessage extends WebSocketMessage<UserPublicDetails> {
+export interface NewOwnerWSMessage extends WebSocketMessage<UserInMatch> {
 	type: WebSocketMessageType.newOwner;
 }
 

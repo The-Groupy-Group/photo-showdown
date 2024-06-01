@@ -4,7 +4,7 @@ import { MatchesService } from "../../services/matches.service";
 import { Match } from "../../models/match.model";
 import { WebSocketService } from "../../services/web-socket.service";
 import { EmptyWebSocketMessage, WebSocketMessage, WebSocketMessageType } from "../../models/web-socket-message.model";
-import { UserPublicDetails } from "src/app/users/models/user-public-details.model";
+import { UserInMatch } from "src/app/users/models/user-public-details.model";
 import { AuthService } from "src/app/shared/services/auth-service/auth.service";
 import { MatchSettings } from "../../models/match-settings.model";
 import { environment } from "src/environments/environment";
@@ -55,13 +55,13 @@ export class PreMatchLobbyComponent implements OnInit {
 		});
 
 		// Listen for player joined events
-		this.webSocketService.onWebSocketEvent<WebSocketMessage<UserPublicDetails>>(WebSocketMessageType.playerJoined, (wsMessage) => {
+		this.webSocketService.onWebSocketEvent<WebSocketMessage<UserInMatch>>(WebSocketMessageType.playerJoined, (wsMessage) => {
 			this.match?.users.push(wsMessage.data);
 			this.cd.detectChanges();
 		});
 
 		// Listen for player left events
-		this.webSocketService.onWebSocketEvent<WebSocketMessage<UserPublicDetails>>(WebSocketMessageType.playerLeft, (wsMessage) => {
+		this.webSocketService.onWebSocketEvent<WebSocketMessage<UserInMatch>>(WebSocketMessageType.playerLeft, (wsMessage) => {
 			const newUserLists = this.match?.users.filter((u) => u.id !== wsMessage.data.id);
 			if (this.match) {
 				this.match.users = newUserLists || [];
@@ -70,7 +70,7 @@ export class PreMatchLobbyComponent implements OnInit {
 		});
 
 		// Listen for new owner events
-		this.webSocketService.onWebSocketEvent<WebSocketMessage<UserPublicDetails>>(WebSocketMessageType.newOwner, (wsMessage) => {
+		this.webSocketService.onWebSocketEvent<WebSocketMessage<UserInMatch>>(WebSocketMessageType.newOwner, (wsMessage) => {
 			if (this.match) {
 				this.match.owner = wsMessage.data;
 			}

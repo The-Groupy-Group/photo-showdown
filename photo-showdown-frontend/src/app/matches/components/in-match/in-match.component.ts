@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from "@angular/core";
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { Round, RoundStates } from "../../models/round.model";
 import { WebSocketService } from "../../services/web-socket.service";
 import { NotifierService } from "angular-notifier";
@@ -10,9 +10,8 @@ import { DateTimeUtils } from "src/app/shared/utils/date-time-utils";
 import { Observable, map, takeWhile, timer } from "rxjs";
 import { UrlUtils } from "src/app/shared/utils/url-utils";
 import { Match, MatchStates } from "../../models/match.model";
-import { UserPublicDetails } from "src/app/users/models/user-public-details.model";
+import { UserInMatch } from "src/app/users/models/user-public-details.model";
 import { environment } from "src/environments/environment";
-import { PictureSelected } from "src/app/pictures/models/picture-selected.model";
 import { AuthService } from "src/app/shared/services/auth-service/auth.service";
 
 /**
@@ -23,7 +22,7 @@ import { AuthService } from "src/app/shared/services/auth-service/auth.service";
 	templateUrl: "./in-match.component.html",
 	styleUrls: ["./in-match.component.css"]
 })
-export class InMatchComponent {
+export class InMatchComponent implements OnInit {
 	match?: Match;
 	usersPictures: Picture[] = [];
 	userPictureIds: Set<number> = new Set();
@@ -32,6 +31,7 @@ export class InMatchComponent {
 	score = new Map<number, number>(); // TODO: https://groupy-group.atlassian.net/browse/PHSH-153 (score should only be received from the server)
 	lockedInUserIds: Set<number> = new Set(); // TODO: https://groupy-group.atlassian.net/browse/PHSH-153 (lock ins should only be received from the server)
 	userId = 0;
+	roundWinnerUserName?: string;
 
 	@Input({ required: true }) matchId!: number;
 	@Output() matchLeft = new EventEmitter<void>();
@@ -61,11 +61,9 @@ export class InMatchComponent {
 		this.matchesService.getCurrentMatch().subscribe((response) => {
 			this.match = response.data;
 			// Get the current round
-			// TODO: https://groupy-group.atlassian.net/browse/PHSH-153
-			this.matchesService.getCurrentRound(this.matchId).subscribe((response) => {
-				this.handleRoundStateChange(response.data);
-				this.cd.detectChanges();
-			});
+			if (response.data.currentRound) {
+				this.handleRoundStateChange(response.data.currentRound);
+			}
 
 			this.match.users.forEach((user) => {
 				this.score.set(user.id, 0);
@@ -79,7 +77,7 @@ export class InMatchComponent {
 		});
 
 		// Listen for players leaving the match
-		this.webSocketService.onWebSocketEvent<WebSocketMessage<UserPublicDetails>>(WebSocketMessageType.playerLeft, (wsMessage) => {
+		this.webSocketService.onWebSocketEvent<WebSocketMessage<UserInMatch>>(WebSocketMessageType.playerLeft, (wsMessage) => {
 			const newUserLists = this.match?.users.filter((u) => u.id !== wsMessage.data.id);
 			if (this.match) {
 				this.match.users = newUserLists || [];
@@ -94,9 +92,11 @@ export class InMatchComponent {
 			this.cd.detectChanges();
 		});
 
-		this.webSocketService.onWebSocketEvent<MatchEndedWSMessage>(WebSocketMessageType.matchEnded, (wsMessage) => {
-			this.match!.matchState = MatchStates.ended;
-			this.cd.detectChanges();
+		this.webSocketService.onWebSocketEvent<MatchEndedWSMessage>(WebSocketMessageType.matchEnded, () => {
+			if (this.match) {
+				this.match.matchState = MatchStates.ended;
+				this.cd.detectChanges();
+			}
 		});
 	}
 
@@ -133,8 +133,8 @@ export class InMatchComponent {
 				break;
 			case RoundStates.ended:
 				this.countdown$ = this.setTimer(DateTimeUtils.getSecondsUntil(round.roundEndDate));
-				if (round.roundWinner?.id) {
-					this.score.set(round.roundWinner!.id, this.score.get(round.roundWinner!.id)! + 1);
+				if (round.roundWinnerId) {
+					this.score.set(round.roundWinnerId, this.score.get(round.roundWinnerId)! + 1);
 
 					this.match?.users.sort((userA, userB) => {
 						const scoreA = this.score.get(userA.id)!;
@@ -151,6 +151,8 @@ export class InMatchComponent {
 		});
 
 		this.match!.currentRound = round;
+
+		this.roundWinnerUserName = this.match?.users.find((user) => user.id === round.roundWinnerId)?.username;
 
 		// Reset locked in user ids
 		this.lockedInUserIds.clear();
