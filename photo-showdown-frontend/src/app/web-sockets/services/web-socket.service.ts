@@ -13,9 +13,7 @@ export class WebSocketService {
 	private socket$: WebSocketSubject<unknown>;
 	readonly wsURL = UrlUtils.getWebSocketUrl();
 
-	constructor(private readonly authService: AuthService) {
-		this.socket$ = this.initSocket();
-	}
+	constructor(private readonly authService: AuthService) {}
 
 	/**
 	 * Sends a message to the server
@@ -45,14 +43,18 @@ export class WebSocketService {
 	}
 
 	/**
+	 * Opens a connection to the server
+	 * @returns
+	 */
+	openConnection(): void {
+		const token = this.authService.getJwtToken();
+		this.socket$ = new WebSocketSubject(this.wsURL + "?jwt=" + token);
+	}
+
+	/**
 	 * Closes the connection
 	 */
 	closeConnection(): void {
 		this.socket$.complete();
-	}
-
-	private initSocket(): WebSocketSubject<unknown> {
-		const token = this.authService.getJwtToken();
-		return new WebSocketSubject(this.wsURL + "?jwt=" + token);
 	}
 }
