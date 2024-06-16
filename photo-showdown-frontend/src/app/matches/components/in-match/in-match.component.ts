@@ -1,9 +1,9 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { Round, RoundStates } from "../../models/round.model";
-import { WebSocketService } from "../../services/web-socket.service";
+import { WebSocketService } from "../../../web-sockets/services/web-socket.service";
 import { NotifierService } from "angular-notifier";
 import { MatchesService } from "../../services/matches.service";
-import { MatchEndedWSMessage, WebSocketMessage, WebSocketMessageType } from "../../models/web-socket-message.model";
+import { MatchEndedWSMessage, WebSocketMessage, WebSocketMessageType } from "../../../web-sockets/models/web-socket-message.model";
 import { PicturesService } from "src/app/pictures/services/pictures.service";
 import { Picture } from "src/app/pictures/models/picture.model";
 import { DateTimeUtils } from "src/app/shared/utils/date-time-utils";

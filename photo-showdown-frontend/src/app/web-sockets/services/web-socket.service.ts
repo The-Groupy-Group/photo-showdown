@@ -1,6 +1,5 @@
 import { Injectable } from "@angular/core";
-import { WebSocketSubject, WebSocketSubjectConfig, webSocket } from "rxjs/webSocket";
-import { Observable } from "rxjs";
+import { WebSocketSubject } from "rxjs/webSocket";
 import { AuthService } from "src/app/shared/services/auth-service/auth.service";
 import { EmptyWebSocketMessage } from "../models/web-socket-message.model";
 import { WebSocketMessageType } from "../models/web-socket-message.model";
@@ -11,7 +10,7 @@ import { UrlUtils } from "src/app/shared/utils/url-utils";
 	providedIn: "root"
 })
 export class WebSocketService {
-	private socket$: WebSocketSubject<any>;
+	private socket$: WebSocketSubject<unknown>;
 	readonly wsURL = UrlUtils.getWebSocketUrl();
 
 	constructor(private readonly authService: AuthService) {
@@ -22,7 +21,7 @@ export class WebSocketService {
 	 * Sends a message to the server
 	 * @param message
 	 */
-	sendMessage(message: any): void {
+	sendMessage(message: unknown): void {
 		this.socket$.next(message);
 	}
 
@@ -33,8 +32,8 @@ export class WebSocketService {
 	onWebSocketEvent<T extends EmptyWebSocketMessage = EmptyWebSocketMessage>(type: WebSocketMessageType, f: (wsMessage: T) => void): void {
 		this.socket$.asObservable().subscribe({
 			next: (message) => {
-				if (message.type === type) {
-					f(message);
+				if (message && typeof message === "object" && (message as T).type === type) {
+					f(message as T);
 				}
 			},
 			error: (error) => {
@@ -52,7 +51,7 @@ export class WebSocketService {
 		this.socket$.complete();
 	}
 
-	private initSocket(): WebSocketSubject<any> {
+	private initSocket(): WebSocketSubject<unknown> {
 		const token = this.authService.getJwtToken();
 		return new WebSocketSubject(this.wsURL + "?jwt=" + token);
 	}

@@ -2,8 +2,8 @@ import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } fro
 import { NotifierService } from "angular-notifier";
 import { MatchesService } from "../../services/matches.service";
 import { Match } from "../../models/match.model";
-import { WebSocketService } from "../../services/web-socket.service";
-import { EmptyWebSocketMessage, WebSocketMessage, WebSocketMessageType } from "../../models/web-socket-message.model";
+import { WebSocketService } from "../../../web-sockets/services/web-socket.service";
+import { EmptyWebSocketMessage, WebSocketMessage, WebSocketMessageType } from "../../../web-sockets/models/web-socket-message.model";
 import { UserInMatch } from "src/app/users/models/user-public-details.model";
 import { AuthService } from "src/app/shared/services/auth-service/auth.service";
 import { MatchSettings } from "../../models/match-settings.model";
