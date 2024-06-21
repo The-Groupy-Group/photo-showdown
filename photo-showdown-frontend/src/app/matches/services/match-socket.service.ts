@@ -1,9 +1,15 @@
 import { Injectable } from "@angular/core";
 import { WebSocketService } from "../../web-sockets/services/web-socket.service";
 import { WebSocketSubject } from "rxjs/webSocket";
-import { Match } from "../models/match.model";
-import { EmptyWebSocketMessage, WebSocketMessage, WebSocketMessageType } from "../../web-sockets/models/web-socket-message.model";
+import { Match, MatchStates } from "../models/match.model";
+import {
+	EmptyWebSocketMessage,
+	MatchEndedWSMessage,
+	WebSocketMessage,
+	WebSocketMessageType
+} from "../../web-sockets/models/web-socket-message.model";
 import { UserInMatch } from "../../users/models/user-public-details.model";
+import { Round, RoundStates } from "../models/round.model";
 
 @Injectable({
 	providedIn: "root"
@@ -11,6 +17,7 @@ import { UserInMatch } from "../../users/models/user-public-details.model";
 export class MatchSocketService {
 	public match$: WebSocketSubject<Match>;
 	public matchStarted$: WebSocketSubject<void>;
+	public roundStateChanged$: WebSocketSubject<Round>;
 
 	private isConnectionOpen = false;
 	private match: Match;
@@ -68,7 +75,34 @@ export class MatchSocketService {
 
 		// Listen for match start events
 		this.webSocketService.onWebSocketEvent<EmptyWebSocketMessage>(WebSocketMessageType.matchStarted, () => {
+			this.match.matchState = MatchStates.inProgress;
+			this.match$.next(this.match);
 			this.matchStarted$.next();
+		});
+
+		// Listen for round state change
+		this.webSocketService.onWebSocketEvent<WebSocketMessage<Round>>(WebSocketMessageType.roundStateChange, (wsMessage) => {
+			// Update the current round
+			this.match.currentRound = wsMessage.data;
+			// Reset the locked in state for all users
+			this.match.users.forEach((user) => {
+				user.isLockedIn = false;
+			});
+			this.match$.next(this.match);
+			this.roundStateChanged$.next(wsMessage.data);
+		});
+
+		// Listen for players locking in their picture
+		this.webSocketService.onWebSocketEvent<WebSocketMessage<number>>(WebSocketMessageType.userLockedIn, (wsMessage) => {
+			const user = this.match.users.find((u) => u.id === wsMessage.data);
+			if (user) {
+				user.isLockedIn = true;
+			}
+			this.match$.next(this.match);
+		});
+
+		this.webSocketService.onWebSocketEvent<MatchEndedWSMessage>(WebSocketMessageType.matchEnded, () => {
+			this.match.matchState = MatchStates.ended;
 		});
 	}
 }

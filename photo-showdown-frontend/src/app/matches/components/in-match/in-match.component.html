@@ -34,8 +34,8 @@
 				<li *ngFor="let player of match?.users">
 					<p>
 						<strong>{{ player.username }}:</strong>
-						Score: {{ score.get(player.id) }}
-						<mat-checkbox [checked]="lockedInUserIds.has(player.id)" color="primary" disabled></mat-checkbox>
+						Score: {{ player.score }}
+						<mat-checkbox [checked]="player.isLockedIn" color="primary" disabled></mat-checkbox>
 					</p>
 				</li>
 			</ul>
@@ -58,13 +58,11 @@
 				match?.currentRound !== undefined
 			"
 			[picturesToVote]="(match?.currentRound)!.picturesSelected"
+			[users]="match!.users"
 			[userPictureIds]="userPictureIds"
 			[currentRound]="match!.currentRound!"
 			(lockedInPicture)="onLockedInPicture()"></app-in-match-vote-picture>
 	</div>
 	<!-- Summary Screen-->
-	<app-in-match-summary-screen
-		*ngIf="match?.matchState === MatchStates.ended"
-		[users]="match!.users"
-		[score]="score"></app-in-match-summary-screen>
+	<app-in-match-summary-screen *ngIf="match?.matchState === MatchStates.ended" [users]="match!.users"></app-in-match-summary-screen>
 </div>

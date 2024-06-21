@@ -13,6 +13,7 @@ import { Match, MatchStates } from "../../models/match.model";
 import { UserInMatch } from "src/app/users/models/user-public-details.model";
 import { environment } from "src/environments/environment";
 import { AuthService } from "src/app/shared/services/auth-service/auth.service";
+import { MatchSocketService } from "../../services/match-socket.service";
 
 /**
  * A component that displays the in-match view.
@@ -28,8 +29,6 @@ export class InMatchComponent implements OnInit {
 	userPictureIds: Set<number> = new Set();
 	selectedPicture?: Picture;
 	countdown$?: Observable<number>;
-	score = new Map<number, number>(); // TODO: https://groupy-group.atlassian.net/browse/PHSH-153 (score should only be received from the server)
-	lockedInUserIds: Set<number> = new Set(); // TODO: https://groupy-group.atlassian.net/browse/PHSH-153 (lock ins should only be received from the server)
 	userId = 0;
 	roundWinnerUserName?: string;
 
@@ -39,7 +38,7 @@ export class InMatchComponent implements OnInit {
 	readonly RoundStates = RoundStates;
 	readonly MatchStates = MatchStates;
 	constructor(
-		private readonly webSocketService: WebSocketService,
+		private readonly matchSocketService: MatchSocketService,
 		private readonly matchesService: MatchesService,
 		private readonly picturesService: PicturesService,
 		private readonly notifier: NotifierService,
@@ -64,39 +63,17 @@ export class InMatchComponent implements OnInit {
 			if (response.data.currentRound) {
 				this.handleRoundStateChange(response.data.currentRound);
 			}
+		});
 
-			this.match.users.forEach((user) => {
-				this.score.set(user.id, 0);
-			});
+		this.matchSocketService.match$.subscribe((match) => {
+			this.match = match;
+			this.cd.detectChanges();
 		});
 
 		// Listen for round state change
-		this.webSocketService.onWebSocketEvent<WebSocketMessage<Round>>(WebSocketMessageType.roundStateChange, (wsMessage) => {
-			this.handleRoundStateChange(wsMessage.data);
+		this.matchSocketService.roundStateChanged$.subscribe((round) => {
+			this.handleRoundStateChange(round);
 			this.cd.detectChanges();
-		});
-
-		// Listen for players leaving the match
-		this.webSocketService.onWebSocketEvent<WebSocketMessage<UserInMatch>>(WebSocketMessageType.playerLeft, (wsMessage) => {
-			const newUserLists = this.match?.users.filter((u) => u.id !== wsMessage.data.id);
-			if (this.match) {
-				this.match.users = newUserLists || [];
-			}
-			this.score.delete(wsMessage.data.id);
-			this.cd.detectChanges();
-		});
-
-		// Listen for players locking in their picture
-		this.webSocketService.onWebSocketEvent<WebSocketMessage<number>>(WebSocketMessageType.userLockedIn, (wsMessage) => {
-			this.lockedInUserIds.add(wsMessage.data);
-			this.cd.detectChanges();
-		});
-
-		this.webSocketService.onWebSocketEvent<MatchEndedWSMessage>(WebSocketMessageType.matchEnded, () => {
-			if (this.match) {
-				this.match.matchState = MatchStates.ended;
-				this.cd.detectChanges();
-			}
 		});
 	}
 
@@ -112,7 +89,14 @@ export class InMatchComponent implements OnInit {
 	}
 
 	onLockedInPicture() {
-		this.lockedInUserIds.add(this.userId);
+		if (!this.match) {
+			return;
+		}
+		const user = this.match.users.find((u) => u.id === this.userId);
+		if (!user) {
+			return;
+		}
+		user.isLockedIn = true;
 	}
 
 	private handleRoundStateChange(round: Round) {
@@ -133,15 +117,6 @@ export class InMatchComponent implements OnInit {
 				break;
 			case RoundStates.ended:
 				this.countdown$ = this.setTimer(DateTimeUtils.getSecondsUntil(round.roundEndDate));
-				if (round.roundWinnerId) {
-					this.score.set(round.roundWinnerId, this.score.get(round.roundWinnerId)! + 1);
-
-					this.match?.users.sort((userA, userB) => {
-						const scoreA = this.score.get(userA.id)!;
-						const scoreB = this.score.get(userB.id)!;
-						return scoreB - scoreA;
-					});
-				}
 				break;
 		}
 
@@ -150,12 +125,7 @@ export class InMatchComponent implements OnInit {
 			picture.picturePath = UrlUtils.getPictureURL(picture.picturePath);
 		});
 
-		this.match!.currentRound = round;
-
 		this.roundWinnerUserName = this.match?.users.find((user) => user.id === round.roundWinnerId)?.username;
-
-		// Reset locked in user ids
-		this.lockedInUserIds.clear();
 	}
 
 	private setTimer(seconds: number) {

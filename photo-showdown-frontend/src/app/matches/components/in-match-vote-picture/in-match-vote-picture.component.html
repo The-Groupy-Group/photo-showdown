@@ -1,7 +1,7 @@
 <app-in-match-pictures-grid>
 	<div *ngFor="let selectedPicture of picturesToVote">
 		<p class="picture-info" *ngIf="currentRound?.roundState === RoundStates.ended">
-			<strong>Selected By: {{ selectedPicture.selectedByUser!.username }}</strong>
+			<strong>Selected By: {{ selectedPicture.selectedByUser?.username }}</strong>
 			<strong>Votes: {{ selectedPicture.numOfVotes }}</strong>
 		</p>
 		<app-picture-item
