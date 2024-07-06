@@ -1,16 +1,13 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { Round, RoundStates } from "../../models/round.model";
-import { WebSocketService } from "../../../web-sockets/services/web-socket.service";
 import { NotifierService } from "angular-notifier";
 import { MatchesService } from "../../services/matches.service";
-import { MatchEndedWSMessage, WebSocketMessage, WebSocketMessageType } from "../../../web-sockets/models/web-socket-message.model";
 import { PicturesService } from "src/app/pictures/services/pictures.service";
 import { Picture } from "src/app/pictures/models/picture.model";
 import { DateTimeUtils } from "src/app/shared/utils/date-time-utils";
 import { Observable, map, takeWhile, timer } from "rxjs";
 import { UrlUtils } from "src/app/shared/utils/url-utils";
 import { Match, MatchStates } from "../../models/match.model";
-import { UserInMatch } from "src/app/users/models/user-public-details.model";
 import { environment } from "src/environments/environment";
 import { AuthService } from "src/app/shared/services/auth-service/auth.service";
 import { MatchSocketService } from "../../services/match-socket.service";
