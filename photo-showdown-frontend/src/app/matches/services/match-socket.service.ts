@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { EventEmitter, Injectable } from "@angular/core";
 import { WebSocketService } from "../../web-sockets/services/web-socket.service";
 import { WebSocketSubject } from "rxjs/webSocket";
 import { Match, MatchStates } from "../models/match.model";
@@ -9,18 +9,23 @@ import {
 	WebSocketMessageType
 } from "../../web-sockets/models/web-socket-message.model";
 import { UserInMatch } from "../../users/models/user-public-details.model";
-import { Round, RoundStates } from "../models/round.model";
+import { Round } from "../models/round.model";
+import { BehaviorSubject, Observable } from "rxjs";
 
 @Injectable({
 	providedIn: "root"
 })
 export class MatchSocketService {
-	public match$: WebSocketSubject<Match>;
-	public matchStarted$: WebSocketSubject<void>;
-	public roundStateChanged$: WebSocketSubject<Round>;
-
 	private isConnectionOpen = false;
-	private match: Match;
+	private match: Match = {
+		id: 0,
+		currentRound: {} as Round
+	} as Match;
+	private matchSubject = new BehaviorSubject<Match>(this.match);
+	private roundSubject = new BehaviorSubject<Round>(this.match.currentRound ?? ({} as Round));
+	public match$: Observable<Match> = this.matchSubject.asObservable();
+	public matchStarted$: EventEmitter<void> = new EventEmitter<void>();
+	public roundStateChanged$: Observable<Round> = this.roundSubject.asObservable();
 
 	constructor(private webSocketService: WebSocketService) {}
 
@@ -28,14 +33,15 @@ export class MatchSocketService {
 	 * Opens a connection to the match socket
 	 * @param matchId
 	 */
-	openConnection(): void {
+	openConnection(): Promise<void> {
 		if (this.isConnectionOpen) {
-			return;
+			return Promise.resolve();
 		}
 		this.webSocketService.openConnection();
 		this.isConnectionOpen = true;
 
 		this.listenForAllEvents();
+		return Promise.resolve();
 	}
 
 	/**
@@ -53,7 +59,7 @@ export class MatchSocketService {
 		// Listen for player joined events
 		this.webSocketService.onWebSocketEvent<WebSocketMessage<UserInMatch>>(WebSocketMessageType.playerJoined, (wsMessage) => {
 			this.match.users.push(wsMessage.data);
-			this.match$.next(this.match);
+			this.matchSubject.next(this.match);
 		});
 
 		// Listen for player left events
@@ -62,7 +68,7 @@ export class MatchSocketService {
 			if (this.match) {
 				this.match.users = newUserLists || [];
 			}
-			this.match$.next(this.match);
+			this.matchSubject.next(this.match);
 		});
 
 		// Listen for new owner events
@@ -70,13 +76,13 @@ export class MatchSocketService {
 			if (this.match) {
 				this.match.owner = wsMessage.data;
 			}
-			this.match$.next(this.match);
+			this.matchSubject.next(this.match);
 		});
 
 		// Listen for match start events
 		this.webSocketService.onWebSocketEvent<EmptyWebSocketMessage>(WebSocketMessageType.matchStarted, () => {
 			this.match.matchState = MatchStates.inProgress;
-			this.match$.next(this.match);
+			this.matchSubject.next(this.match);
 			this.matchStarted$.next();
 		});
 
@@ -88,8 +94,8 @@ export class MatchSocketService {
 			this.match.users.forEach((user) => {
 				user.isLockedIn = false;
 			});
-			this.match$.next(this.match);
-			this.roundStateChanged$.next(wsMessage.data);
+			this.matchSubject.next(this.match);
+			this.roundSubject.next(wsMessage.data);
 		});
 
 		// Listen for players locking in their picture
@@ -98,7 +104,7 @@ export class MatchSocketService {
 			if (user) {
 				user.isLockedIn = true;
 			}
-			this.match$.next(this.match);
+			this.matchSubject.next(this.match);
 		});
 
 		this.webSocketService.onWebSocketEvent<MatchEndedWSMessage>(WebSocketMessageType.matchEnded, () => {

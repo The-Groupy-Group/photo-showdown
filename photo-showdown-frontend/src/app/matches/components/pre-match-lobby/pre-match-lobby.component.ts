@@ -52,16 +52,16 @@ export class PreMatchLobbyComponent implements OnInit {
 			this.cd.detectChanges();
 		});
 
-		this.matchSocketService.openConnection();
+		this.matchSocketService.openConnection().then(() => {
+			this.matchSocketService.match$.subscribe((match) => {
+				this.match = match;
+				this.cd.detectChanges();
+			});
 
-		this.matchSocketService.match$.subscribe((match) => {
-			this.match = match;
-			this.cd.detectChanges();
-		});
-
-		this.matchSocketService.matchStarted$.subscribe(() => {
-			this.matchStarted.emit();
-			this.cd.detectChanges();
+			this.matchSocketService.matchStarted$.subscribe(() => {
+				this.matchStarted.emit();
+				this.cd.detectChanges();
+			});
 		});
 	}
 
