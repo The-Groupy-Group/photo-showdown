@@ -1,6 +1,5 @@
 import { EventEmitter, Injectable } from "@angular/core";
 import { WebSocketService } from "../../web-sockets/services/web-socket.service";
-import { WebSocketSubject } from "rxjs/webSocket";
 import { Match, MatchStates } from "../models/match.model";
 import {
 	EmptyWebSocketMessage,
@@ -10,7 +9,8 @@ import {
 } from "../../web-sockets/models/web-socket-message.model";
 import { UserInMatch } from "../../users/models/user-public-details.model";
 import { Round } from "../models/round.model";
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject, Observable, map, tap } from "rxjs";
+import { MatchesService } from "./matches.service";
 
 @Injectable({
 	providedIn: "root"
@@ -19,6 +19,9 @@ export class MatchSocketService {
 	private isConnectionOpen = false;
 	private match: Match = {
 		id: 0,
+		users: [],
+		owner: {} as UserInMatch,
+		matchState: MatchStates.notStarted,
 		currentRound: {} as Round
 	} as Match;
 	private matchSubject = new BehaviorSubject<Match>(this.match);
@@ -27,21 +30,30 @@ export class MatchSocketService {
 	public matchStarted$: EventEmitter<void> = new EventEmitter<void>();
 	public roundStateChanged$: Observable<Round> = this.roundSubject.asObservable();
 
-	constructor(private webSocketService: WebSocketService) {}
+	constructor(
+		private readonly webSocketService: WebSocketService,
+		private readonly matchesService: MatchesService
+	) {}
 
 	/**
 	 * Opens a connection to the match socket
 	 * @param matchId
 	 */
-	openConnection(): Promise<void> {
+	openConnection(matchId: number): void {
 		if (this.isConnectionOpen) {
-			return Promise.resolve();
+			return;
 		}
+
+		// Get the match details
+		this.matchesService.getMatchById(matchId).subscribe((response) => {
+			this.match = response.data;
+			this.matchSubject.next(this.match);
+		});
+
 		this.webSocketService.openConnection();
 		this.isConnectionOpen = true;
 
 		this.listenForAllEvents();
-		return Promise.resolve();
 	}
 
 	/**

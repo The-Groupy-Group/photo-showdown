@@ -86,12 +86,11 @@ public class RoundsService : IRoundsService
         return _mapper.Map<RoundDTO>(round);
     }
 
-    public async Task<RoundDTO> GetCurrentRound(int matchId)
+    public async Task<RoundDTO?> GetCurrentRound(int matchId)
     {
-        Round lastRound = await _roundsRepo.GetLastRoundByMatchIdWithIncludes(matchId) ??
-            throw new NotFoundException();
+        Round? lastRound = await _roundsRepo.GetLastRoundByMatchIdWithIncludes(matchId);
 
-        RoundDTO roundDTO = _mapper.Map<RoundDTO>(lastRound);
+        RoundDTO? roundDTO = _mapper.Map<RoundDTO?>(lastRound);
 
         return roundDTO;
     }

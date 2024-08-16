@@ -45,7 +45,7 @@ export class InMatchComponent implements OnInit {
 		this.userId = authService.getUserId();
 	}
 
-	ngOnInit() {
+	async ngOnInit() {
 		// Get all pictures for the current user
 		this.picturesService.getMyPictures().subscribe((response) => {
 			this.usersPictures = response.data;
@@ -61,6 +61,8 @@ export class InMatchComponent implements OnInit {
 				this.handleRoundStateChange(response.data.currentRound);
 			}
 		});
+
+		this.matchSocketService.openConnection(this.matchId);
 
 		this.matchSocketService.match$.subscribe((match) => {
 			this.match = match;
