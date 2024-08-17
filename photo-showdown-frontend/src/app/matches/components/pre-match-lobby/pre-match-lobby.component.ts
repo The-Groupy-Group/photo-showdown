@@ -43,7 +43,7 @@ export class PreMatchLobbyComponent implements OnInit {
 		this.userId = authService.getUserId();
 	}
 
-	async ngOnInit() {
+	ngOnInit() {
 		this.matchSocketService.openConnection(this.matchId);
 
 		this.matchSocketService.match$.subscribe((match) => {

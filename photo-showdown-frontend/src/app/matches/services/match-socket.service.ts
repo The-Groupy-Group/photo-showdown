@@ -9,7 +9,7 @@ import {
 } from "../../web-sockets/models/web-socket-message.model";
 import { UserInMatch } from "../../users/models/user-public-details.model";
 import { Round } from "../models/round.model";
-import { BehaviorSubject, Observable, map, tap } from "rxjs";
+import { BehaviorSubject, Observable } from "rxjs";
 import { MatchesService } from "./matches.service";
 
 @Injectable({
@@ -26,6 +26,7 @@ export class MatchSocketService {
 	} as Match;
 	private matchSubject = new BehaviorSubject<Match>(this.match);
 	private roundSubject = new BehaviorSubject<Round>(this.match.currentRound ?? ({} as Round));
+
 	public match$: Observable<Match> = this.matchSubject.asObservable();
 	public matchStarted$: EventEmitter<void> = new EventEmitter<void>();
 	public roundStateChanged$: Observable<Round> = this.roundSubject.asObservable();
@@ -67,6 +68,9 @@ export class MatchSocketService {
 		this.isConnectionOpen = false;
 	}
 
+	/**
+	 * A inner function to listen for all events received from the web socket server
+	 */
 	private listenForAllEvents() {
 		// Listen for player joined events
 		this.webSocketService.onWebSocketEvent<WebSocketMessage<UserInMatch>>(WebSocketMessageType.playerJoined, (wsMessage) => {

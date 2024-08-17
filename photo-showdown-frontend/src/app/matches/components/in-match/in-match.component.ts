@@ -45,21 +45,12 @@ export class InMatchComponent implements OnInit {
 		this.userId = authService.getUserId();
 	}
 
-	async ngOnInit() {
+	ngOnInit() {
 		// Get all pictures for the current user
 		this.picturesService.getMyPictures().subscribe((response) => {
 			this.usersPictures = response.data;
 			this.userPictureIds = new Set(this.usersPictures.map((p) => p.id));
 			this.cd.detectChanges();
-		});
-
-		// Get the current match
-		this.matchesService.getCurrentMatch().subscribe((response) => {
-			this.match = response.data;
-			// Get the current round
-			if (response.data.currentRound) {
-				this.handleRoundStateChange(response.data.currentRound);
-			}
 		});
 
 		this.matchSocketService.openConnection(this.matchId);
@@ -71,6 +62,12 @@ export class InMatchComponent implements OnInit {
 
 		// Listen for round state change
 		this.matchSocketService.roundStateChanged$.subscribe((round) => {
+			if (!round) {
+				return;
+			}
+			if (this.match) {
+				this.match.currentRound = round;
+			}
 			this.handleRoundStateChange(round);
 			this.cd.detectChanges();
 		});
@@ -99,32 +96,36 @@ export class InMatchComponent implements OnInit {
 	}
 
 	private handleRoundStateChange(round: Round) {
-		// Convert dates to local time
-		round.startDate = DateTimeUtils.convertUtcToLocal(round.startDate);
-		round.pictureSelectionEndDate = DateTimeUtils.convertUtcToLocal(round.pictureSelectionEndDate);
-		round.votingEndDate = DateTimeUtils.convertUtcToLocal(round.votingEndDate);
-		round.roundEndDate = DateTimeUtils.convertUtcToLocal(round.roundEndDate);
+		try {
+			// Convert dates to local time
+			round.startDate = DateTimeUtils.convertUtcToLocal(round.startDate);
+			round.pictureSelectionEndDate = DateTimeUtils.convertUtcToLocal(round.pictureSelectionEndDate);
+			round.votingEndDate = DateTimeUtils.convertUtcToLocal(round.votingEndDate);
+			round.roundEndDate = DateTimeUtils.convertUtcToLocal(round.roundEndDate);
 
-		// Handle state specific logic
-		// Set the timer based on the current round state
-		switch (round.roundState) {
-			case RoundStates.pictureSelection:
-				this.countdown$ = this.setTimer(DateTimeUtils.getSecondsUntil(round.pictureSelectionEndDate));
-				break;
-			case RoundStates.voting:
-				this.countdown$ = this.setTimer(DateTimeUtils.getSecondsUntil(round.votingEndDate));
-				break;
-			case RoundStates.ended:
-				this.countdown$ = this.setTimer(DateTimeUtils.getSecondsUntil(round.roundEndDate));
-				break;
+			// Handle state specific logic
+			// Set the timer based on the current round state
+			switch (round.roundState) {
+				case RoundStates.pictureSelection:
+					this.countdown$ = this.setTimer(DateTimeUtils.getSecondsUntil(round.pictureSelectionEndDate));
+					break;
+				case RoundStates.voting:
+					this.countdown$ = this.setTimer(DateTimeUtils.getSecondsUntil(round.votingEndDate));
+					break;
+				case RoundStates.ended:
+					this.countdown$ = this.setTimer(DateTimeUtils.getSecondsUntil(round.roundEndDate));
+					break;
+			}
+
+			// Set the base URL for the pictures
+			round.picturesSelected.forEach((picture) => {
+				picture.picturePath = UrlUtils.getPictureURL(picture.picturePath);
+			});
+
+			this.roundWinnerUserName = this.match?.users.find((user) => user.id === round.roundWinnerId)?.username;
+		} catch (error) {
+			console.error(`${error}\n${JSON.stringify(round, null, 2)}`);
 		}
-
-		// Set the base URL for the pictures
-		round.picturesSelected.forEach((picture) => {
-			picture.picturePath = UrlUtils.getPictureURL(picture.picturePath);
-		});
-
-		this.roundWinnerUserName = this.match?.users.find((user) => user.id === round.roundWinnerId)?.username;
 	}
 
 	private setTimer(seconds: number) {

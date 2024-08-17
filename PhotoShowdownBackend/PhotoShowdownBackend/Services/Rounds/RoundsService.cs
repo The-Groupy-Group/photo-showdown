@@ -25,8 +25,8 @@ public class RoundsService : IRoundsService
 
     public RoundsService(
         IRoundsRepository roundsRepo,
-                IRoundPicturesRepository roundPicturesRepository,
-                IRoundVotesRepository roundVotesRepository,
+        IRoundPicturesRepository roundPicturesRepository,
+        IRoundVotesRepository roundVotesRepository,
         IMapper mapper,
         ILogger<RoundsService> logger,
         ISentencesService customSentencesService)
