@@ -25,8 +25,8 @@ public class RoundsService : IRoundsService
 
     public RoundsService(
         IRoundsRepository roundsRepo,
-                IRoundPicturesRepository roundPicturesRepository,
-                IRoundVotesRepository roundVotesRepository,
+        IRoundPicturesRepository roundPicturesRepository,
+        IRoundVotesRepository roundVotesRepository,
         IMapper mapper,
         ILogger<RoundsService> logger,
         ISentencesService customSentencesService)
@@ -86,12 +86,11 @@ public class RoundsService : IRoundsService
         return _mapper.Map<RoundDTO>(round);
     }
 
-    public async Task<RoundDTO> GetCurrentRound(int matchId)
+    public async Task<RoundDTO?> GetCurrentRound(int matchId)
     {
-        Round lastRound = await _roundsRepo.GetLastRoundByMatchIdWithIncludes(matchId) ??
-            throw new NotFoundException();
+        Round? lastRound = await _roundsRepo.GetLastRoundByMatchIdWithIncludes(matchId);
 
-        RoundDTO roundDTO = _mapper.Map<RoundDTO>(lastRound);
+        RoundDTO? roundDTO = _mapper.Map<RoundDTO?>(lastRound);
 
         return roundDTO;
     }

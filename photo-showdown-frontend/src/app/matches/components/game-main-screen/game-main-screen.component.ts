@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { MatchesService } from "../../services/matches.service";
 import { MatchStates } from "../../models/match.model";
 
@@ -10,7 +10,7 @@ import { MatchStates } from "../../models/match.model";
 	templateUrl: "./game-main-screen.component.html",
 	styleUrls: ["./game-main-screen.component.css"]
 })
-export class GameMainScreenComponent {
+export class GameMainScreenComponent implements OnInit {
 	matchState?: MatchStates = undefined;
 	matchId?: number;
 
