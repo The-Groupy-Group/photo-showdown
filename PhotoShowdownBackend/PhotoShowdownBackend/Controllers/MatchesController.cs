@@ -78,7 +78,6 @@ public class MatchesController : ControllerBase
         }
     }
 
-
     /// <summary>
     /// Gets all open matches
     /// </summary>
