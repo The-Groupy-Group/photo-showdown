@@ -10,6 +10,7 @@ using PhotoShowdownBackend.Repositories.RoundPictures;
 using PhotoShowdownBackend.Repositories.Rounds;
 using PhotoShowdownBackend.Repositories.RoundVotes;
 using PhotoShowdownBackend.Services.CustomSentences;
+using PhotoShowdownBackend.Services.MatchConnections;
 using PhotoShowdownBackend.Services.Pictures;
 
 namespace PhotoShowdownBackend.Services.Rounds;
@@ -19,6 +20,7 @@ public class RoundsService : IRoundsService
     private readonly IRoundsRepository _roundsRepo;
     private readonly IRoundPicturesRepository _roundPicturesRepository;
     private readonly IRoundVotesRepository _roundVotesRepository;
+    private readonly IMatchConnectionsService _matcheConnectionsService;
     private readonly IMapper _mapper;
     private readonly ILogger<RoundsService> _logger;
     private readonly ISentencesService _sentencesService;
@@ -27,6 +29,7 @@ public class RoundsService : IRoundsService
         IRoundsRepository roundsRepo,
         IRoundPicturesRepository roundPicturesRepository,
         IRoundVotesRepository roundVotesRepository,
+        IMatchConnectionsService matcheConnectionsService,
         IMapper mapper,
         ILogger<RoundsService> logger,
         ISentencesService customSentencesService)
@@ -34,6 +37,7 @@ public class RoundsService : IRoundsService
         _roundsRepo = roundsRepo;
         _roundPicturesRepository = roundPicturesRepository;
         _roundVotesRepository = roundVotesRepository;
+        _matcheConnectionsService = matcheConnectionsService;
         _mapper = mapper;
         _logger = logger;
         _sentencesService = customSentencesService;
@@ -81,7 +85,16 @@ public class RoundsService : IRoundsService
         round.EndDate = DateTime.UtcNow;
         round.WinnerId = CalculateRoundWinner(round);
 
-        await _roundsRepo.UpdateAsync(round);
+        Task updateScoreTask = Task.CompletedTask;
+        Task updateRoundTask;
+
+        if(round.WinnerId.HasValue)
+        {
+            updateScoreTask = _matcheConnectionsService.IncrementScore(round.WinnerId.Value, matchId);
+        }
+        updateRoundTask = _roundsRepo.UpdateAsync(round);
+
+        await Task.WhenAll(updateScoreTask, updateRoundTask);
 
         return _mapper.Map<RoundDTO>(round);
     }
