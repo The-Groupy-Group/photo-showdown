@@ -11,4 +11,5 @@ public interface IMatchConnectionsService
     Task DeleteMatchConnection(int userId, int matchId);
     Task DeleteAllMatchConnections(int matchId);
     Task<int?> GetMatchIdByUserId(int userId);
+    Task IncrementScore(int userId, int matchId);
 }

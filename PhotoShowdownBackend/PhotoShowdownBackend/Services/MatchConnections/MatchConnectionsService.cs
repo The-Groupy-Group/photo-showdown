@@ -74,4 +74,13 @@ public class MatchConnectionsService : IMatchConnectionsService
 
         return mc?.MatchId;
     }
+    public async Task IncrementScore(int userId, int matchId)
+    {
+        MatchConnection? mc = await _matchConnectionsRepo.GetAsync(mc => mc.UserId == userId && mc.MatchId == matchId) ??
+            throw new NotFoundException("User is currently not in match");
+
+        mc.Score++;
+
+        await _matchConnectionsRepo.UpdateAsync(mc);
+    }
 }
