@@ -1,5 +1,5 @@
 import { UserInMatch } from "src/app/users/models/user-public-details.model";
-import { Round } from "./round.model";
+import { Round } from "../../matches/models/round.model";
 
 /**
  * This interface represents a message sent over a WebSocket connection.

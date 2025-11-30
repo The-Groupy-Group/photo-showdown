@@ -1,8 +1,9 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { PictureSelected } from "src/app/pictures/models/picture-selected.model";
 import { MatchesService } from "../../services/matches.service";
 import { Round, RoundStates } from "../../models/round.model";
 import { AuthService } from "src/app/shared/services/auth-service/auth.service";
+import { UserInMatch } from "../../../users/models/user-public-details.model";
 
 /**
  * A component that displays the picture selection view in a match.
@@ -12,12 +13,13 @@ import { AuthService } from "src/app/shared/services/auth-service/auth.service";
 	templateUrl: "./in-match-vote-picture.component.html",
 	styleUrls: ["./in-match-vote-picture.component.css"]
 })
-export class InMatchVotePictureComponent {
+export class InMatchVotePictureComponent implements OnInit {
 	votedPictureId?: number;
 	userId: number;
 	lockedIn = false;
 
 	@Input() picturesToVote: PictureSelected[] = [];
+	@Input({ required: true }) users: UserInMatch[] = [];
 	@Input() userPictureIds = new Set<number>();
 	@Input({ required: true }) currentRound!: Round;
 	@Output() lockedInPicture = new EventEmitter<void>();
@@ -29,6 +31,12 @@ export class InMatchVotePictureComponent {
 		authService: AuthService
 	) {
 		this.userId = authService.getUserId();
+	}
+
+	ngOnInit(): void {
+		this.picturesToVote.forEach((picture) => {
+			picture.selectedByUser = this.users.find((u) => u.id === picture.selectedByUserId);
+		});
 	}
 
 	selectPicture(picture: PictureSelected) {

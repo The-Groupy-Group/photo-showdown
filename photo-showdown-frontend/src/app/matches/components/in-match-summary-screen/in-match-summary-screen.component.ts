@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
 import { UserInMatch } from "src/app/users/models/user-public-details.model";
 
 @Component({
@@ -6,21 +6,20 @@ import { UserInMatch } from "src/app/users/models/user-public-details.model";
 	templateUrl: "./in-match-summary-screen.component.html",
 	styleUrls: ["./in-match-summary-screen.component.css"]
 })
-export class InMatchSummaryScreenComponent {
+export class InMatchSummaryScreenComponent implements OnInit {
 	@Input({ required: true }) users!: UserInMatch[];
-	@Input({ required: true }) score!: Map<number, number>;
 	winnerUsername = "";
 
 	ngOnInit() {
 		this.winnerUsername = this.calculateWinner().toUpperCase();
 	}
 	calculateWinner(): string {
-		let max = 0;
+		let maxScore = 0;
 		let winner: UserInMatch = this.users[0];
 		for (let i = 0; i < this.users.length; i++) {
-			const temp = this.score.get(this.users[i].id)!;
-			if (max < temp) {
-				max = temp;
+			const currScore = this.users[i].score;
+			if (maxScore < currScore) {
+				maxScore = currScore;
 				winner = this.users[i];
 			}
 		}

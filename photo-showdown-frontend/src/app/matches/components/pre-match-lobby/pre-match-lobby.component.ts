@@ -2,12 +2,10 @@ import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } fro
 import { NotifierService } from "angular-notifier";
 import { MatchesService } from "../../services/matches.service";
 import { Match } from "../../models/match.model";
-import { WebSocketService } from "../../services/web-socket.service";
-import { EmptyWebSocketMessage, WebSocketMessage, WebSocketMessageType } from "../../models/web-socket-message.model";
-import { UserInMatch } from "src/app/users/models/user-public-details.model";
 import { AuthService } from "src/app/shared/services/auth-service/auth.service";
 import { MatchSettings } from "../../models/match-settings.model";
 import { environment } from "src/environments/environment";
+import { MatchSocketService } from "../../services/match-socket.service";
 
 /**
  * A component that displays the pre-match lobby.
@@ -37,7 +35,7 @@ export class PreMatchLobbyComponent implements OnInit {
 
 	constructor(
 		private readonly matchesService: MatchesService,
-		private readonly webSocketService: WebSocketService,
+		private readonly matchSocketService: MatchSocketService,
 		private readonly notifier: NotifierService,
 		private readonly cd: ChangeDetectorRef,
 		authService: AuthService
@@ -46,40 +44,18 @@ export class PreMatchLobbyComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		// Get the match details
-		this.matchesService.getMatchById(this.matchId).subscribe((response) => {
-			this.match = response.data;
-			this.matchSettings.matchId = this.match.id;
+		this.matchSocketService.openConnection(this.matchId);
+
+		this.matchSocketService.match$.subscribe((match) => {
+			this.match = match;
+			this.matchSettings.matchId = match.id;
 			this.isLoading = false;
 			this.cd.detectChanges();
 		});
 
-		// Listen for player joined events
-		this.webSocketService.onWebSocketEvent<WebSocketMessage<UserInMatch>>(WebSocketMessageType.playerJoined, (wsMessage) => {
-			this.match?.users.push(wsMessage.data);
-			this.cd.detectChanges();
-		});
-
-		// Listen for player left events
-		this.webSocketService.onWebSocketEvent<WebSocketMessage<UserInMatch>>(WebSocketMessageType.playerLeft, (wsMessage) => {
-			const newUserLists = this.match?.users.filter((u) => u.id !== wsMessage.data.id);
-			if (this.match) {
-				this.match.users = newUserLists || [];
-			}
-			this.cd.detectChanges();
-		});
-
-		// Listen for new owner events
-		this.webSocketService.onWebSocketEvent<WebSocketMessage<UserInMatch>>(WebSocketMessageType.newOwner, (wsMessage) => {
-			if (this.match) {
-				this.match.owner = wsMessage.data;
-			}
-			this.cd.detectChanges();
-		});
-
-		// Listen for match start events
-		this.webSocketService.onWebSocketEvent<EmptyWebSocketMessage>(WebSocketMessageType.matchStarted, (wsMessage) => {
+		this.matchSocketService.matchStarted$.subscribe(() => {
 			this.matchStarted.emit();
+			this.cd.detectChanges();
 		});
 	}
 
