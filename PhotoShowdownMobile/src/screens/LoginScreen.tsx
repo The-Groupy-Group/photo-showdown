@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityInd
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { jwtDecode } from "jwt-decode";
-
+import { API_BASE } from '../utils/Config';
 
 interface TokenPayload {
   Id: string;
@@ -17,7 +17,6 @@ const LoginScreen = ({ navigation }: any) => {
   const [loading, setLoading] = useState(false);
 
   
-  const API_URL = "http://10.0.0.1:5299/api/Users/Login"; 
 
   const handleLogin = async () => {
     if (!username || !password) {
@@ -28,9 +27,9 @@ const LoginScreen = ({ navigation }: any) => {
     setLoading(true);
 
     try {
-      console.log("Attempting login to:", API_URL);
+      console.log("Attempting login to:", API_BASE);
       
-      const response = await axios.post(API_URL, {
+      const response = await axios.post(API_BASE, {
         username: username,
         password: password
       });

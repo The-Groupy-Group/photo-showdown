@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import WebSocketService from '../utils/WebSocketService';
 import axios from 'axios';
+import { API_BASE, WS_URL, IMAGE_BASE } from '../utils/Config';
 
 const GameScreen = ({ route }: any) => {
   const { matchId, token, userId } = route.params;
@@ -24,8 +25,7 @@ const GameScreen = ({ route }: any) => {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   const isConnected = useRef(false);
-  const API_BASE = "http://10.0.0.1:5299/api";
-  const WS_URL = "ws://10.0.0.1:5299/api/ws";
+
   const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
   useEffect(() => {
@@ -167,7 +167,7 @@ const GameScreen = ({ route }: any) => {
       if (!path) return undefined;
       let cleanPath = path.replace(/\\/g, '/');
       cleanPath = cleanPath.replace('pictures/', ''); 
-      return `http://10.0.0.1:5299/pictures/${cleanPath}`;
+      return `${IMAGE_BASE}/pictures/${cleanPath}`;
   };
 
   const getWinnerDetails = () => {

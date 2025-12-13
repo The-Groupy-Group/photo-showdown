@@ -4,6 +4,7 @@ import {
   ActivityIndicator, Modal, TextInput, ScrollView, KeyboardAvoidingView, Platform 
 } from 'react-native';
 import axios from 'axios';
+import { API_BASE } from '../utils/Config';
 
 interface IPlayer {
   id: number;
@@ -31,7 +32,7 @@ const LobbyScreen = ({ route, navigation }: any) => {
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const API_BASE = "http://10.0.0.1:5299/api/Matches";
+
   const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
   useEffect(() => {
