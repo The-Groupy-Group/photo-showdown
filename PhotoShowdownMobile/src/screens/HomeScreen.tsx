@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native';
-import axios from 'axios';
+// שינוי: ייבוא api
+import api from '../services/api';
 import * as SecureStore from 'expo-secure-store';
 
 const HomeScreen = ({ route, navigation }: any) => {
@@ -10,24 +11,21 @@ const HomeScreen = ({ route, navigation }: any) => {
   const [loading, setLoading] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(true);
 
-  const API_BASE = "http://10.0.0.1:5299/api/Matches";
+  // שינוי: ה-BASE URL כבר מוגדר ב-api service
   const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
   useEffect(() => {
     checkStatusAndCleanup();
   }, []);
 
-  // --- לוגיקה חדשה: חיפוש וניקוי חכם ---
-  // --- החלף את הפונקציה הקיימת בזו ---
   const checkStatusAndCleanup = async () => {
     try {
-      // בדיקה רגילה
-      const response = await axios.get(`${API_BASE}/GetCurrentMatch`, authHeader);
+      // שינוי: שימוש ב-api
+      const response = await api.get(`/Matches/GetCurrentMatch`, authHeader);
       if (response.data.data) {
            promptRejoinOrLeave(response.data.data.id);
       }
     } catch (e: any) {
-      // אם קיבלנו 500, סימן שאנחנו תקועים במשחק שבור
       if (e.response?.status === 500) {
           console.log("Detected broken match (500). Starting BRUTE FORCE cleanup...");
           await bruteForceLeave();
@@ -37,17 +35,14 @@ const HomeScreen = ({ route, navigation }: any) => {
     }
   };
 
-  // --- פונקציה חדשה: מנסה לצאת מכל משחק אפשרי ---
   const bruteForceLeave = async () => {
       setLoading(true);
-      // ראינו שהגעת למשחק 28, אז טווח של 1-50 יכסה הכל
       const promises = [];
       for (let i = 1; i <= 50; i++) {
-          // שולחים את הבקשות במקביל כדי שזה יהיה מהיר
           promises.push(
-              axios.delete(`${API_BASE}/LeaveMatch/${i}`, authHeader)
+              api.delete(`/Matches/LeaveMatch/${i}`, authHeader)
                 .then(() => console.log(`Deleted match connection: ${i}`))
-                .catch(() => {}) // מתעלמים משגיאות (כי ברוב המשחקים אנחנו לא נמצאים)
+                .catch(() => {})
           );
       }
       
@@ -56,22 +51,17 @@ const HomeScreen = ({ route, navigation }: any) => {
       setLoading(false);
   };
 
-  // --- הפתרון העוקף: חיפוש ידני בכל המשחקים ---
   const findAndLeaveBrokenMatch = async () => {
       try {
-          // מבקשים את כל המשחקים הפתוחים
-          const res = await axios.get(`${API_BASE}/GetAllMatches`, authHeader);
+          const res = await api.get(`/Matches/GetAllMatches`, authHeader);
           const allMatches = res.data.data || [];
 
-          // מחפשים משחק שהמשתמש שלנו נמצא בתוכו
-          // (מניחים ש-MatchDTO מכיל רשימת users)
           const myMatch = allMatches.find((m: any) => 
               m.users && m.users.some((u: any) => u.id === userId)
           );
 
           if (myMatch) {
               console.log(`Found user in match ${myMatch.id} via list scan.`);
-              // יציאה בכוח
               await forceLeaveMatch(myMatch.id);
           } else {
               console.log("Could not find user in any match list.");
@@ -97,7 +87,7 @@ const HomeScreen = ({ route, navigation }: any) => {
       setLoading(true);
       try {
           console.log(`Force leaving match ${matchId}...`);
-          await axios.delete(`${API_BASE}/LeaveMatch/${matchId}`, authHeader);
+          await api.delete(`/Matches/LeaveMatch/${matchId}`, authHeader);
           Alert.alert("Fixed!", "Cleaned up stuck match. Try creating a new one.");
       } catch (e) {
           console.error("Failed to leave match:", e);
@@ -112,15 +102,12 @@ const HomeScreen = ({ route, navigation }: any) => {
     try {
       console.log("Creating new match (Lobby Mode)...");
       
-      // 1. יצירת המשחק בלבד
-      const response = await axios.post(`${API_BASE}/CreateNewMatch`, {}, authHeader);
+      const response = await api.post(`/Matches/CreateNewMatch`, {}, authHeader);
       
       if (response.data.isSuccess) {
         const newMatch = response.data.data;
         console.log("Match Created:", newMatch.id);
         
-        // 2. מעבר ללובי (בלי להתחיל את המשחק!)
-        // בלובי נחכה ששחקנים אחרים יצטרפו
         goToLobby(newMatch.id);
       }
     } catch (error: any) {
@@ -140,8 +127,7 @@ const HomeScreen = ({ route, navigation }: any) => {
 
     setLoading(true);
     try {
-      const url = `${API_BASE}/JoinMatch/${matchIdInput}`;
-      await axios.post(url, {}, authHeader);
+      await api.post(`/Matches/JoinMatch/${matchIdInput}`, {}, authHeader);
       goToLobby(parseInt(matchIdInput));
     } catch (error: any) {
       Alert.alert("Error", "Could not join match.");
@@ -160,7 +146,6 @@ const HomeScreen = ({ route, navigation }: any) => {
   };
 
   const handleLogout = async () => {
-      // מנסים לנקות לפני יציאה
       await findAndLeaveBrokenMatch();
       await SecureStore.deleteItemAsync('userToken');
       navigation.replace('Login');

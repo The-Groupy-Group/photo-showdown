@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, ScrollView } from 'react-native';
-import axios from 'axios';
+// שינוי: ייבוא api
+import api from '../services/api';
 
 const RegisterScreen = ({ navigation }: any) => {
   const [username, setUsername] = useState('');
@@ -11,10 +12,6 @@ const RegisterScreen = ({ navigation }: any) => {
   
   const [loading, setLoading] = useState(false);
 
-  // הכתובת שאומתה לפי הקוד שלך בשרת
-  // וודא שה-IP (10.0.0.1) והפורט (5299) עדיין נכונים אצלך
-  const API_URL = "http://10.0.0.1:5299/api/Users/Register"; 
-
   const handleRegister = async () => {
     if (!username || !password || !email || !firstName || !lastName) {
       Alert.alert("Error", "Please fill in all fields");
@@ -24,10 +21,10 @@ const RegisterScreen = ({ navigation }: any) => {
     setLoading(true);
 
     try {
-      console.log("Sending registration request to:", API_URL);
+      console.log("Sending registration request...");
 
-      // שליחת הנתונים לשרת
-      const response = await axios.post(API_URL, {
+      // שינוי: שימוש ב-api
+      const response = await api.post('/Users/Register', {
         username: username,
         password: password,
         email: email,
@@ -45,11 +42,10 @@ const RegisterScreen = ({ navigation }: any) => {
     } catch (error: any) {
       console.error("Registration Error:", error);
       
-      // ניסיון לחלץ הודעת שגיאה ברורה מהשרת
       let errorMsg = "Registration failed";
       if (error.response) {
           if (error.response.data && error.response.data.message) {
-              errorMsg = error.response.data.message; // הודעה מה-APIResponse
+              errorMsg = error.response.data.message; 
           } else if (typeof error.response.data === 'string') {
               errorMsg = error.response.data;
           }

@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, 
   ActivityIndicator, Modal, TextInput, ScrollView, KeyboardAvoidingView, Platform 
 } from 'react-native';
-import axios from 'axios';
+import api from '../services/api';
 
 interface IPlayer {
   id: number;
@@ -21,17 +21,14 @@ const LobbyScreen = ({ route, navigation }: any) => {
   const [numRounds, setNumRounds] = useState('5');
   const [votesToWin, setVotesToWin] = useState('3');
   
-  // --- השינוי: הפרדה לשני טיימרים ---
-  const [selectionTime, setSelectionTime] = useState('60'); // זמן לבחירת תמונה
-  const [voteTime, setVoteTime] = useState('60');           // זמן להצבעה
+  const [selectionTime, setSelectionTime] = useState('60'); 
+  const [voteTime, setVoteTime] = useState('60');       
   
-  // משפטים מותאמים אישית
   const [customSentences, setCustomSentences] = useState<string[]>([]);
   const [newSentence, setNewSentence] = useState('');
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const API_BASE = "http://10.0.0.1:5299/api/Matches";
   const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
   useEffect(() => {
@@ -45,13 +42,12 @@ const LobbyScreen = ({ route, navigation }: any) => {
 
  const fetchLobbyStatus = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/GetMatchById/${matchId}`, authHeader);
+      // שינוי: שימוש ב-api
+      const response = await api.get(`/Matches/GetMatchById/${matchId}`, authHeader);
       
       if (response.data.data) {
         const matchData = response.data.data;
         
-        // תיקון זיהוי ההוסט (גישה עם אות גדולה ל-Owner)
-        // אם גם Owner מגיע באות גדולה, צריך לשנות גם כאן:
         const ownerObject = matchData.Owner || matchData.owner; 
         const ownerId = ownerObject ? (ownerObject.Id || ownerObject.id) : -1;
 
@@ -63,11 +59,8 @@ const LobbyScreen = ({ route, navigation }: any) => {
         
         setPlayers(mappedPlayers);
 
-        // --- התיקון הקריטי ---
-        // ניגשים למפתח עם אות גדולה: MatchState
         const state = matchData.MatchState; 
 
-        // הערך הוא camelCase בגלל ה-Converter בשרת
         if (state === 'inProgress') { 
              console.log("Game started! Moving to GameScreen...");
              goToGameScreen();
@@ -106,21 +99,15 @@ const LobbyScreen = ({ route, navigation }: any) => {
       const selectionTimeInt = parseInt(selectionTime) || 60;
       const voteTimeInt = parseInt(voteTime) || 60;
 
-      // --- התיקון: בלי משפטי גיבוי בלקוח ---
-      // אם המשתמש לא הזין כלום, נשלח רשימה ריקה.
-      // השרת יזהה שהרשימה ריקה וישתמש ב-_defaultSentences שלו.
       const finalSentences = customSentences; 
 
       const gameConfig = {
-          // PascalCase (לשרת C#)
           MatchId: matchId,
           Sentences: finalSentences,
           NumOfRounds: roundsInt,
           NumOfVotesToWin: votesInt,
           PictureSelectionTimeSeconds: selectionTimeInt,
           VoteTimeSeconds: voteTimeInt,
-
-          // camelCase (לגיבוי JSON)
           matchId: matchId,
           sentences: finalSentences,
           numOfRounds: roundsInt,
@@ -131,7 +118,8 @@ const LobbyScreen = ({ route, navigation }: any) => {
 
       console.log("Sending Start Payload:", JSON.stringify(gameConfig));
 
-      await axios.post(`${API_BASE}/StartMatch`, gameConfig, authHeader);
+      // שינוי: שימוש ב-api
+      await api.post(`/Matches/StartMatch`, gameConfig, authHeader);
       
     } catch (error: any) {
       console.error("Start Game Error:", error.response?.data || error.message);
@@ -158,7 +146,7 @@ const LobbyScreen = ({ route, navigation }: any) => {
           onPress: async () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
             try {
-                await axios.delete(`${API_BASE}/LeaveMatch/${matchId}`, authHeader);
+                await api.delete(`/Matches/LeaveMatch/${matchId}`, authHeader);
             } catch (e) {} finally {
                 navigation.goBack();
             }
@@ -208,7 +196,6 @@ const LobbyScreen = ({ route, navigation }: any) => {
                           keyboardType="numeric" 
                       />
 
-                      {/* --- שני שדות זמן נפרדים --- */}
                       <Text style={styles.label}>Time to Pick Picture (sec):</Text>
                       <TextInput 
                           style={styles.input} 
@@ -262,7 +249,7 @@ const LobbyScreen = ({ route, navigation }: any) => {
       </View>
       
       <Text style={styles.waitingText}>
-         Updating automatically...
+          Updating automatically...
       </Text>
 
       <FlatList

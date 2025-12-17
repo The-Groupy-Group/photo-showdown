@@ -4,7 +4,9 @@ import {
   TouchableOpacity, Alert, Modal, Dimensions 
 } from 'react-native';
 import WebSocketService from '../utils/WebSocketService';
-import axios from 'axios';
+// שינוי: ייבוא api ומשתני קונפיגורציה
+import api from '../services/api'; 
+import { IP_ADDRESS, PORT } from '../config'; 
 
 const GameScreen = ({ route }: any) => {
   const { matchId, token, userId } = route.params;
@@ -24,8 +26,9 @@ const GameScreen = ({ route }: any) => {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   const isConnected = useRef(false);
-  const API_BASE = "http://10.0.0.1:5299/api";
-  const WS_URL = "ws://10.0.0.1:5299/api/ws";
+
+  // שינוי: בניית כתובת ה-WebSocket באופן דינמי
+  const WS_URL = `ws://${IP_ADDRESS}:${PORT}/api/ws`;
   const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
   useEffect(() => {
@@ -52,24 +55,21 @@ const GameScreen = ({ route }: any) => {
 
       const state = roundData.roundState.toLowerCase();
 
-      // אם התחילה ההצבעה ועוד לא בחרנו למי להצביע -> משחררים את הנעילה מהשלב הקודם
       if (state === 'voting' && votedPictureId === null) {
           setHasSelected(false);
       }
 
-      // אם התחיל סיבוב חדש לגמרי -> מאפסים הכל
       if (state === 'pictureselection' && selectedPictureId === null) {
           setHasSelected(false);
           setVotedPictureId(null);
           setStatus("Pick your card:");
       }
 
-      // אם הסיבוב נגמר -> מרעננים ניקוד
       if (state === 'ended') {
           fetchCurrentState();
       }
 
-  }, [roundData]); // רץ בכל פעם שמגיע עדכון מהשרת
+  }, [roundData]);
 
   // --- טיימר ---
   useEffect(() => {
@@ -98,7 +98,8 @@ const GameScreen = ({ route }: any) => {
 
   const fetchCurrentState = async () => {
       try {
-          const res = await axios.get(`${API_BASE}/Matches/GetCurrentMatch`, authHeader);
+          // שינוי: שימוש ב-api ונתיב מקוצר
+          const res = await api.get(`/Matches/GetCurrentMatch`, authHeader);
           if (res.data.data) {
               setMatchPlayers(res.data.data.users || []);
               if (res.data.data.round) {
@@ -110,7 +111,8 @@ const GameScreen = ({ route }: any) => {
 
   const fetchMyPictures = async () => {
       try {
-          const res = await axios.get(`${API_BASE}/Pictures/GetMyPictures`, authHeader);
+          // שינוי: שימוש ב-api
+          const res = await api.get(`/Pictures/GetMyPictures`, authHeader);
           if (res.data.data) setMyPictures(res.data.data);
       } catch (e) { console.log(e); }
   };
@@ -133,7 +135,8 @@ const GameScreen = ({ route }: any) => {
               matchId: matchId,
               roundIndex: roundData.roundIndex
           };
-          await axios.post(`${API_BASE}/Matches/SelectPictureForRound`, payload, authHeader);
+          // שינוי: שימוש ב-api
+          await api.post(`/Matches/SelectPictureForRound`, payload, authHeader);
           setStatus("Waiting for others...");
       } catch (error: any) { 
           setHasSelected(false);
@@ -154,7 +157,8 @@ const GameScreen = ({ route }: any) => {
               matchId: matchId,
               roundIndex: roundData.roundIndex
           };
-          await axios.post(`${API_BASE}/Matches/VoteForSelectedPicture`, payload, authHeader);
+          // שינוי: שימוש ב-api
+          await api.post(`/Matches/VoteForSelectedPicture`, payload, authHeader);
           Alert.alert("Voted!", "Waiting for results...");
       } catch (error) { 
           setHasSelected(false);
@@ -167,7 +171,8 @@ const GameScreen = ({ route }: any) => {
       if (!path) return undefined;
       let cleanPath = path.replace(/\\/g, '/');
       cleanPath = cleanPath.replace('pictures/', ''); 
-      return `http://10.0.0.1:5299/pictures/${cleanPath}`;
+      // שינוי: בניית URL לתמונה עם ה-IP הדינמי
+      return `http://${IP_ADDRESS}:${PORT}/pictures/${cleanPath}`;
   };
 
   const getWinnerDetails = () => {
