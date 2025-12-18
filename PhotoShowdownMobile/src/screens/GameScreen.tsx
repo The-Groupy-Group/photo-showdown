@@ -4,8 +4,9 @@ import {
   TouchableOpacity, Alert, Modal, Dimensions 
 } from 'react-native';
 import WebSocketService from '../utils/WebSocketService';
-// שינוי: ייבוא api ומשתני קונפיגורציה
-import api from '../services/api'; 
+import matchesService from '../services/matchesService';
+import picturesService from '../services/picturesService';
+import { GameState } from '../enums/GameState';
 import { IP_ADDRESS, PORT } from '../config'; 
 
 const GameScreen = ({ route }: any) => {
@@ -27,9 +28,8 @@ const GameScreen = ({ route }: any) => {
 
   const isConnected = useRef(false);
 
-  // שינוי: בניית כתובת ה-WebSocket באופן דינמי
+  // כתובת ה-WebSocket
   const WS_URL = `ws://${IP_ADDRESS}:${PORT}/api/ws`;
-  const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
   useEffect(() => {
     fetchMyPictures();
@@ -49,29 +49,29 @@ const GameScreen = ({ route }: any) => {
     };
   }, []);
 
-  // --- ניהול נעילות ומעברי שלבים ---
+  // --- ניהול נעילות ומעברי שלבים (שימוש ב-ENUM) ---
   useEffect(() => {
       if (!roundData) return;
 
       const state = roundData.roundState.toLowerCase();
 
-      if (state === 'voting' && votedPictureId === null) {
+      if (state === GameState.Voting && votedPictureId === null) {
           setHasSelected(false);
       }
 
-      if (state === 'pictureselection' && selectedPictureId === null) {
+      if (state === GameState.PictureSelection && selectedPictureId === null) {
           setHasSelected(false);
           setVotedPictureId(null);
           setStatus("Pick your card:");
       }
 
-      if (state === 'ended') {
+      if (state === GameState.Ended) {
           fetchCurrentState();
       }
 
   }, [roundData]);
 
-  // --- טיימר ---
+  // --- טיימר (שימוש ב-ENUM) ---
   useEffect(() => {
       if (!roundData) return;
 
@@ -80,11 +80,11 @@ const GameScreen = ({ route }: any) => {
           let targetTime = 0;
           const state = roundData.roundState.toLowerCase();
 
-          if (state === 'pictureselection') {
+          if (state === GameState.PictureSelection) {
               targetTime = new Date(roundData.pictureSelectionEndDate).getTime();
-          } else if (state === 'voting') {
+          } else if (state === GameState.Voting) {
               targetTime = new Date(roundData.votingEndDate).getTime();
-          } else if (state === 'ended') {
+          } else if (state === GameState.Ended) {
               targetTime = new Date(roundData.roundEndDate).getTime();
           }
 
@@ -98,8 +98,8 @@ const GameScreen = ({ route }: any) => {
 
   const fetchCurrentState = async () => {
       try {
-          // שינוי: שימוש ב-api ונתיב מקוצר
-          const res = await api.get(`/Matches/GetCurrentMatch`, authHeader);
+          // שימוש ב-matchesService
+          const res = await matchesService.getCurrentMatch(token);
           if (res.data.data) {
               setMatchPlayers(res.data.data.users || []);
               if (res.data.data.round) {
@@ -111,8 +111,8 @@ const GameScreen = ({ route }: any) => {
 
   const fetchMyPictures = async () => {
       try {
-          // שינוי: שימוש ב-api
-          const res = await api.get(`/Pictures/GetMyPictures`, authHeader);
+          // שימוש ב-picturesService
+          const res = await picturesService.getMyPictures(token);
           if (res.data.data) setMyPictures(res.data.data);
       } catch (e) { console.log(e); }
   };
@@ -135,8 +135,8 @@ const GameScreen = ({ route }: any) => {
               matchId: matchId,
               roundIndex: roundData.roundIndex
           };
-          // שינוי: שימוש ב-api
-          await api.post(`/Matches/SelectPictureForRound`, payload, authHeader);
+          // שימוש ב-matchesService
+          await matchesService.selectPictureForRound(payload, token);
           setStatus("Waiting for others...");
       } catch (error: any) { 
           setHasSelected(false);
@@ -157,8 +157,8 @@ const GameScreen = ({ route }: any) => {
               matchId: matchId,
               roundIndex: roundData.roundIndex
           };
-          // שינוי: שימוש ב-api
-          await api.post(`/Matches/VoteForSelectedPicture`, payload, authHeader);
+          // שימוש ב-matchesService
+          await matchesService.voteForPicture(payload, token);
           Alert.alert("Voted!", "Waiting for results...");
       } catch (error) { 
           setHasSelected(false);
@@ -171,7 +171,6 @@ const GameScreen = ({ route }: any) => {
       if (!path) return undefined;
       let cleanPath = path.replace(/\\/g, '/');
       cleanPath = cleanPath.replace('pictures/', ''); 
-      // שינוי: בניית URL לתמונה עם ה-IP הדינמי
       return `http://${IP_ADDRESS}:${PORT}/pictures/${cleanPath}`;
   };
 
@@ -241,13 +240,13 @@ const GameScreen = ({ route }: any) => {
           </View>
       </Modal>
 
-      {currentState !== 'ended' && (
+      {currentState !== GameState.Ended && (
         <TouchableOpacity style={styles.trophyBtn} onPress={() => setShowLeaderboard(true)}>
             <Text style={{fontSize: 24}}>🏆</Text>
         </TouchableOpacity>
       )}
 
-      {currentState !== 'ended' && (
+      {currentState !== GameState.Ended && (
         <View style={styles.timerContainer}>
             <Text style={styles.timerLabel}>Time Left</Text>
             <Text style={[styles.timerValue, secondsLeft < 10 && styles.timerUrgent]}>
@@ -256,14 +255,14 @@ const GameScreen = ({ route }: any) => {
         </View>
       )}
 
-      {currentState !== 'ended' && (
+      {currentState !== GameState.Ended && (
         <View style={styles.sentenceCard}>
             <Text style={styles.sentenceText}>{roundData.sentence}</Text>
         </View>
       )}
 
-      {/* מסך 1: בחירה */}
-      {currentState === 'pictureselection' && (
+      {/* מסך 1: בחירה (שימוש ב-ENUM) */}
+      {currentState === GameState.PictureSelection && (
           <>
             <Text style={styles.sectionTitle}>Pick your card (Long press to zoom):</Text>
             {status.includes("Waiting") && (
@@ -293,8 +292,8 @@ const GameScreen = ({ route }: any) => {
           </>
       )}
 
-      {/* מסך 2: הצבעה */}
-      {currentState === 'voting' && (
+      {/* מסך 2: הצבעה (שימוש ב-ENUM) */}
+      {currentState === GameState.Voting && (
           <>
             <Text style={styles.sectionTitle}>Vote for the funniest!</Text>
             <ScrollView contentContainerStyle={styles.cardsGrid}>
@@ -322,8 +321,8 @@ const GameScreen = ({ route }: any) => {
           </>
       )}
 
-      {/* מסך 3: תוצאות */}
-      {currentState === 'ended' && (
+      {/* מסך 3: תוצאות (שימוש ב-ENUM) */}
+      {currentState === GameState.Ended && (
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             <Text style={styles.sectionTitle}>🏆 Round Results 🏆</Text>
             

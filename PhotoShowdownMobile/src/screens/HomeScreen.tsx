@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native';
-// שינוי: ייבוא api
-import api from '../services/api';
+// שינוי 1: ייבוא ה-Service במקום api ישיר
+import matchesService from '../services/matchesService';
 import * as SecureStore from 'expo-secure-store';
 
 const HomeScreen = ({ route, navigation }: any) => {
@@ -11,17 +11,14 @@ const HomeScreen = ({ route, navigation }: any) => {
   const [loading, setLoading] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(true);
 
-  // שינוי: ה-BASE URL כבר מוגדר ב-api service
-  const authHeader = { headers: { Authorization: `Bearer ${token}` } };
-
   useEffect(() => {
     checkStatusAndCleanup();
   }, []);
 
   const checkStatusAndCleanup = async () => {
     try {
-      // שינוי: שימוש ב-api
-      const response = await api.get(`/Matches/GetCurrentMatch`, authHeader);
+      // שינוי: שימוש ב-Service
+      const response = await matchesService.getCurrentMatch(token);
       if (response.data.data) {
            promptRejoinOrLeave(response.data.data.id);
       }
@@ -39,8 +36,9 @@ const HomeScreen = ({ route, navigation }: any) => {
       setLoading(true);
       const promises = [];
       for (let i = 1; i <= 50; i++) {
+          // שינוי: שימוש ב-Service בתוך הלולאה
           promises.push(
-              api.delete(`/Matches/LeaveMatch/${i}`, authHeader)
+              matchesService.leaveMatch(i, token)
                 .then(() => console.log(`Deleted match connection: ${i}`))
                 .catch(() => {})
           );
@@ -53,7 +51,8 @@ const HomeScreen = ({ route, navigation }: any) => {
 
   const findAndLeaveBrokenMatch = async () => {
       try {
-          const res = await api.get(`/Matches/GetAllMatches`, authHeader);
+          // שינוי: שימוש ב-Service
+          const res = await matchesService.getAllMatches(token);
           const allMatches = res.data.data || [];
 
           const myMatch = allMatches.find((m: any) => 
@@ -87,7 +86,8 @@ const HomeScreen = ({ route, navigation }: any) => {
       setLoading(true);
       try {
           console.log(`Force leaving match ${matchId}...`);
-          await api.delete(`/Matches/LeaveMatch/${matchId}`, authHeader);
+          // שינוי: שימוש ב-Service
+          await matchesService.leaveMatch(matchId, token);
           Alert.alert("Fixed!", "Cleaned up stuck match. Try creating a new one.");
       } catch (e) {
           console.error("Failed to leave match:", e);
@@ -102,7 +102,8 @@ const HomeScreen = ({ route, navigation }: any) => {
     try {
       console.log("Creating new match (Lobby Mode)...");
       
-      const response = await api.post(`/Matches/CreateNewMatch`, {}, authHeader);
+      // שינוי: שימוש ב-Service
+      const response = await matchesService.createNewMatch(token);
       
       if (response.data.isSuccess) {
         const newMatch = response.data.data;
@@ -127,7 +128,8 @@ const HomeScreen = ({ route, navigation }: any) => {
 
     setLoading(true);
     try {
-      await api.post(`/Matches/JoinMatch/${matchIdInput}`, {}, authHeader);
+      // שינוי: שימוש ב-Service
+      await matchesService.joinMatch(matchIdInput, token);
       goToLobby(parseInt(matchIdInput));
     } catch (error: any) {
       Alert.alert("Error", "Could not join match.");
@@ -143,6 +145,15 @@ const HomeScreen = ({ route, navigation }: any) => {
       userId: userId,
       username: username
     });
+  };
+
+  // --- פונקציה חדשה למעבר למסך התמונות ---
+  const goToManagePictures = () => {
+      navigation.navigate('ManagePicturesScreen', {
+          token: token,
+          userId: userId,
+          username: username
+      });
   };
 
   const handleLogout = async () => {
@@ -196,6 +207,11 @@ const HomeScreen = ({ route, navigation }: any) => {
           {loading ? <ActivityIndicator color="#fff"/> : <Text style={styles.btnText}>Join Match</Text>}
         </TouchableOpacity>
       </View>
+
+      {/* --- הכפתור החדש לניהול תמונות --- */}
+      <TouchableOpacity style={styles.galleryButton} onPress={goToManagePictures}>
+          <Text style={styles.galleryButtonText}>🖼️ My Picture Collection</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
         <Text style={styles.logoutText}>Logout</Text>
@@ -273,6 +289,25 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     fontWeight: 'bold',
   },
+  
+  // סגנון חדש לכפתור הגלריה
+  galleryButton: {
+      marginTop: 20,
+      backgroundColor: '#333',
+      paddingVertical: 12,
+      paddingHorizontal: 20,
+      borderRadius: 25,
+      borderWidth: 1,
+      borderColor: '#555',
+      width: '100%',
+      alignItems: 'center'
+  },
+  galleryButtonText: {
+      color: '#fff',
+      fontSize: 16,
+      fontWeight: '600'
+  },
+
   logoutBtn: {
     marginTop: 40,
   },

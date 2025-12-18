@@ -4,31 +4,17 @@ import {
   Alert, ActivityIndicator, Modal, SafeAreaView 
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import api from '../services/api';
+import picturesService from '../services/picturesService';
 import { IP_ADDRESS, PORT } from '../config'; 
 
 const ManagePicturesScreen = ({ navigation, route }: any) => {
-  const { token, userId, username } = route.params;
+  // חילוץ הפרמטרים החדשים: fromScreen, matchId
+  const { token, userId, username, fromScreen, matchId } = route.params;
   const [myPictures, setMyPictures] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // משתנה לניהול התמונה שנבחרה להגדלה
   const [selectedImage, setSelectedImage] = useState<any>(null);
-
-  const authHeader = { 
-      headers: { 
-          'Authorization': `Bearer ${token}`,
-          // ב-Delete וב-Get לא צריך content-type, אבל זה לא מזיק
-      } 
-  };
-
-  const uploadHeader = {
-      headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data' 
-      } 
-  };
 
   useEffect(() => {
     fetchMyPictures();
@@ -36,7 +22,7 @@ const ManagePicturesScreen = ({ navigation, route }: any) => {
 
   const fetchMyPictures = async () => {
     try {
-      const response = await api.get(`/Pictures/GetMyPictures`, authHeader);
+      const response = await picturesService.getMyPictures(token);
       if (response.data.data) {
           setMyPictures(response.data.data);
       }
@@ -89,7 +75,7 @@ const ManagePicturesScreen = ({ navigation, route }: any) => {
     });
 
     try {
-      await api.post(`/Pictures/UploadPicture`, formData, uploadHeader);
+      await picturesService.uploadPicture(formData, token);
       Alert.alert("Success", "Pictures uploaded!");
       setRefreshKey(prev => prev + 1); 
     } catch (error: any) {
@@ -99,7 +85,6 @@ const ManagePicturesScreen = ({ navigation, route }: any) => {
     }
   };
 
-  // --- פונקציית המחיקה האמיתית ---
   const handleDeletePicture = async () => {
       if (!selectedImage) return;
 
@@ -113,13 +98,10 @@ const ManagePicturesScreen = ({ navigation, route }: any) => {
                   style: "destructive", 
                   onPress: async () => {
                       try {
-                          console.log("Deleting image ID:", selectedImage.id);
-                          // קריאה לשרת לפי ה-Controller ששלחת
-                          await api.delete(`/Pictures/DeletePicture/${selectedImage.id}`, authHeader);
-                          
+                          await picturesService.deletePicture(selectedImage.id, token);
                           Alert.alert("Deleted", "Picture removed successfully.");
-                          setSelectedImage(null); // סגירת המודל
-                          setRefreshKey(prev => prev + 1); // רענון הרשימה
+                          setSelectedImage(null); 
+                          setRefreshKey(prev => prev + 1); 
                       } catch (error) {
                           console.error("Delete error:", error);
                           Alert.alert("Error", "Could not delete picture.");
@@ -130,19 +112,34 @@ const ManagePicturesScreen = ({ navigation, route }: any) => {
       );
   };
 
+  // --- הלוגיקה החדשה לחזרה ---
   const handleContinue = () => {
       if (myPictures.length < 5) {
           Alert.alert("Wait!", "You need at least 5 pictures to play properly.");
           return;
       }
-      navigation.replace('Home', { token, userId, username });
+
+      // אם הגענו מהלובי -> חוזרים ללובי עם ה-MatchId
+      if (fromScreen === 'Lobby' && matchId) {
+          navigation.replace('Lobby', { 
+              token, 
+              userId, 
+              username,
+              matchId: matchId 
+          });
+      } else {
+          // אחרת (ברירת מחדל) -> הולכים למסך הבית
+          navigation.replace('Home', { token, userId, username });
+      }
   };
+
+  // טקסט דינמי לכפתור
+  const continueButtonText = fromScreen === 'Lobby' ? "Back to Lobby ↩️" : "Continue to Game 👉";
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         
-        {/* --- MODAL להגדלת תמונה --- */}
         <Modal visible={!!selectedImage} transparent={true} animationType="fade">
             <View style={styles.modalBackground}>
                 <View style={styles.modalContent}>
@@ -197,7 +194,7 @@ const ManagePicturesScreen = ({ navigation, route }: any) => {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.continueBtn} onPress={handleContinue}>
-              <Text style={styles.btnText}>Continue to Game 👉</Text>
+              <Text style={styles.btnText}>{continueButtonText}</Text>
             </TouchableOpacity>
         </View>
       </View>
@@ -228,7 +225,7 @@ const styles = StyleSheet.create({
     marginBottom: 20
   },
   grid: {
-    paddingBottom: 160 // מרווח גדול כדי שהתמונות האחרונות לא יוסתרו
+    paddingBottom: 160 
   },
   imageContainer: {
       margin: 5,
@@ -243,7 +240,6 @@ const styles = StyleSheet.create({
     height: 100,
   },
   
-  // עיצוב ה-Modal
   modalBackground: {
       flex: 1,
       backgroundColor: 'rgba(0,0,0,0.9)',
@@ -286,14 +282,13 @@ const styles = StyleSheet.create({
       alignItems: 'center',
   },
 
-  // עיצוב ה-Footer והכפתורים (מיקום מתוקן)
   footer: {
     position: 'absolute',
-    bottom: 50, // מורם למעלה מעל ה-Navigation Bar
+    bottom: 50,
     left: 20,
     right: 20,
     gap: 12, 
-    backgroundColor: 'rgba(18, 18, 18, 0.95)', // רקע כמעט אטום כדי שהטקסט יהיה קריא מעל תמונות
+    backgroundColor: 'rgba(18, 18, 18, 0.95)',
     padding: 15,
     borderRadius: 15,
     borderWidth: 1,

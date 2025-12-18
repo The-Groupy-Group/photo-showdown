@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, ScrollView } from 'react-native';
-// שינוי: ייבוא api
-import api from '../services/api';
+import usersService from '../services/usersService';
 
 const RegisterScreen = ({ navigation }: any) => {
   const [username, setUsername] = useState('');
@@ -23,8 +22,8 @@ const RegisterScreen = ({ navigation }: any) => {
     try {
       console.log("Sending registration request...");
 
-      // שינוי: שימוש ב-api
-      const response = await api.post('/Users/Register', {
+      // שימוש ב-Service
+      const response = await usersService.register({
         username: username,
         password: password,
         email: email,

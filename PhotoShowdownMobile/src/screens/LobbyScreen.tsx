@@ -3,7 +3,8 @@ import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, 
   ActivityIndicator, Modal, TextInput, ScrollView, KeyboardAvoidingView, Platform 
 } from 'react-native';
-import api from '../services/api';
+import matchesService from '../services/matchesService';
+import { GameState } from '../enums/GameState';
 
 interface IPlayer {
   id: number;
@@ -12,7 +13,7 @@ interface IPlayer {
 }
 
 const LobbyScreen = ({ route, navigation }: any) => {
-  const { matchId, token, userId } = route.params;
+  const { matchId, token, userId, username } = route.params; // הוספתי username כדי שנוכל להעביר אותו הלאה
   const [players, setPlayers] = useState<IPlayer[]>([]);
   const [loading, setLoading] = useState(false);
   
@@ -29,8 +30,6 @@ const LobbyScreen = ({ route, navigation }: any) => {
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const authHeader = { headers: { Authorization: `Bearer ${token}` } };
-
   useEffect(() => {
     fetchLobbyStatus();
     intervalRef.current = setInterval(fetchLobbyStatus, 3000);
@@ -42,8 +41,7 @@ const LobbyScreen = ({ route, navigation }: any) => {
 
  const fetchLobbyStatus = async () => {
     try {
-      // שינוי: שימוש ב-api
-      const response = await api.get(`/Matches/GetMatchById/${matchId}`, authHeader);
+      const response = await matchesService.getMatchById(matchId, token);
       
       if (response.data.data) {
         const matchData = response.data.data;
@@ -59,9 +57,9 @@ const LobbyScreen = ({ route, navigation }: any) => {
         
         setPlayers(mappedPlayers);
 
-        const state = matchData.MatchState; 
+        const state = matchData.MatchState?.toLowerCase(); 
 
-        if (state === 'inProgress') { 
+        if (state === GameState.InProgress) { 
              console.log("Game started! Moving to GameScreen...");
              goToGameScreen();
         }
@@ -74,6 +72,22 @@ const LobbyScreen = ({ route, navigation }: any) => {
   const goToGameScreen = () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     navigation.replace('GameScreen', { matchId, token, userId });
+  };
+
+  // --- פונקציה חדשה למעבר לניהול תמונות ---
+  const goToManagePictures = () => {
+      // אנחנו לא עוצרים את האינטרוול כי אנחנו רוצים שהמשחק ימשיך להתעדכן ברקע,
+      // או שנחזור אליו והוא יתעדכן. אבל כדאי לנקות ביציאה כדי לא להעמיס.
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      
+      navigation.navigate('ManagePicturesScreen', {
+          token: token,
+          userId: userId,
+          username: username,
+          // הפרמטרים החשובים לחזרה:
+          fromScreen: 'Lobby',
+          matchId: matchId 
+      });
   };
 
   const addSentence = () => {
@@ -118,8 +132,7 @@ const LobbyScreen = ({ route, navigation }: any) => {
 
       console.log("Sending Start Payload:", JSON.stringify(gameConfig));
 
-      // שינוי: שימוש ב-api
-      await api.post(`/Matches/StartMatch`, gameConfig, authHeader);
+      await matchesService.startMatch(gameConfig, token);
       
     } catch (error: any) {
       console.error("Start Game Error:", error.response?.data || error.message);
@@ -146,7 +159,7 @@ const LobbyScreen = ({ route, navigation }: any) => {
           onPress: async () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
             try {
-                await api.delete(`/Matches/LeaveMatch/${matchId}`, authHeader);
+                await matchesService.leaveMatch(matchId, token);
             } catch (e) {} finally {
                 navigation.goBack();
             }
@@ -173,7 +186,6 @@ const LobbyScreen = ({ route, navigation }: any) => {
   return (
     <View style={styles.container}>
       
-      {/* --- חלון הגדרות (Modal) --- */}
       <Modal visible={showSettings} animationType="slide" transparent={true}>
           <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalOverlay}>
               <View style={styles.modalContent}>
@@ -283,6 +295,11 @@ const LobbyScreen = ({ route, navigation }: any) => {
             <Text style={styles.infoText}>Waiting for host to start...</Text>
         )}
 
+        {/* --- הכפתור החדש --- */}
+        <TouchableOpacity style={styles.galleryButton} onPress={goToManagePictures}>
+             <Text style={styles.galleryButtonText}>🖼️ Manage Pictures</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity 
             style={styles.leaveButton}
             onPress={handleLeaveMatch}
@@ -315,6 +332,10 @@ const styles = StyleSheet.create({
   
   settingsButton: { backgroundColor: '#333', paddingVertical: 12, width: '100%', borderRadius: 25, alignItems: 'center', marginBottom: 15, borderWidth: 1, borderColor: '#555' },
   settingsButtonText: { color: '#03DAC6', fontSize: 16, fontWeight: '600' },
+
+  // עיצוב לכפתור גלריה בלובי
+  galleryButton: { backgroundColor: '#444', paddingVertical: 12, width: '100%', borderRadius: 25, alignItems: 'center', marginBottom: 15, borderWidth: 1, borderColor: '#666' },
+  galleryButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 
   leaveButton: { paddingVertical: 10, width: '100%', alignItems: 'center' },
   leaveButtonText: { color: '#FF5252', fontSize: 16, fontWeight: '600' },

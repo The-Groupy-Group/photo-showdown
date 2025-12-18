@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
-// שינוי 1: הסרנו את axios וייבאנו את ה-api המרכזי שלנו
-import api from '../services/api'; 
+import usersService from '../services/usersService';
 import * as SecureStore from 'expo-secure-store';
 import { jwtDecode } from "jwt-decode";
 
@@ -27,9 +26,8 @@ const LoginScreen = ({ navigation }: any) => {
     try {
       console.log("Attempting login...");
       
-      // שינוי 2: שימוש ב-api במקום axios, ושימוש בנתיב מקוצר
-      // הכתובת המלאה נלקחת אוטומטית מקובץ ה-config
-      const response = await api.post('/Users/Login', {
+      // שימוש ב-Service
+      const response = await usersService.login({
         username: username,
         password: password
       });
@@ -38,19 +36,13 @@ const LoginScreen = ({ navigation }: any) => {
 
       if (response.data.isSuccess && response.data.data) {
         const token = response.data.data.token;
-
-        // פענוח הטוקן
         const decoded = jwtDecode<TokenPayload>(token);
-        console.log("Decoded Token:", decoded);
-
         const userId = parseInt(decoded.Id);
         const decodedUsername = decoded.Username;
 
-        // שמירה בטוחה
         await SecureStore.setItemAsync('userToken', token);
         await SecureStore.setItemAsync('userId', userId.toString());
 
-        // ניווט למסך העלאת התמונות
         navigation.replace('ManagePicturesScreen', {
           token: token,
           username: decodedUsername,
@@ -63,7 +55,6 @@ const LoginScreen = ({ navigation }: any) => {
 
     } catch (error: any) {
       console.error("Login Error:", error);
-      // שיפור קטן בהודעת השגיאה למקרה של בעיות רשת
       const msg = error.response?.data?.message || error.message || "Connection failed. Check IP/Server.";
       Alert.alert("Login Failed", msg);
     } finally {
