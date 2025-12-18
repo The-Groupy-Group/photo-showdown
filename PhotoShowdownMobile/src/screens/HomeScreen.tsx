@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native';
-import axios from 'axios';
+// שינוי 1: ייבוא ה-Service במקום api ישיר
+import matchesService from '../services/matchesService';
 import * as SecureStore from 'expo-secure-store';
 
 const HomeScreen = ({ route, navigation }: any) => {
@@ -10,24 +11,18 @@ const HomeScreen = ({ route, navigation }: any) => {
   const [loading, setLoading] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(true);
 
-  const API_BASE = "http://10.0.0.1:5299/api/Matches";
-  const authHeader = { headers: { Authorization: `Bearer ${token}` } };
-
   useEffect(() => {
     checkStatusAndCleanup();
   }, []);
 
-  // --- לוגיקה חדשה: חיפוש וניקוי חכם ---
-  // --- החלף את הפונקציה הקיימת בזו ---
   const checkStatusAndCleanup = async () => {
     try {
-      // בדיקה רגילה
-      const response = await axios.get(`${API_BASE}/GetCurrentMatch`, authHeader);
+      // שינוי: שימוש ב-Service
+      const response = await matchesService.getCurrentMatch(token);
       if (response.data.data) {
            promptRejoinOrLeave(response.data.data.id);
       }
     } catch (e: any) {
-      // אם קיבלנו 500, סימן שאנחנו תקועים במשחק שבור
       if (e.response?.status === 500) {
           console.log("Detected broken match (500). Starting BRUTE FORCE cleanup...");
           await bruteForceLeave();
@@ -37,17 +32,15 @@ const HomeScreen = ({ route, navigation }: any) => {
     }
   };
 
-  // --- פונקציה חדשה: מנסה לצאת מכל משחק אפשרי ---
   const bruteForceLeave = async () => {
       setLoading(true);
-      // ראינו שהגעת למשחק 28, אז טווח של 1-50 יכסה הכל
       const promises = [];
       for (let i = 1; i <= 50; i++) {
-          // שולחים את הבקשות במקביל כדי שזה יהיה מהיר
+          // שינוי: שימוש ב-Service בתוך הלולאה
           promises.push(
-              axios.delete(`${API_BASE}/LeaveMatch/${i}`, authHeader)
+              matchesService.leaveMatch(i, token)
                 .then(() => console.log(`Deleted match connection: ${i}`))
-                .catch(() => {}) // מתעלמים משגיאות (כי ברוב המשחקים אנחנו לא נמצאים)
+                .catch(() => {})
           );
       }
       
@@ -56,22 +49,18 @@ const HomeScreen = ({ route, navigation }: any) => {
       setLoading(false);
   };
 
-  // --- הפתרון העוקף: חיפוש ידני בכל המשחקים ---
   const findAndLeaveBrokenMatch = async () => {
       try {
-          // מבקשים את כל המשחקים הפתוחים
-          const res = await axios.get(`${API_BASE}/GetAllMatches`, authHeader);
+          // שינוי: שימוש ב-Service
+          const res = await matchesService.getAllMatches(token);
           const allMatches = res.data.data || [];
 
-          // מחפשים משחק שהמשתמש שלנו נמצא בתוכו
-          // (מניחים ש-MatchDTO מכיל רשימת users)
           const myMatch = allMatches.find((m: any) => 
               m.users && m.users.some((u: any) => u.id === userId)
           );
 
           if (myMatch) {
               console.log(`Found user in match ${myMatch.id} via list scan.`);
-              // יציאה בכוח
               await forceLeaveMatch(myMatch.id);
           } else {
               console.log("Could not find user in any match list.");
@@ -97,7 +86,8 @@ const HomeScreen = ({ route, navigation }: any) => {
       setLoading(true);
       try {
           console.log(`Force leaving match ${matchId}...`);
-          await axios.delete(`${API_BASE}/LeaveMatch/${matchId}`, authHeader);
+          // שינוי: שימוש ב-Service
+          await matchesService.leaveMatch(matchId, token);
           Alert.alert("Fixed!", "Cleaned up stuck match. Try creating a new one.");
       } catch (e) {
           console.error("Failed to leave match:", e);
@@ -112,15 +102,13 @@ const HomeScreen = ({ route, navigation }: any) => {
     try {
       console.log("Creating new match (Lobby Mode)...");
       
-      // 1. יצירת המשחק בלבד
-      const response = await axios.post(`${API_BASE}/CreateNewMatch`, {}, authHeader);
+      // שינוי: שימוש ב-Service
+      const response = await matchesService.createNewMatch(token);
       
       if (response.data.isSuccess) {
         const newMatch = response.data.data;
         console.log("Match Created:", newMatch.id);
         
-        // 2. מעבר ללובי (בלי להתחיל את המשחק!)
-        // בלובי נחכה ששחקנים אחרים יצטרפו
         goToLobby(newMatch.id);
       }
     } catch (error: any) {
@@ -140,8 +128,8 @@ const HomeScreen = ({ route, navigation }: any) => {
 
     setLoading(true);
     try {
-      const url = `${API_BASE}/JoinMatch/${matchIdInput}`;
-      await axios.post(url, {}, authHeader);
+      // שינוי: שימוש ב-Service
+      await matchesService.joinMatch(matchIdInput, token);
       goToLobby(parseInt(matchIdInput));
     } catch (error: any) {
       Alert.alert("Error", "Could not join match.");
@@ -159,8 +147,16 @@ const HomeScreen = ({ route, navigation }: any) => {
     });
   };
 
+  // --- פונקציה חדשה למעבר למסך התמונות ---
+  const goToManagePictures = () => {
+      navigation.navigate('ManagePicturesScreen', {
+          token: token,
+          userId: userId,
+          username: username
+      });
+  };
+
   const handleLogout = async () => {
-      // מנסים לנקות לפני יציאה
       await findAndLeaveBrokenMatch();
       await SecureStore.deleteItemAsync('userToken');
       navigation.replace('Login');
@@ -211,6 +207,11 @@ const HomeScreen = ({ route, navigation }: any) => {
           {loading ? <ActivityIndicator color="#fff"/> : <Text style={styles.btnText}>Join Match</Text>}
         </TouchableOpacity>
       </View>
+
+      {/* --- הכפתור החדש לניהול תמונות --- */}
+      <TouchableOpacity style={styles.galleryButton} onPress={goToManagePictures}>
+          <Text style={styles.galleryButtonText}>🖼️ My Picture Collection</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
         <Text style={styles.logoutText}>Logout</Text>
@@ -288,6 +289,25 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     fontWeight: 'bold',
   },
+  
+  // סגנון חדש לכפתור הגלריה
+  galleryButton: {
+      marginTop: 20,
+      backgroundColor: '#333',
+      paddingVertical: 12,
+      paddingHorizontal: 20,
+      borderRadius: 25,
+      borderWidth: 1,
+      borderColor: '#555',
+      width: '100%',
+      alignItems: 'center'
+  },
+  galleryButtonText: {
+      color: '#fff',
+      fontSize: 16,
+      fontWeight: '600'
+  },
+
   logoutBtn: {
     marginTop: 40,
   },

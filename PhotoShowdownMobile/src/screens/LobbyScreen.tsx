@@ -3,7 +3,8 @@ import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, 
   ActivityIndicator, Modal, TextInput, ScrollView, KeyboardAvoidingView, Platform 
 } from 'react-native';
-import axios from 'axios';
+import matchesService from '../services/matchesService';
+import { GameState } from '../enums/GameState';
 
 interface IPlayer {
   id: number;
@@ -12,7 +13,7 @@ interface IPlayer {
 }
 
 const LobbyScreen = ({ route, navigation }: any) => {
-  const { matchId, token, userId } = route.params;
+  const { matchId, token, userId, username } = route.params; // הוספתי username כדי שנוכל להעביר אותו הלאה
   const [players, setPlayers] = useState<IPlayer[]>([]);
   const [loading, setLoading] = useState(false);
   
@@ -21,18 +22,13 @@ const LobbyScreen = ({ route, navigation }: any) => {
   const [numRounds, setNumRounds] = useState('5');
   const [votesToWin, setVotesToWin] = useState('3');
   
-  // --- השינוי: הפרדה לשני טיימרים ---
-  const [selectionTime, setSelectionTime] = useState('60'); // זמן לבחירת תמונה
-  const [voteTime, setVoteTime] = useState('60');           // זמן להצבעה
+  const [selectionTime, setSelectionTime] = useState('60'); 
+  const [voteTime, setVoteTime] = useState('60');       
   
-  // משפטים מותאמים אישית
   const [customSentences, setCustomSentences] = useState<string[]>([]);
   const [newSentence, setNewSentence] = useState('');
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  const API_BASE = "http://10.0.0.1:5299/api/Matches";
-  const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
   useEffect(() => {
     fetchLobbyStatus();
@@ -45,13 +41,11 @@ const LobbyScreen = ({ route, navigation }: any) => {
 
  const fetchLobbyStatus = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/GetMatchById/${matchId}`, authHeader);
+      const response = await matchesService.getMatchById(matchId, token);
       
       if (response.data.data) {
         const matchData = response.data.data;
         
-        // תיקון זיהוי ההוסט (גישה עם אות גדולה ל-Owner)
-        // אם גם Owner מגיע באות גדולה, צריך לשנות גם כאן:
         const ownerObject = matchData.Owner || matchData.owner; 
         const ownerId = ownerObject ? (ownerObject.Id || ownerObject.id) : -1;
 
@@ -63,12 +57,9 @@ const LobbyScreen = ({ route, navigation }: any) => {
         
         setPlayers(mappedPlayers);
 
-        // --- התיקון הקריטי ---
-        // ניגשים למפתח עם אות גדולה: MatchState
-        const state = matchData.MatchState; 
+        const state = matchData.MatchState?.toLowerCase(); 
 
-        // הערך הוא camelCase בגלל ה-Converter בשרת
-        if (state === 'inProgress') { 
+        if (state === GameState.InProgress) { 
              console.log("Game started! Moving to GameScreen...");
              goToGameScreen();
         }
@@ -81,6 +72,22 @@ const LobbyScreen = ({ route, navigation }: any) => {
   const goToGameScreen = () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     navigation.replace('GameScreen', { matchId, token, userId });
+  };
+
+  // --- פונקציה חדשה למעבר לניהול תמונות ---
+  const goToManagePictures = () => {
+      // אנחנו לא עוצרים את האינטרוול כי אנחנו רוצים שהמשחק ימשיך להתעדכן ברקע,
+      // או שנחזור אליו והוא יתעדכן. אבל כדאי לנקות ביציאה כדי לא להעמיס.
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      
+      navigation.navigate('ManagePicturesScreen', {
+          token: token,
+          userId: userId,
+          username: username,
+          // הפרמטרים החשובים לחזרה:
+          fromScreen: 'Lobby',
+          matchId: matchId 
+      });
   };
 
   const addSentence = () => {
@@ -106,21 +113,15 @@ const LobbyScreen = ({ route, navigation }: any) => {
       const selectionTimeInt = parseInt(selectionTime) || 60;
       const voteTimeInt = parseInt(voteTime) || 60;
 
-      // --- התיקון: בלי משפטי גיבוי בלקוח ---
-      // אם המשתמש לא הזין כלום, נשלח רשימה ריקה.
-      // השרת יזהה שהרשימה ריקה וישתמש ב-_defaultSentences שלו.
       const finalSentences = customSentences; 
 
       const gameConfig = {
-          // PascalCase (לשרת C#)
           MatchId: matchId,
           Sentences: finalSentences,
           NumOfRounds: roundsInt,
           NumOfVotesToWin: votesInt,
           PictureSelectionTimeSeconds: selectionTimeInt,
           VoteTimeSeconds: voteTimeInt,
-
-          // camelCase (לגיבוי JSON)
           matchId: matchId,
           sentences: finalSentences,
           numOfRounds: roundsInt,
@@ -131,7 +132,7 @@ const LobbyScreen = ({ route, navigation }: any) => {
 
       console.log("Sending Start Payload:", JSON.stringify(gameConfig));
 
-      await axios.post(`${API_BASE}/StartMatch`, gameConfig, authHeader);
+      await matchesService.startMatch(gameConfig, token);
       
     } catch (error: any) {
       console.error("Start Game Error:", error.response?.data || error.message);
@@ -158,7 +159,7 @@ const LobbyScreen = ({ route, navigation }: any) => {
           onPress: async () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
             try {
-                await axios.delete(`${API_BASE}/LeaveMatch/${matchId}`, authHeader);
+                await matchesService.leaveMatch(matchId, token);
             } catch (e) {} finally {
                 navigation.goBack();
             }
@@ -185,7 +186,6 @@ const LobbyScreen = ({ route, navigation }: any) => {
   return (
     <View style={styles.container}>
       
-      {/* --- חלון הגדרות (Modal) --- */}
       <Modal visible={showSettings} animationType="slide" transparent={true}>
           <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalOverlay}>
               <View style={styles.modalContent}>
@@ -208,7 +208,6 @@ const LobbyScreen = ({ route, navigation }: any) => {
                           keyboardType="numeric" 
                       />
 
-                      {/* --- שני שדות זמן נפרדים --- */}
                       <Text style={styles.label}>Time to Pick Picture (sec):</Text>
                       <TextInput 
                           style={styles.input} 
@@ -262,7 +261,7 @@ const LobbyScreen = ({ route, navigation }: any) => {
       </View>
       
       <Text style={styles.waitingText}>
-         Updating automatically...
+          Updating automatically...
       </Text>
 
       <FlatList
@@ -296,6 +295,11 @@ const LobbyScreen = ({ route, navigation }: any) => {
             <Text style={styles.infoText}>Waiting for host to start...</Text>
         )}
 
+        {/* --- הכפתור החדש --- */}
+        <TouchableOpacity style={styles.galleryButton} onPress={goToManagePictures}>
+             <Text style={styles.galleryButtonText}>🖼️ Manage Pictures</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity 
             style={styles.leaveButton}
             onPress={handleLeaveMatch}
@@ -328,6 +332,10 @@ const styles = StyleSheet.create({
   
   settingsButton: { backgroundColor: '#333', paddingVertical: 12, width: '100%', borderRadius: 25, alignItems: 'center', marginBottom: 15, borderWidth: 1, borderColor: '#555' },
   settingsButtonText: { color: '#03DAC6', fontSize: 16, fontWeight: '600' },
+
+  // עיצוב לכפתור גלריה בלובי
+  galleryButton: { backgroundColor: '#444', paddingVertical: 12, width: '100%', borderRadius: 25, alignItems: 'center', marginBottom: 15, borderWidth: 1, borderColor: '#666' },
+  galleryButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 
   leaveButton: { paddingVertical: 10, width: '100%', alignItems: 'center' },
   leaveButtonText: { color: '#FF5252', fontSize: 16, fontWeight: '600' },

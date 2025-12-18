@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
-import axios from 'axios';
+import usersService from '../services/usersService';
 import * as SecureStore from 'expo-secure-store';
 import { jwtDecode } from "jwt-decode";
-
 
 interface TokenPayload {
   Id: string;
@@ -16,9 +15,6 @@ const LoginScreen = ({ navigation }: any) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  
-  const API_URL = "http://10.0.0.1:5299/api/Users/Login"; 
-
   const handleLogin = async () => {
     if (!username || !password) {
       Alert.alert("Error", "Please fill in all fields");
@@ -28,9 +24,10 @@ const LoginScreen = ({ navigation }: any) => {
     setLoading(true);
 
     try {
-      console.log("Attempting login to:", API_URL);
+      console.log("Attempting login...");
       
-      const response = await axios.post(API_URL, {
+      // שימוש ב-Service
+      const response = await usersService.login({
         username: username,
         password: password
       });
@@ -39,20 +36,13 @@ const LoginScreen = ({ navigation }: any) => {
 
       if (response.data.isSuccess && response.data.data) {
         const token = response.data.data.token;
-
-        // פענוח הטוקן כדי להשיג את ה-ID והשם
         const decoded = jwtDecode<TokenPayload>(token);
-        console.log("Decoded Token:", decoded);
-
         const userId = parseInt(decoded.Id);
         const decodedUsername = decoded.Username;
 
-        // שמירה בטוחה בזיכרון המכשיר
         await SecureStore.setItemAsync('userToken', token);
         await SecureStore.setItemAsync('userId', userId.toString());
 
-        // --- השינוי החשוב: ניווט למסך העלאת התמונות ---
-        // אנחנו חייבים לעבור שם קודם כדי למנוע קריסה במשחק
         navigation.replace('ManagePicturesScreen', {
           token: token,
           username: decodedUsername,
@@ -65,7 +55,7 @@ const LoginScreen = ({ navigation }: any) => {
 
     } catch (error: any) {
       console.error("Login Error:", error);
-      const msg = error.response?.data?.message || "Connection failed. Check IP/Server.";
+      const msg = error.response?.data?.message || error.message || "Connection failed. Check IP/Server.";
       Alert.alert("Login Failed", msg);
     } finally {
       setLoading(false);
@@ -106,7 +96,6 @@ const LoginScreen = ({ navigation }: any) => {
         )}
       </TouchableOpacity>
 
-      {/* כפתור למעבר למסך ההרשמה */}
       <TouchableOpacity 
         style={styles.registerLink} 
         onPress={() => navigation.navigate('Register')}
@@ -162,7 +151,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   registerHighlight: {
-    color: '#03DAC6', // צבע טורקיז בולט
+    color: '#03DAC6',
     fontWeight: 'bold',
   }
 });
