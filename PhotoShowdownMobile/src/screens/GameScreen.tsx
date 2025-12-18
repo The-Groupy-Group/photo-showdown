@@ -6,7 +6,7 @@ import {
 import WebSocketService from '../utils/WebSocketService';
 import matchesService from '../services/matchesService';
 import picturesService from '../services/picturesService';
-import { GameState } from '../enums/GameState';
+import { GameState, parseRoundState } from '../enums/GameState';
 import { IP_ADDRESS, PORT } from '../config'; 
 
 const GameScreen = ({ route }: any) => {
@@ -22,13 +22,10 @@ const GameScreen = ({ route }: any) => {
   const [hasSelected, setHasSelected] = useState(false); 
   
   const [secondsLeft, setSecondsLeft] = useState(0);
-  
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   const isConnected = useRef(false);
-
-  // כתובת ה-WebSocket
   const WS_URL = `ws://${IP_ADDRESS}:${PORT}/api/ws`;
 
   useEffect(() => {
@@ -38,7 +35,7 @@ const GameScreen = ({ route }: any) => {
 
     const unsubscribe = WebSocketService.subscribe((msg: any) => {
       console.log("Game Event:", msg);
-      if (msg.data && msg.data.roundState) {
+      if (msg.data && msg.data.roundState !== undefined) {
           setRoundData(msg.data);
       }
     });
@@ -49,42 +46,39 @@ const GameScreen = ({ route }: any) => {
     };
   }, []);
 
-  // --- ניהול נעילות ומעברי שלבים (שימוש ב-ENUM) ---
+  const currentState = roundData ? parseRoundState(roundData.roundState) : '';
+
   useEffect(() => {
       if (!roundData) return;
 
-      const state = roundData.roundState.toLowerCase();
-
-      if (state === GameState.Voting && votedPictureId === null) {
+      if (currentState === GameState.Voting && votedPictureId === null) {
           setHasSelected(false);
       }
 
-      if (state === GameState.PictureSelection && selectedPictureId === null) {
+      if (currentState === GameState.PictureSelection && selectedPictureId === null) {
           setHasSelected(false);
           setVotedPictureId(null);
           setStatus("Pick your card:");
       }
 
-      if (state === GameState.Ended) {
+      if (currentState === GameState.Ended) {
           fetchCurrentState();
       }
 
-  }, [roundData]);
+  }, [roundData, currentState]);
 
-  // --- טיימר (שימוש ב-ENUM) ---
   useEffect(() => {
       if (!roundData) return;
 
       const interval = setInterval(() => {
           const now = new Date().getTime();
           let targetTime = 0;
-          const state = roundData.roundState.toLowerCase();
-
-          if (state === GameState.PictureSelection) {
+          
+          if (currentState === GameState.PictureSelection) {
               targetTime = new Date(roundData.pictureSelectionEndDate).getTime();
-          } else if (state === GameState.Voting) {
+          } else if (currentState === GameState.Voting) {
               targetTime = new Date(roundData.votingEndDate).getTime();
-          } else if (state === GameState.Ended) {
+          } else if (currentState === GameState.Ended) {
               targetTime = new Date(roundData.roundEndDate).getTime();
           }
 
@@ -94,11 +88,10 @@ const GameScreen = ({ route }: any) => {
       }, 1000);
 
       return () => clearInterval(interval);
-  }, [roundData]);
+  }, [roundData, currentState]);
 
   const fetchCurrentState = async () => {
       try {
-          // שימוש ב-matchesService
           const res = await matchesService.getCurrentMatch(token);
           if (res.data.data) {
               setMatchPlayers(res.data.data.users || []);
@@ -111,7 +104,6 @@ const GameScreen = ({ route }: any) => {
 
   const fetchMyPictures = async () => {
       try {
-          // שימוש ב-picturesService
           const res = await picturesService.getMyPictures(token);
           if (res.data.data) setMyPictures(res.data.data);
       } catch (e) { console.log(e); }
@@ -135,7 +127,6 @@ const GameScreen = ({ route }: any) => {
               matchId: matchId,
               roundIndex: roundData.roundIndex
           };
-          // שימוש ב-matchesService
           await matchesService.selectPictureForRound(payload, token);
           setStatus("Waiting for others...");
       } catch (error: any) { 
@@ -157,7 +148,6 @@ const GameScreen = ({ route }: any) => {
               matchId: matchId,
               roundIndex: roundData.roundIndex
           };
-          // שימוש ב-matchesService
           await matchesService.voteForPicture(payload, token);
           Alert.alert("Voted!", "Waiting for results...");
       } catch (error) { 
@@ -210,8 +200,6 @@ const GameScreen = ({ route }: any) => {
       );
   }
 
-  const currentState = roundData.roundState?.toLowerCase();
-
   return (
     <View style={styles.container}>
       
@@ -261,7 +249,7 @@ const GameScreen = ({ route }: any) => {
         </View>
       )}
 
-      {/* מסך 1: בחירה (שימוש ב-ENUM) */}
+      {/* מסך 1: בחירה */}
       {currentState === GameState.PictureSelection && (
           <>
             <Text style={styles.sectionTitle}>Pick your card (Long press to zoom):</Text>
@@ -292,7 +280,7 @@ const GameScreen = ({ route }: any) => {
           </>
       )}
 
-      {/* מסך 2: הצבעה (שימוש ב-ENUM) */}
+      {/* מסך 2: הצבעה */}
       {currentState === GameState.Voting && (
           <>
             <Text style={styles.sectionTitle}>Vote for the funniest!</Text>
@@ -321,7 +309,7 @@ const GameScreen = ({ route }: any) => {
           </>
       )}
 
-      {/* מסך 3: תוצאות (שימוש ב-ENUM) */}
+      {/* מסך 3: תוצאות */}
       {currentState === GameState.Ended && (
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             <Text style={styles.sectionTitle}>🏆 Round Results 🏆</Text>
