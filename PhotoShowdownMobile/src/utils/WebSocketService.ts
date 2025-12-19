@@ -1,109 +1,114 @@
-// src/utils/WebSocketService.ts
-
-type MessageListener = (message: any) => void;
+type Listener = (msg: any) => void;
 
 class WebSocketService {
-  private static instance: WebSocketService;
   private socket: WebSocket | null = null;
-  private listeners: MessageListener[] = [];
-  private isExplicitlyDisconnected: boolean = false;
+  private listeners: Listener[] = [];
+  private url: string = '';
+  private token: string = '';
+  
+  // דגל שמונע חיבור מחדש אם המשתמש התנתק בכוונה (למשל Logout)
+  private isExplicitlyDisconnected = false; 
   private reconnectTimeout: NodeJS.Timeout | null = null;
 
-  public static getInstance(): WebSocketService {
-    if (!WebSocketService.instance) {
-      WebSocketService.instance = new WebSocketService();
-    }
-    return WebSocketService.instance;
+  constructor() {
+    // הבנאי ריק כי אנחנו רוצים שליטה ידנית על ה-connect
   }
 
-  // שים לב: הפונקציה מקבלת רק URL וטוקן (בלי matchId)
-  public connect(baseUrl: string, token: string) {
+  connect(url: string, token: string) {
+    // מניעת חיבור כפול אם כבר מחוברים
     if (this.socket && (this.socket.readyState === WebSocket.OPEN || this.socket.readyState === WebSocket.CONNECTING)) {
-      console.log("Socket already connected");
-      return;
+        console.log("🔌 WS Service: Already connected (Singleton check).");
+        return;
     }
 
+    console.log("🔌 WS Service: Starting connection..."); 
+    this.url = url.split('?')[0]; 
+    this.token = token;
     this.isExplicitlyDisconnected = false;
-    
-    // --- התאמה ל-Backend שלך ---
-    // השרת מצפה לפרמטר בשם ?jwt=...
-    const fullUrl = `${baseUrl}?jwt=${token}`;
-    
-    console.log("Connecting to WebSocket:", fullUrl);
+    this.initConnection();
+  }
+
+  private initConnection() {
+    if (this.isExplicitlyDisconnected) return;
+
+    const fullUrl = `${this.url}?jwt=${this.token}`;
     this.socket = new WebSocket(fullUrl);
 
-    this.setupListeners();
-  }
-
-  private setupListeners() {
-    if (!this.socket) return;
-
     this.socket.onopen = () => {
-      console.log("✅ WebSocket Connected Successfully!");
+      console.log("✅ WS Service: Connected!");
+      
+      // אם היה טיימר לחיבור מחדש - ננקה אותו כי הצלחנו
+      if (this.reconnectTimeout) {
+          clearTimeout(this.reconnectTimeout);
+          this.reconnectTimeout = null;
+      }
     };
 
     this.socket.onmessage = (event) => {
       try {
-        const parsedData = JSON.parse(event.data);
-        console.log("📩 New Message:", parsedData);
-        this.listeners.forEach((listener) => listener(parsedData));
+        const parsed = JSON.parse(event.data);
+        // לוג מינימלי ונקי
+        // console.log(`📩 WS Received: ${parsed.type || 'unknown type'}`); 
+        this.notifyListeners(parsed);
       } catch (e) {
-        console.error("Error parsing message:", event.data);
+        console.error("❌ WS Error handling message:", e);
       }
     };
 
-    this.socket.onerror = (error) => {
-      console.error("❌ WebSocket Error:", error);
+    this.socket.onerror = (e: any) => {
+        if (!this.isExplicitlyDisconnected) {
+            console.error("❌ WS Error detected.");
+        }
     };
 
-    this.socket.onclose = (e) => {
-      console.log("⚠️ WebSocket Closed", e.code, e.reason);
-      if (!this.isExplicitlyDisconnected) {
-         this.handleReconnection(this.socket?.url || "");
+    this.socket.onclose = (event) => {
+      if (this.isExplicitlyDisconnected) {
+          console.log("ℹ️ WS Disconnected by user.");
+          return;
+      }
+
+      console.warn(`⚠️ WS Closed unexpectedly (Code: ${event.code}). Reason: ${event.reason || 'None'}`);
+
+      // מנגנון חיבור מחדש אוטומטי
+      if (!this.reconnectTimeout) {
+          console.log("🔄 Reconnecting in 3s...");
+          this.reconnectTimeout = setTimeout(() => {
+              this.reconnectTimeout = null; // איפוס הטיימר לפני הניסיון
+              this.initConnection();       // <--- התיקון החשוב: זה כבר לא בהערה
+          }, 3000);
       }
     };
   }
 
-  public sendMessage(type: string, payload: any) {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      const message = JSON.stringify({ type, ...payload });
-      this.socket.send(message);
-    } else {
-      console.warn("Cannot send message, socket is not open");
-    }
-  }
-
-  public subscribe(listener: MessageListener) {
+  subscribe(listener: Listener) {
     this.listeners.push(listener);
+    
+    // החזרת פונקציית Unsubscribe נקייה
     return () => {
       this.listeners = this.listeners.filter((l) => l !== listener);
     };
   }
 
-  public disconnect() {
-    this.isExplicitlyDisconnected = true;
-    if (this.socket) {
-      this.socket.close();
-      this.socket = null;
-    }
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-    }
+  private notifyListeners(msg: any) {
+    this.listeners.forEach((l) => l(msg));
   }
 
-  private handleReconnection(lastUrl: string) {
-      if (this.reconnectTimeout) return;
-      
-      console.log("🔄 Attempting to reconnect in 3 seconds...");
-      this.reconnectTimeout = setTimeout(() => {
-          this.reconnectTimeout = null;
-          if (!this.isExplicitlyDisconnected && lastUrl) {
-             console.log("Reconnecting...");
-             this.socket = new WebSocket(lastUrl);
-             this.setupListeners();
-          }
-      }, 3000);
+  // השתמש בזה *רק* בלחיצה על Logout
+  disconnect() { 
+    console.log("🧨 WS Service: Disconnecting explicitly...");
+    this.isExplicitlyDisconnected = true;
+    
+    if (this.reconnectTimeout) {
+        clearTimeout(this.reconnectTimeout);
+        this.reconnectTimeout = null;
+    }
+
+    if (this.socket) {
+        this.socket.close(); // סגירה נקייה (1000)
+        this.socket = null;
+    }
   }
 }
 
-export default WebSocketService.getInstance();
+// ייצוא מופע יחיד (Singleton) לשימוש בכל האפליקציה
+export const socketService = new WebSocketService();

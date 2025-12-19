@@ -4,7 +4,10 @@ import {
   ActivityIndicator, Modal, TextInput, ScrollView, KeyboardAvoidingView, Platform, BackHandler 
 } from 'react-native';
 import matchesService from '../services/matchesService';
-import { GameState } from '../enums/GameState';
+
+// 👇 תוספות חדשות לחיבור מוקדם
+import { socketService } from '../utils/WebSocketService';
+import { IP_ADDRESS, PORT } from '../config'; 
 
 interface IPlayer {
   id: number;
@@ -28,7 +31,9 @@ const LobbyScreen = ({ route, navigation }: any) => {
   const [newSentence, setNewSentence] = useState('');
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isNavigatingRef = useRef(false); 
 
+  // טיפול בכפתור "חזור" פיזי (אנדרואיד)
   useEffect(() => {
     const backAction = () => {
       handleLeaveMatch();
@@ -38,41 +43,45 @@ const LobbyScreen = ({ route, navigation }: any) => {
     return () => backHandler.remove();
   }, []);
 
+  // --- הלב של התיקון: חיבור מוקדם + Polling ---
   useEffect(() => {
+    isNavigatingRef.current = false; 
+
+    // 1. 👇 חיבור מוקדם ל-WebSocket (Pre-connection)
+    // זה מבטיח שהחיבור יהיה יציב לפני המעבר למשחק
+    const WS_URL = `ws://${IP_ADDRESS}:${PORT}/api/ws`;
+    console.log("🔌 Lobby: Pre-connecting to WebSocket...");
+    socketService.connect(WS_URL, token);
+
+    // 2. התחלת Polling לזיהוי תחילת המשחק
     fetchLobbyStatus();
     intervalRef.current = setInterval(fetchLobbyStatus, 3000);
+
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
+      // ⚠️ חשוב מאוד: אנחנו לא מנתקים את הסוקט כאן! 
+      // אנחנו רוצים שהוא יישאר פתוח למעבר למסך המשחק.
     };
   }, []);
 
- const fetchLobbyStatus = async () => {
+  const fetchLobbyStatus = async () => {
+    if (isNavigatingRef.current) return;
+
     try {
       const response = await matchesService.getMatchById(matchId, token);
       
       if (response.data.data) {
         const matchData = response.data.data;
-        
-
         const rawState = matchData.MatchState !== undefined ? matchData.MatchState : matchData.matchState;
         
-        console.log(`📡 Status Check: Value=${rawState}, Type=${typeof rawState}`);
-
         let isGameStarted = false;
-
-        if (rawState === 1) {
-            isGameStarted = true;
-        }
-        else if (typeof rawState === 'string' && rawState.toLowerCase() === 'inprogress') {
-            isGameStarted = true;
-        }
+        if (rawState === 1) isGameStarted = true;
+        else if (typeof rawState === 'string' && rawState.toLowerCase() === 'inprogress') isGameStarted = true;
 
         if (isGameStarted) { 
-             console.log("🚀 GAME STARTED DETECTED! Navigating...");
              goToGameScreen();
-             return;
+             return; 
         }
-
 
         const ownerObject = matchData.Owner || matchData.owner; 
         const ownerId = ownerObject ? (ownerObject.Id || ownerObject.id) : -1;
@@ -91,8 +100,17 @@ const LobbyScreen = ({ route, navigation }: any) => {
   };
 
   const goToGameScreen = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    navigation.replace('GameScreen', { matchId, token, userId });
+    if (isNavigatingRef.current) return;
+    
+    isNavigatingRef.current = true;
+    console.log("🚀 GAME STARTED DETECTED! Executing Navigation ONE TIME only.");
+
+    if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+    }
+    
+    navigation.replace('GameScreen', { matchId, token, userId, username });
   };
 
   const goToManagePictures = () => {
@@ -116,7 +134,9 @@ const LobbyScreen = ({ route, navigation }: any) => {
       setCustomSentences(updated);
   };
 
- const handleStartGame = async () => {
+  const handleStartGame = async () => {
+    if (loading || isNavigatingRef.current) return; 
+    
     setLoading(true);
     try {
       console.log("Host starting game...");
@@ -134,6 +154,7 @@ const LobbyScreen = ({ route, navigation }: any) => {
           NumOfVotesToWin: votesInt,
           PictureSelectionTimeSeconds: selectionTimeInt,
           VoteTimeSeconds: voteTimeInt,
+          
           matchId: matchId,
           sentences: finalSentences,
           numOfRounds: roundsInt,
@@ -142,13 +163,14 @@ const LobbyScreen = ({ route, navigation }: any) => {
           voteTimeSeconds: voteTimeInt
       };
 
-
       await matchesService.startMatch(gameConfig, token);
       
-      console.log("Start command sent successfully. Waiting for polling to pick it up...");
+      console.log("Start command sent.");
       Alert.alert("Success", "Game is starting...");
       
-      setTimeout(fetchLobbyStatus, 500); 
+      if (!isNavigatingRef.current) {
+          setTimeout(fetchLobbyStatus, 500); 
+      }
 
     } catch (error: any) {
       console.error("Start Game Error:", error.response?.data || error.message);
@@ -173,6 +195,8 @@ const LobbyScreen = ({ route, navigation }: any) => {
           onPress: async () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
             try {
+                // אנחנו מנתקים כאן כי המשתמש עוזב את הלובי לחלוטין
+                socketService.disconnect();
                 await matchesService.leaveMatch(matchId, token);
             } catch (e) {} finally {
                 navigation.replace('Home', { token, userId, username });

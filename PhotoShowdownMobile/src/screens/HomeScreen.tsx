@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native';
-// שינוי 1: ייבוא ה-Service במקום api ישיר
 import matchesService from '../services/matchesService';
 import * as SecureStore from 'expo-secure-store';
+
+// 👇 1. ייבוא ה-Service
+import { socketService } from '../utils/WebSocketService';
 
 const HomeScreen = ({ route, navigation }: any) => {
   const { token, userId, username } = route.params;
@@ -17,7 +19,6 @@ const HomeScreen = ({ route, navigation }: any) => {
 
   const checkStatusAndCleanup = async () => {
     try {
-      // שינוי: שימוש ב-Service
       const response = await matchesService.getCurrentMatch(token);
       if (response.data.data) {
            promptRejoinOrLeave(response.data.data.id);
@@ -36,7 +37,6 @@ const HomeScreen = ({ route, navigation }: any) => {
       setLoading(true);
       const promises = [];
       for (let i = 1; i <= 50; i++) {
-          // שינוי: שימוש ב-Service בתוך הלולאה
           promises.push(
               matchesService.leaveMatch(i, token)
                 .then(() => console.log(`Deleted match connection: ${i}`))
@@ -51,7 +51,6 @@ const HomeScreen = ({ route, navigation }: any) => {
 
   const findAndLeaveBrokenMatch = async () => {
       try {
-          // שינוי: שימוש ב-Service
           const res = await matchesService.getAllMatches(token);
           const allMatches = res.data.data || [];
 
@@ -86,7 +85,6 @@ const HomeScreen = ({ route, navigation }: any) => {
       setLoading(true);
       try {
           console.log(`Force leaving match ${matchId}...`);
-          // שינוי: שימוש ב-Service
           await matchesService.leaveMatch(matchId, token);
           Alert.alert("Fixed!", "Cleaned up stuck match. Try creating a new one.");
       } catch (e) {
@@ -102,7 +100,6 @@ const HomeScreen = ({ route, navigation }: any) => {
     try {
       console.log("Creating new match (Lobby Mode)...");
       
-      // שינוי: שימוש ב-Service
       const response = await matchesService.createNewMatch(token);
       
       if (response.data.isSuccess) {
@@ -128,7 +125,6 @@ const HomeScreen = ({ route, navigation }: any) => {
 
     setLoading(true);
     try {
-      // שינוי: שימוש ב-Service
       await matchesService.joinMatch(matchIdInput, token);
       goToLobby(parseInt(matchIdInput));
     } catch (error: any) {
@@ -138,7 +134,16 @@ const HomeScreen = ({ route, navigation }: any) => {
     }
   };
 
+  // 👇 2. עדכון הפונקציה הזו - הכי חשוב!
   const goToLobby = (matchId: number) => {
+    // מנקים סוקטים ישנים כדי שהלובי יתחיל נקי
+    console.log("🏠 Home: Cleaning up old sockets before joining Lobby...");
+    try {
+        socketService.disconnect();
+    } catch (e) {
+        console.log("Socket cleanup warning (ignore):", e);
+    }
+
     navigation.replace('Lobby', {
       matchId: matchId,
       token: token,
@@ -147,7 +152,6 @@ const HomeScreen = ({ route, navigation }: any) => {
     });
   };
 
-  // --- פונקציה חדשה למעבר למסך התמונות ---
   const goToManagePictures = () => {
       navigation.navigate('ManagePicturesScreen', {
           token: token,
@@ -157,6 +161,9 @@ const HomeScreen = ({ route, navigation }: any) => {
   };
 
   const handleLogout = async () => {
+      // גם כאן מנתקים
+      try { socketService.disconnect(); } catch (e) {}
+      
       await findAndLeaveBrokenMatch();
       await SecureStore.deleteItemAsync('userToken');
       navigation.replace('Login');
@@ -208,7 +215,6 @@ const HomeScreen = ({ route, navigation }: any) => {
         </TouchableOpacity>
       </View>
 
-      {/* --- הכפתור החדש לניהול תמונות --- */}
       <TouchableOpacity style={styles.galleryButton} onPress={goToManagePictures}>
           <Text style={styles.galleryButtonText}>🖼️ My Picture Collection</Text>
       </TouchableOpacity>
@@ -289,8 +295,6 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     fontWeight: 'bold',
   },
-  
-  // סגנון חדש לכפתור הגלריה
   galleryButton: {
       marginTop: 20,
       backgroundColor: '#333',
@@ -307,7 +311,6 @@ const styles = StyleSheet.create({
       fontSize: 16,
       fontWeight: '600'
   },
-
   logoutBtn: {
     marginTop: 40,
   },
