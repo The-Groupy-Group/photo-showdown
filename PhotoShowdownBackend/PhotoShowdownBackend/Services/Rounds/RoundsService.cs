@@ -85,17 +85,12 @@ public class RoundsService : IRoundsService
         round.EndDate = DateTime.UtcNow;
         round.WinnerId = CalculateRoundWinner(round);
 
-        Task updateScoreTask = Task.CompletedTask;
-        Task updateRoundTask;
-
         if(round.WinnerId.HasValue)
         {
-            updateScoreTask = _matcheConnectionsService.IncrementScore(round.WinnerId.Value, matchId);
+            await _matcheConnectionsService.IncrementScore(round.WinnerId.Value, matchId);
         }
-        updateRoundTask = _roundsRepo.UpdateAsync(round);
 
-        await Task.WhenAll(updateScoreTask, updateRoundTask);
-
+        await _roundsRepo.UpdateAsync(round);
         return _mapper.Map<RoundDTO>(round);
     }
 
