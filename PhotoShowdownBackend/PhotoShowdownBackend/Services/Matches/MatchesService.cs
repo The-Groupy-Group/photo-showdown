@@ -239,8 +239,8 @@ public class MatchesService : IMatchesService
             throw new MatchAlreadyEndedException();
         }
 
-        MatchEndedWebSocketMessage matchStartedWsMessage = new();
-        await _webSocketRoomManager.SendMessageToRoom(null, match.Id, matchStartedWsMessage);
+        MatchEndedWebSocketMessage matchEndedWsMessage = new();
+        await _webSocketRoomManager.SendMessageToRoom(null, match.Id, matchEndedWsMessage);
 
         // End the match
         match.EndDate = DateTime.UtcNow;
