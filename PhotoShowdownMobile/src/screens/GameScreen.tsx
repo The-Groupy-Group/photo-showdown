@@ -4,7 +4,6 @@ import {
   TouchableOpacity, Alert, Modal, SafeAreaView
 } from 'react-native';
 
-// 👇 שינוי 1: ייבוא המופע (Instance) במקום המחלקה
 import { socketService } from '../utils/WebSocketService';
 import matchesService from '../services/matchesService';
 import picturesService from '../services/picturesService';
@@ -28,6 +27,9 @@ const GameScreen = ({ route, navigation }: any) => {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [isMatchOver, setIsMatchOver] = useState(false);
 
+  // Keep track of the last processed round index to prevent double counting
+  const [processedRoundIndex, setProcessedRoundIndex] = useState<number>(-1);
+
   const WS_URL = `ws://${IP_ADDRESS}:${PORT}/api/ws`;
 
   // --- Initial Setup & WebSocket Connection ---
@@ -35,11 +37,8 @@ const GameScreen = ({ route, navigation }: any) => {
     fetchMyPictures();
     fetchCurrentState();
     
-    // 👇 שינוי 2: שימוש במופע הסינגלטון לחיבור
-    // אין צורך בבדיקות כפולות, ה-Service עושה זאת
     socketService.connect(WS_URL, token);
 
-    // 👇 שינוי 3: הרשמה לאירועים
     const unsubscribe = socketService.subscribe((msg: any) => {
       if (msg.data && msg.data.roundState !== undefined) {
           console.log("🔄 Round Update via WS:", msg.data.roundState);
@@ -47,21 +46,19 @@ const GameScreen = ({ route, navigation }: any) => {
       }
     });
 
-    // 👇 שינוי 4: Cleanup - מפסיקים להאזין, אבל **לא מנתקים** את החיבור!
     return () => {
-      console.log("🛑 GameScreen Unmounting - Removing Listener only (Socket stays open)");
+      console.log("🛑 GameScreen Unmounting - Removing Listener only");
       unsubscribe(); 
     };
   }, []);
 
   const currentRoundState = roundData ? parseRoundState(roundData.roundState) : '';
 
-  // --- Logic Effects ---
-
-  // ניהול נעילות ומעברי שלבים
+  // --- Logic Effects: State Management & Score Updates ---
   useEffect(() => {
       if (!roundData) return;
 
+      // Reset selection flags based on state
       if (currentRoundState === GameState.Voting && votedPictureId === null) {
           setHasSelected(false);
       }
@@ -72,16 +69,40 @@ const GameScreen = ({ route, navigation }: any) => {
           setStatus("Pick your card:");
       }
 
+      // Handle Round End & Local Leaderboard Update
       if (currentRoundState === GameState.Ended) {
-          fetchCurrentState(); 
+          
+          // Check if we already processed this specific round to avoid double scoring
+          // in case the component re-renders or socket sends duplicate events.
+          if (roundData.roundIndex > processedRoundIndex) {
+              
+              if (roundData.roundWinnerId) {
+                  console.log(`🏆 Winner ID: ${roundData.roundWinnerId}. Updating local score.`);
+                  
+                  setMatchPlayers(prevPlayers => {
+                      return prevPlayers.map(player => {
+                          if (player.id === roundData.roundWinnerId) {
+                              return { ...player, score: player.score + 1 };
+                          }
+                          return player;
+                      });
+                  });
+              }
+              
+              // Mark this round as processed
+              setProcessedRoundIndex(roundData.roundIndex);
+          }
+          
+          // REMOVED: fetchCurrentState(); 
+          // We rely solely on the socket data and local update to prevent flickering.
       }
   }, [roundData, currentRoundState]);
 
-  // טיימר
+  // --- Timer Logic ---
   useEffect(() => {
       if (!roundData || isMatchOver) return;
 
-      const interval = setInterval(() => {
+      const updateTimer = () => {
           const now = new Date().getTime();
           let targetTime = 0;
           
@@ -90,12 +111,21 @@ const GameScreen = ({ route, navigation }: any) => {
           } else if (currentRoundState === GameState.Voting) {
               targetTime = new Date(roundData.votingEndDate).getTime();
           } else if (currentRoundState === GameState.Ended) {
-              targetTime = new Date(roundData.roundEndDate).getTime();
+              if (roundData.roundEndDate) {
+                  targetTime = new Date(roundData.roundEndDate).getTime();
+              }
           }
 
-          const diff = Math.floor((targetTime - now) / 1000);
-          setSecondsLeft(diff > 0 ? diff : 0);
-      }, 1000);
+          if (targetTime > 0) {
+              const diff = Math.floor((targetTime - now) / 1000);
+              setSecondsLeft(diff > 0 ? diff : 0);
+          } else {
+              setSecondsLeft(0);
+          }
+      };
+
+      updateTimer();
+      const interval = setInterval(updateTimer, 1000);
 
       return () => clearInterval(interval);
   }, [roundData, currentRoundState, isMatchOver]);
@@ -107,17 +137,25 @@ const GameScreen = ({ route, navigation }: any) => {
           const res = await matchesService.getCurrentMatch(token);
           if (res.data.data) {
               const data = res.data.data;
-              setMatchPlayers(data.users || []);
+              
+              // Only set players if list is empty to avoid overwriting local score updates 
+              // during initial load, or if it's a hard refresh.
+              if (matchPlayers.length === 0) {
+                  setMatchPlayers(data.users || []);
+              }
               
               if (data.round) {
                   setRoundData(data.round);
+                  // Sync processed round index to prevent re-adding score on reload
+                  if (data.round.roundState === 2) { // Ended
+                      setProcessedRoundIndex(data.round.roundIndex);
+                  }
               }
 
               const matchState = parseMatchState(data.MatchState !== undefined ? data.MatchState : data.matchState);
               if (matchState === GameState.Ended) {
-                  console.log("🚨 GAME OVER DETECTED (fetchCurrentState)");
+                  console.log("🚨 GAME OVER DETECTED");
                   setIsMatchOver(true);
-                  // אנחנו לא מנתקים כאן כדי לתת למשתמש לראות את התוצאות
               }
           }
       } catch (error) { console.error("Fetch State Error:", error); }
@@ -182,7 +220,6 @@ const GameScreen = ({ route, navigation }: any) => {
   };
 
   const goBackHome = () => {
-      // 👇 שינוי 5: כאן אנחנו מנתקים בצורה יזומה ונקייה
       console.log("🏠 Returning home, disconnecting socket.");
       try {
         socketService.disconnect(); 
