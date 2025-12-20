@@ -238,7 +238,9 @@ public class MatchesService : IMatchesService
         {
             throw new MatchAlreadyEndedException();
         }
-        // TODO: Send a message to the room https://groupy-group.atlassian.net/browse/PHSH-142
+
+        MatchEndedWebSocketMessage matchEndedWsMessage = new();
+        await _webSocketRoomManager.SendMessageToRoom(null, match.Id, matchEndedWsMessage);
 
         // End the match
         match.EndDate = DateTime.UtcNow;

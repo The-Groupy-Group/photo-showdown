@@ -29,6 +29,7 @@ public abstract class WebSocketMessage
         MatchStarted,
         RoundStateChange,
         UserLockedIn,
+        MatchEnded,
     }
 }
 
