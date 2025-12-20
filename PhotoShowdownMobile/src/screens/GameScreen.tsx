@@ -1,16 +1,18 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   View, Text, StyleSheet, ActivityIndicator, ScrollView, Image, 
-  TouchableOpacity, Alert, Modal, Dimensions 
+  TouchableOpacity, Alert, Modal, SafeAreaView
 } from 'react-native';
-import WebSocketService from '../utils/WebSocketService';
+
+// 👇 שינוי 1: ייבוא המופע (Instance) במקום המחלקה
+import { socketService } from '../utils/WebSocketService';
 import matchesService from '../services/matchesService';
 import picturesService from '../services/picturesService';
-import { GameState } from '../enums/GameState';
+import { GameState, parseRoundState, parseMatchState } from '../enums/GameState';
 import { IP_ADDRESS, PORT } from '../config'; 
 
-const GameScreen = ({ route }: any) => {
-  const { matchId, token, userId } = route.params;
+const GameScreen = ({ route, navigation }: any) => {
+  const { matchId, token, userId, username } = route.params;
   
   const [status, setStatus] = useState("Loading...");
   const [roundData, setRoundData] = useState<any>(null);
@@ -22,88 +24,100 @@ const GameScreen = ({ route }: any) => {
   const [hasSelected, setHasSelected] = useState(false); 
   
   const [secondsLeft, setSecondsLeft] = useState(0);
-  
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [isMatchOver, setIsMatchOver] = useState(false);
 
-  const isConnected = useRef(false);
-
-  // כתובת ה-WebSocket
   const WS_URL = `ws://${IP_ADDRESS}:${PORT}/api/ws`;
 
+  // --- Initial Setup & WebSocket Connection ---
   useEffect(() => {
     fetchMyPictures();
     fetchCurrentState();
-    connectToGame();
+    
+    // 👇 שינוי 2: שימוש במופע הסינגלטון לחיבור
+    // אין צורך בבדיקות כפולות, ה-Service עושה זאת
+    socketService.connect(WS_URL, token);
 
-    const unsubscribe = WebSocketService.subscribe((msg: any) => {
-      console.log("Game Event:", msg);
-      if (msg.data && msg.data.roundState) {
+    // 👇 שינוי 3: הרשמה לאירועים
+    const unsubscribe = socketService.subscribe((msg: any) => {
+      if (msg.data && msg.data.roundState !== undefined) {
+          console.log("🔄 Round Update via WS:", msg.data.roundState);
           setRoundData(msg.data);
       }
     });
 
+    // 👇 שינוי 4: Cleanup - מפסיקים להאזין, אבל **לא מנתקים** את החיבור!
     return () => {
-      unsubscribe();
-      WebSocketService.disconnect();
+      console.log("🛑 GameScreen Unmounting - Removing Listener only (Socket stays open)");
+      unsubscribe(); 
     };
   }, []);
 
-  // --- ניהול נעילות ומעברי שלבים (שימוש ב-ENUM) ---
+  const currentRoundState = roundData ? parseRoundState(roundData.roundState) : '';
+
+  // --- Logic Effects ---
+
+  // ניהול נעילות ומעברי שלבים
   useEffect(() => {
       if (!roundData) return;
 
-      const state = roundData.roundState.toLowerCase();
-
-      if (state === GameState.Voting && votedPictureId === null) {
+      if (currentRoundState === GameState.Voting && votedPictureId === null) {
           setHasSelected(false);
       }
 
-      if (state === GameState.PictureSelection && selectedPictureId === null) {
+      if (currentRoundState === GameState.PictureSelection && selectedPictureId === null) {
           setHasSelected(false);
           setVotedPictureId(null);
           setStatus("Pick your card:");
       }
 
-      if (state === GameState.Ended) {
-          fetchCurrentState();
+      if (currentRoundState === GameState.Ended) {
+          fetchCurrentState(); 
       }
+  }, [roundData, currentRoundState]);
 
-  }, [roundData]);
-
-  // --- טיימר (שימוש ב-ENUM) ---
+  // טיימר
   useEffect(() => {
-      if (!roundData) return;
+      if (!roundData || isMatchOver) return;
 
       const interval = setInterval(() => {
           const now = new Date().getTime();
           let targetTime = 0;
-          const state = roundData.roundState.toLowerCase();
-
-          if (state === GameState.PictureSelection) {
+          
+          if (currentRoundState === GameState.PictureSelection) {
               targetTime = new Date(roundData.pictureSelectionEndDate).getTime();
-          } else if (state === GameState.Voting) {
+          } else if (currentRoundState === GameState.Voting) {
               targetTime = new Date(roundData.votingEndDate).getTime();
-          } else if (state === GameState.Ended) {
+          } else if (currentRoundState === GameState.Ended) {
               targetTime = new Date(roundData.roundEndDate).getTime();
           }
 
           const diff = Math.floor((targetTime - now) / 1000);
           setSecondsLeft(diff > 0 ? diff : 0);
-
       }, 1000);
 
       return () => clearInterval(interval);
-  }, [roundData]);
+  }, [roundData, currentRoundState, isMatchOver]);
+
+  // --- API Calls ---
 
   const fetchCurrentState = async () => {
       try {
-          // שימוש ב-matchesService
           const res = await matchesService.getCurrentMatch(token);
           if (res.data.data) {
-              setMatchPlayers(res.data.data.users || []);
-              if (res.data.data.round) {
-                  setRoundData(res.data.data.round);
+              const data = res.data.data;
+              setMatchPlayers(data.users || []);
+              
+              if (data.round) {
+                  setRoundData(data.round);
+              }
+
+              const matchState = parseMatchState(data.MatchState !== undefined ? data.MatchState : data.matchState);
+              if (matchState === GameState.Ended) {
+                  console.log("🚨 GAME OVER DETECTED (fetchCurrentState)");
+                  setIsMatchOver(true);
+                  // אנחנו לא מנתקים כאן כדי לתת למשתמש לראות את התוצאות
               }
           }
       } catch (error) { console.error("Fetch State Error:", error); }
@@ -111,53 +125,32 @@ const GameScreen = ({ route }: any) => {
 
   const fetchMyPictures = async () => {
       try {
-          // שימוש ב-picturesService
           const res = await picturesService.getMyPictures(token);
           if (res.data.data) setMyPictures(res.data.data);
       } catch (e) { console.log(e); }
   };
 
-  const connectToGame = () => {
-      if (isConnected.current) return;
-      WebSocketService.connect(WS_URL, token);
-      isConnected.current = true;
-  };
-
   const handleSelectPicture = async (pictureId: number) => {
       if (hasSelected) return;
-
       setHasSelected(true);
       setSelectedPictureId(pictureId);
-
       try {
-          const payload = {
-              pictureId: pictureId,
-              matchId: matchId,
-              roundIndex: roundData.roundIndex
-          };
-          // שימוש ב-matchesService
+          const payload = { pictureId, matchId, roundIndex: roundData.roundIndex };
           await matchesService.selectPictureForRound(payload, token);
           setStatus("Waiting for others...");
       } catch (error: any) { 
           setHasSelected(false);
           setSelectedPictureId(null);
-          Alert.alert("Error", "Selection failed. Please try again."); 
+          Alert.alert("Error", "Selection failed."); 
       }
   };
 
   const handleVote = async (roundPictureId: number) => {
       if (hasSelected) return;
-
       setHasSelected(true);
       setVotedPictureId(roundPictureId);
-      
       try {
-          const payload = {
-              roundPictureId: roundPictureId,
-              matchId: matchId,
-              roundIndex: roundData.roundIndex
-          };
-          // שימוש ב-matchesService
+          const payload = { roundPictureId, matchId, roundIndex: roundData.roundIndex };
           await matchesService.voteForPicture(payload, token);
           Alert.alert("Voted!", "Waiting for results...");
       } catch (error) { 
@@ -167,11 +160,14 @@ const GameScreen = ({ route }: any) => {
       }
   };
 
+  // --- Helpers ---
+
   const getImageUrl = (path: string) => {
       if (!path) return undefined;
       let cleanPath = path.replace(/\\/g, '/');
-      cleanPath = cleanPath.replace('pictures/', ''); 
-      return `http://${IP_ADDRESS}:${PORT}/pictures/${cleanPath}`;
+      if (cleanPath.startsWith('/')) cleanPath = cleanPath.substring(1);
+      if (!cleanPath.startsWith('pictures/')) cleanPath = `pictures/${cleanPath}`;
+      return `http://${IP_ADDRESS}:${PORT}/${cleanPath}`;
   };
 
   const getWinnerDetails = () => {
@@ -185,22 +181,63 @@ const GameScreen = ({ route }: any) => {
       };
   };
 
-  const renderLeaderboard = () => (
-    <View style={styles.leaderboard}>
-        <Text style={styles.leaderboardTitle}>Leaderboard</Text>
+  const goBackHome = () => {
+      // 👇 שינוי 5: כאן אנחנו מנתקים בצורה יזומה ונקייה
+      console.log("🏠 Returning home, disconnecting socket.");
+      try {
+        socketService.disconnect(); 
+      } catch (e) { console.error(e); }
+
+      navigation.replace('Home', { token, userId, username });
+  };
+
+  // --- Render Components ---
+
+  const renderLeaderboard = (isFinal: boolean = false) => (
+    <View style={[styles.leaderboard, isFinal && styles.finalLeaderboard]}>
+        <Text style={styles.leaderboardTitle}>
+            {isFinal ? "🏆 Final Standings 🏆" : "Leaderboard"}
+        </Text>
         {matchPlayers
             .sort((a, b) => b.score - a.score)
-            .map((player) => (
+            .map((player, index) => (
             <View key={player.id} style={styles.scoreRow}>
-                <Text style={styles.scoreName}>
+                <Text style={[styles.scoreName, isFinal && index === 0 && styles.winnerName]}>
+                    {isFinal && index === 0 ? "👑 " : `${index + 1}. `}
                     {player.username} {player.id === userId ? "(You)" : ""}
                 </Text>
-                <Text style={styles.scoreValue}>{player.score.toFixed(1)}</Text>
+                <Text style={styles.scoreValue}>{player.score.toFixed(0)}</Text>
             </View>
         ))}
     </View>
   );
 
+  // --- 1. Game Over View ---
+  if (isMatchOver) {
+      const winner = matchPlayers.sort((a, b) => b.score - a.score)[0];
+      return (
+          <SafeAreaView style={styles.gameOverContainer}>
+              <ScrollView contentContainerStyle={styles.gameOverScroll}>
+                  <Text style={styles.gameOverTitle}>GAME OVER</Text>
+                  
+                  <View style={styles.winnerCircle}>
+                      <Text style={styles.winnerTextEmoji}>🏆</Text>
+                  </View>
+                  
+                  <Text style={styles.winnerLabel}>Winner</Text>
+                  <Text style={styles.grandWinnerText}>{winner?.username || "Unknown"}</Text>
+                  
+                  {renderLeaderboard(true)}
+
+                  <TouchableOpacity style={styles.homeButton} onPress={goBackHome}>
+                      <Text style={styles.homeButtonText}>🏠 Back to Home</Text>
+                  </TouchableOpacity>
+              </ScrollView>
+          </SafeAreaView>
+      );
+  }
+
+  // --- 2. Loading View ---
   if (!roundData) {
       return (
           <View style={styles.container}>
@@ -210,11 +247,11 @@ const GameScreen = ({ route }: any) => {
       );
   }
 
-  const currentState = roundData.roundState?.toLowerCase();
-
+  // --- 3. Main Game View ---
   return (
     <View style={styles.container}>
       
+      {/* Zoom Modal */}
       <Modal visible={!!zoomedImage} transparent={true} animationType="fade">
           <View style={styles.modalBackground}>
               <TouchableOpacity style={styles.modalCloseArea} onPress={() => setZoomedImage(null)} />
@@ -229,6 +266,7 @@ const GameScreen = ({ route }: any) => {
           </View>
       </Modal>
 
+      {/* Leaderboard Modal */}
       <Modal visible={showLeaderboard} transparent={true} animationType="slide">
           <View style={styles.modalBackground}>
               <View style={styles.modalContent}>
@@ -240,13 +278,13 @@ const GameScreen = ({ route }: any) => {
           </View>
       </Modal>
 
-      {currentState !== GameState.Ended && (
+      {currentRoundState !== GameState.Ended && (
         <TouchableOpacity style={styles.trophyBtn} onPress={() => setShowLeaderboard(true)}>
             <Text style={{fontSize: 24}}>🏆</Text>
         </TouchableOpacity>
       )}
 
-      {currentState !== GameState.Ended && (
+      {currentRoundState !== GameState.Ended && (
         <View style={styles.timerContainer}>
             <Text style={styles.timerLabel}>Time Left</Text>
             <Text style={[styles.timerValue, secondsLeft < 10 && styles.timerUrgent]}>
@@ -255,14 +293,14 @@ const GameScreen = ({ route }: any) => {
         </View>
       )}
 
-      {currentState !== GameState.Ended && (
+      {currentRoundState !== GameState.Ended && (
         <View style={styles.sentenceCard}>
             <Text style={styles.sentenceText}>{roundData.sentence}</Text>
         </View>
       )}
 
-      {/* מסך 1: בחירה (שימוש ב-ENUM) */}
-      {currentState === GameState.PictureSelection && (
+      {/* State: Selection */}
+      {currentRoundState === GameState.PictureSelection && (
           <>
             <Text style={styles.sectionTitle}>Pick your card (Long press to zoom):</Text>
             {status.includes("Waiting") && (
@@ -292,8 +330,8 @@ const GameScreen = ({ route }: any) => {
           </>
       )}
 
-      {/* מסך 2: הצבעה (שימוש ב-ENUM) */}
-      {currentState === GameState.Voting && (
+      {/* State: Voting */}
+      {currentRoundState === GameState.Voting && (
           <>
             <Text style={styles.sectionTitle}>Vote for the funniest!</Text>
             <ScrollView contentContainerStyle={styles.cardsGrid}>
@@ -321,8 +359,8 @@ const GameScreen = ({ route }: any) => {
           </>
       )}
 
-      {/* מסך 3: תוצאות (שימוש ב-ENUM) */}
-      {currentState === GameState.Ended && (
+      {/* State: Round Ended */}
+      {currentRoundState === GameState.Ended && (
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             <Text style={styles.sectionTitle}>🏆 Round Results 🏆</Text>
             
@@ -339,7 +377,7 @@ const GameScreen = ({ route }: any) => {
 
             <Text style={styles.subText}>Next round in {secondsLeft}s...</Text>
 
-            {renderLeaderboard()}
+            {renderLeaderboard(false)}
           </ScrollView>
       )}
     </View>
@@ -370,10 +408,13 @@ const styles = StyleSheet.create({
   winnerText: { color: '#FFD700', fontSize: 24, fontWeight: 'bold' },
   subText: { color: '#aaa', marginBottom: 20 },
 
+  // Leaderboard Styles
   leaderboard: { width: '100%', backgroundColor: '#1E1E1E', borderRadius: 15, padding: 15, marginBottom: 20 },
+  finalLeaderboard: { marginTop: 30, backgroundColor: '#222', borderWidth: 1, borderColor: '#444' },
   leaderboardTitle: { color: 'white', fontSize: 18, fontWeight: 'bold', marginBottom: 10, borderBottomWidth: 1, borderBottomColor: '#333', paddingBottom: 5, textAlign: 'center' },
   scoreRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8 },
   scoreName: { color: 'white', fontSize: 16 },
+  winnerName: { color: '#FFD700', fontWeight: 'bold', fontSize: 18 },
   scoreValue: { color: '#03DAC6', fontSize: 16, fontWeight: 'bold' },
 
   sentenceCard: { backgroundColor: '#1E1E1E', padding: 20, borderRadius: 20, width: '100%', minHeight: 120, justifyContent: 'center', alignItems: 'center', marginTop: 50, marginBottom: 20, borderWidth: 1, borderColor: '#333' },
@@ -384,7 +425,18 @@ const styles = StyleSheet.create({
   cardWrapper: { borderRadius: 10, overflow: 'hidden', borderWidth: 2, borderColor: 'transparent', marginBottom: 10 },
   selectedCard: { borderColor: '#03DAC6', transform: [{ scale: 1.05 }] },
   disabledCard: { opacity: 0.5 },
-  cardImage: { width: 100, height: 100, backgroundColor: '#333' }
+  cardImage: { width: 100, height: 100, backgroundColor: '#333' },
+
+  // Game Over Styles
+  gameOverContainer: { flex: 1, backgroundColor: '#121212' },
+  gameOverScroll: { flexGrow: 1, alignItems: 'center', padding: 20, paddingTop: 60 },
+  gameOverTitle: { fontSize: 40, fontWeight: 'bold', color: '#FF5252', marginBottom: 20 },
+  winnerCircle: { width: 120, height: 120, borderRadius: 60, backgroundColor: '#333', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: '#FFD700', marginBottom: 10 },
+  winnerTextEmoji: { fontSize: 50 },
+  winnerLabel: { color: '#aaa', fontSize: 16, textTransform: 'uppercase' },
+  grandWinnerText: { color: '#FFD700', fontSize: 32, fontWeight: 'bold', marginBottom: 10 },
+  homeButton: { marginTop: 40, backgroundColor: '#6200EE', paddingVertical: 15, paddingHorizontal: 40, borderRadius: 30 },
+  homeButtonText: { color: 'white', fontSize: 18, fontWeight: 'bold' }
 });
 
 export default GameScreen;

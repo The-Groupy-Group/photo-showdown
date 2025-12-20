@@ -1,10 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { 
   View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, 
-  ActivityIndicator, Modal, TextInput, ScrollView, KeyboardAvoidingView, Platform 
+  ActivityIndicator, Modal, TextInput, ScrollView, KeyboardAvoidingView, Platform, BackHandler 
 } from 'react-native';
 import matchesService from '../services/matchesService';
-import { GameState } from '../enums/GameState';
+
+// 👇 תוספות חדשות לחיבור מוקדם
+import { socketService } from '../utils/WebSocketService';
+import { IP_ADDRESS, PORT } from '../config'; 
 
 interface IPlayer {
   id: number;
@@ -13,11 +16,10 @@ interface IPlayer {
 }
 
 const LobbyScreen = ({ route, navigation }: any) => {
-  const { matchId, token, userId, username } = route.params; // הוספתי username כדי שנוכל להעביר אותו הלאה
+  const { matchId, token, userId, username } = route.params;
   const [players, setPlayers] = useState<IPlayer[]>([]);
   const [loading, setLoading] = useState(false);
   
-  // --- הגדרות משחק (State) ---
   const [showSettings, setShowSettings] = useState(false);
   const [numRounds, setNumRounds] = useState('5');
   const [votesToWin, setVotesToWin] = useState('3');
@@ -29,23 +31,58 @@ const LobbyScreen = ({ route, navigation }: any) => {
   const [newSentence, setNewSentence] = useState('');
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isNavigatingRef = useRef(false); 
 
+  // טיפול בכפתור "חזור" פיזי (אנדרואיד)
   useEffect(() => {
+    const backAction = () => {
+      handleLeaveMatch();
+      return true;
+    };
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, []);
+
+  // --- הלב של התיקון: חיבור מוקדם + Polling ---
+  useEffect(() => {
+    isNavigatingRef.current = false; 
+
+    // 1. 👇 חיבור מוקדם ל-WebSocket (Pre-connection)
+    // זה מבטיח שהחיבור יהיה יציב לפני המעבר למשחק
+    const WS_URL = `ws://${IP_ADDRESS}:${PORT}/api/ws`;
+    console.log("🔌 Lobby: Pre-connecting to WebSocket...");
+    socketService.connect(WS_URL, token);
+
+    // 2. התחלת Polling לזיהוי תחילת המשחק
     fetchLobbyStatus();
     intervalRef.current = setInterval(fetchLobbyStatus, 3000);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
+      // ⚠️ חשוב מאוד: אנחנו לא מנתקים את הסוקט כאן! 
+      // אנחנו רוצים שהוא יישאר פתוח למעבר למסך המשחק.
     };
   }, []);
 
- const fetchLobbyStatus = async () => {
+  const fetchLobbyStatus = async () => {
+    if (isNavigatingRef.current) return;
+
     try {
       const response = await matchesService.getMatchById(matchId, token);
       
       if (response.data.data) {
         const matchData = response.data.data;
+        const rawState = matchData.MatchState !== undefined ? matchData.MatchState : matchData.matchState;
         
+        let isGameStarted = false;
+        if (rawState === 1) isGameStarted = true;
+        else if (typeof rawState === 'string' && rawState.toLowerCase() === 'inprogress') isGameStarted = true;
+
+        if (isGameStarted) { 
+             goToGameScreen();
+             return; 
+        }
+
         const ownerObject = matchData.Owner || matchData.owner; 
         const ownerId = ownerObject ? (ownerObject.Id || ownerObject.id) : -1;
 
@@ -56,37 +93,31 @@ const LobbyScreen = ({ route, navigation }: any) => {
         }));
         
         setPlayers(mappedPlayers);
-
-        const state = matchData.MatchState?.toLowerCase(); 
-
-        if (state === GameState.InProgress) { 
-             console.log("Game started! Moving to GameScreen...");
-             goToGameScreen();
-        }
       }
     } catch (error) {
-      console.log("Polling error:", error);
+      console.log("Polling error (ignoring):", error);
     }
   };
 
   const goToGameScreen = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    navigation.replace('GameScreen', { matchId, token, userId });
+    if (isNavigatingRef.current) return;
+    
+    isNavigatingRef.current = true;
+    console.log("🚀 GAME STARTED DETECTED! Executing Navigation ONE TIME only.");
+
+    if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+    }
+    
+    navigation.replace('GameScreen', { matchId, token, userId, username });
   };
 
-  // --- פונקציה חדשה למעבר לניהול תמונות ---
   const goToManagePictures = () => {
-      // אנחנו לא עוצרים את האינטרוול כי אנחנו רוצים שהמשחק ימשיך להתעדכן ברקע,
-      // או שנחזור אליו והוא יתעדכן. אבל כדאי לנקות ביציאה כדי לא להעמיס.
       if (intervalRef.current) clearInterval(intervalRef.current);
-      
       navigation.navigate('ManagePicturesScreen', {
-          token: token,
-          userId: userId,
-          username: username,
-          // הפרמטרים החשובים לחזרה:
-          fromScreen: 'Lobby',
-          matchId: matchId 
+          token, userId, username,
+          fromScreen: 'Lobby', matchId
       });
   };
 
@@ -103,7 +134,9 @@ const LobbyScreen = ({ route, navigation }: any) => {
       setCustomSentences(updated);
   };
 
- const handleStartGame = async () => {
+  const handleStartGame = async () => {
+    if (loading || isNavigatingRef.current) return; 
+    
     setLoading(true);
     try {
       console.log("Host starting game...");
@@ -112,7 +145,6 @@ const LobbyScreen = ({ route, navigation }: any) => {
       const votesInt = parseInt(votesToWin) || 3;
       const selectionTimeInt = parseInt(selectionTime) || 60;
       const voteTimeInt = parseInt(voteTime) || 60;
-
       const finalSentences = customSentences; 
 
       const gameConfig = {
@@ -122,6 +154,7 @@ const LobbyScreen = ({ route, navigation }: any) => {
           NumOfVotesToWin: votesInt,
           PictureSelectionTimeSeconds: selectionTimeInt,
           VoteTimeSeconds: voteTimeInt,
+          
           matchId: matchId,
           sentences: finalSentences,
           numOfRounds: roundsInt,
@@ -130,19 +163,22 @@ const LobbyScreen = ({ route, navigation }: any) => {
           voteTimeSeconds: voteTimeInt
       };
 
-      console.log("Sending Start Payload:", JSON.stringify(gameConfig));
-
       await matchesService.startMatch(gameConfig, token);
       
+      console.log("Start command sent.");
+      Alert.alert("Success", "Game is starting...");
+      
+      if (!isNavigatingRef.current) {
+          setTimeout(fetchLobbyStatus, 500); 
+      }
+
     } catch (error: any) {
       console.error("Start Game Error:", error.response?.data || error.message);
-      
       let errorMsg = "Failed to start game.";
       if (error.response?.data?.message) {
           errorMsg += "\nServer: " + error.response.data.message;
       }
       Alert.alert("Error", errorMsg);
-      
       setLoading(false);
     }
   };
@@ -159,9 +195,11 @@ const LobbyScreen = ({ route, navigation }: any) => {
           onPress: async () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
             try {
+                // אנחנו מנתקים כאן כי המשתמש עוזב את הלובי לחלוטין
+                socketService.disconnect();
                 await matchesService.leaveMatch(matchId, token);
             } catch (e) {} finally {
-                navigation.goBack();
+                navigation.replace('Home', { token, userId, username });
             }
           }
         }
@@ -190,64 +228,27 @@ const LobbyScreen = ({ route, navigation }: any) => {
           <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalOverlay}>
               <View style={styles.modalContent}>
                   <Text style={styles.modalTitle}>Game Settings ⚙️</Text>
-                  
                   <ScrollView style={{width: '100%'}}>
                       <Text style={styles.label}>Number of Rounds:</Text>
-                      <TextInput 
-                          style={styles.input} 
-                          value={numRounds} 
-                          onChangeText={setNumRounds} 
-                          keyboardType="numeric" 
-                      />
-
+                      <TextInput style={styles.input} value={numRounds} onChangeText={setNumRounds} keyboardType="numeric" />
                       <Text style={styles.label}>Votes to Win:</Text>
-                      <TextInput 
-                          style={styles.input} 
-                          value={votesToWin} 
-                          onChangeText={setVotesToWin} 
-                          keyboardType="numeric" 
-                      />
-
+                      <TextInput style={styles.input} value={votesToWin} onChangeText={setVotesToWin} keyboardType="numeric" />
                       <Text style={styles.label}>Time to Pick Picture (sec):</Text>
-                      <TextInput 
-                          style={styles.input} 
-                          value={selectionTime} 
-                          onChangeText={setSelectionTime} 
-                          keyboardType="numeric" 
-                      />
-
+                      <TextInput style={styles.input} value={selectionTime} onChangeText={setSelectionTime} keyboardType="numeric" />
                       <Text style={styles.label}>Time to Vote (sec):</Text>
-                      <TextInput 
-                          style={styles.input} 
-                          value={voteTime} 
-                          onChangeText={setVoteTime} 
-                          keyboardType="numeric" 
-                      />
-
+                      <TextInput style={styles.input} value={voteTime} onChangeText={setVoteTime} keyboardType="numeric" />
                       <Text style={[styles.label, {marginTop: 20}]}>Custom Sentences (Optional):</Text>
                       <View style={styles.addSentenceContainer}>
-                          <TextInput 
-                              style={[styles.input, {flex:1, marginBottom:0}]} 
-                              placeholder="Type a funny sentence..." 
-                              placeholderTextColor="#666"
-                              value={newSentence}
-                              onChangeText={setNewSentence}
-                          />
-                          <TouchableOpacity style={styles.addBtn} onPress={addSentence}>
-                              <Text style={styles.addBtnText}>+</Text>
-                          </TouchableOpacity>
+                          <TextInput style={[styles.input, {flex:1, marginBottom:0}]} placeholder="Type a funny sentence..." placeholderTextColor="#666" value={newSentence} onChangeText={setNewSentence}/>
+                          <TouchableOpacity style={styles.addBtn} onPress={addSentence}><Text style={styles.addBtnText}>+</Text></TouchableOpacity>
                       </View>
-
                       {customSentences.map((s, index) => (
                           <View key={index} style={styles.sentenceRow}>
                               <Text style={styles.sentenceText} numberOfLines={1}>{s}</Text>
-                              <TouchableOpacity onPress={() => removeSentence(index)}>
-                                  <Text style={styles.removeText}>✕</Text>
-                              </TouchableOpacity>
+                              <TouchableOpacity onPress={() => removeSentence(index)}><Text style={styles.removeText}>✕</Text></TouchableOpacity>
                           </View>
                       ))}
                   </ScrollView>
-
                   <TouchableOpacity style={styles.closeSettingsBtn} onPress={() => setShowSettings(false)}>
                       <Text style={styles.closeBtnText}>Save & Close</Text>
                   </TouchableOpacity>
@@ -260,9 +261,7 @@ const LobbyScreen = ({ route, navigation }: any) => {
           <Text style={styles.subTitle}>Match ID: {matchId}</Text>
       </View>
       
-      <Text style={styles.waitingText}>
-          Updating automatically...
-      </Text>
+      <Text style={styles.waitingText}>Updating automatically...</Text>
 
       <FlatList
         data={players}
@@ -276,34 +275,20 @@ const LobbyScreen = ({ route, navigation }: any) => {
       <View style={styles.footer}>
         {amIHost ? (
             <>
-                <TouchableOpacity 
-                    style={styles.settingsButton}
-                    onPress={() => setShowSettings(true)}
-                >
+                <TouchableOpacity style={styles.settingsButton} onPress={() => setShowSettings(true)}>
                     <Text style={styles.settingsButtonText}>⚙️ Game Settings</Text>
                 </TouchableOpacity>
-
-                <TouchableOpacity 
-                    style={styles.startButton}
-                    onPress={handleStartGame}
-                    disabled={loading}
-                >
+                <TouchableOpacity style={styles.startButton} onPress={handleStartGame} disabled={loading}>
                     {loading ? <ActivityIndicator color="white"/> : <Text style={styles.startButtonText}>Start Game</Text>}
                 </TouchableOpacity>
             </>
         ) : (
             <Text style={styles.infoText}>Waiting for host to start...</Text>
         )}
-
-        {/* --- הכפתור החדש --- */}
         <TouchableOpacity style={styles.galleryButton} onPress={goToManagePictures}>
              <Text style={styles.galleryButtonText}>🖼️ Manage Pictures</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity 
-            style={styles.leaveButton}
-            onPress={handleLeaveMatch}
-        >
+        <TouchableOpacity style={styles.leaveButton} onPress={handleLeaveMatch}>
             <Text style={styles.leaveButtonText}>Leave Lobby</Text>
         </TouchableOpacity>
       </View>
@@ -326,22 +311,15 @@ const styles = StyleSheet.create({
   playerName: { color: 'white', fontSize: 14, textAlign: 'center' },
   hostLabel: { color: '#FFD700', fontSize: 10, marginTop: 2, fontWeight: 'bold' },
   footer: { width: '100%', marginTop: 'auto', marginBottom: 20, alignItems: 'center' },
-  
   startButton: { backgroundColor: '#6200EE', paddingVertical: 15, width: '100%', borderRadius: 25, alignItems: 'center', marginBottom: 15 },
   startButtonText: { color: 'white', fontSize: 18, fontWeight: 'bold' },
-  
   settingsButton: { backgroundColor: '#333', paddingVertical: 12, width: '100%', borderRadius: 25, alignItems: 'center', marginBottom: 15, borderWidth: 1, borderColor: '#555' },
   settingsButtonText: { color: '#03DAC6', fontSize: 16, fontWeight: '600' },
-
-  // עיצוב לכפתור גלריה בלובי
   galleryButton: { backgroundColor: '#444', paddingVertical: 12, width: '100%', borderRadius: 25, alignItems: 'center', marginBottom: 15, borderWidth: 1, borderColor: '#666' },
   galleryButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-
   leaveButton: { paddingVertical: 10, width: '100%', alignItems: 'center' },
   leaveButtonText: { color: '#FF5252', fontSize: 16, fontWeight: '600' },
   infoText: { color: '#888', marginBottom: 20, fontSize: 16 },
-
-  // Modal Styles
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', alignItems: 'center', padding: 20 },
   modalContent: { width: '100%', backgroundColor: '#1E1E1E', borderRadius: 20, padding: 20, alignItems: 'center', maxHeight: '90%' },
   modalTitle: { color: 'white', fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
@@ -349,8 +327,6 @@ const styles = StyleSheet.create({
   input: { backgroundColor: '#333', width: '100%', color: 'white', padding: 12, borderRadius: 10, marginBottom: 5 },
   closeSettingsBtn: { marginTop: 20, backgroundColor: '#03DAC6', paddingVertical: 12, paddingHorizontal: 30, borderRadius: 20, width: '100%', alignItems: 'center' },
   closeBtnText: { color: 'black', fontWeight: 'bold', fontSize: 16 },
-  
-  // Custom Sentence Styles
   addSentenceContainer: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
   addBtn: { backgroundColor: '#6200EE', width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center' },
   addBtnText: { color: 'white', fontSize: 24, fontWeight: 'bold' },
