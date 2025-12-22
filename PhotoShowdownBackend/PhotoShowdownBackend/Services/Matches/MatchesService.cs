@@ -242,8 +242,6 @@ public class MatchesService : IMatchesService
         MatchEndedWebSocketMessage matchEndedWsMessage = new();
         await _webSocketRoomManager.SendMessageToRoom(null, match.Id, matchEndedWsMessage);
 
-        await Task.Delay(1000);
-
         // End the match
         match.EndDate = DateTime.UtcNow;
         await _matchesRepo.UpdateAsync(match);
