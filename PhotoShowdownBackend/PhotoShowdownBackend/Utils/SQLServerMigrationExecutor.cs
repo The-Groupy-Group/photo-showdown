@@ -24,6 +24,10 @@ public class SQLServerMigrationExecutor
     public void ExecutePendingScripts()
     {
         _logger.LogInformation($"{nameof(ExecutePendingScripts)} Start");
+
+        // First, ensure the database exists
+        EnsureDatabaseExists();
+
         using SqlConnection connection = new(connectionString);
         connection.Open();
 
@@ -44,7 +48,51 @@ public class SQLServerMigrationExecutor
             }
         }
         _logger.LogInformation("Looking for scripts that were never executed before.");
-        IterateAllScripts(connection, execute:true);
+        IterateAllScripts(connection, execute: true);
+    }
+
+    private void EnsureDatabaseExists()
+    {
+        // Extract database name from connection string
+        var builder = new SqlConnectionStringBuilder(connectionString);
+        string databaseName = builder.InitialCatalog;
+
+        // Create a connection to the master database
+        var masterBuilder = new SqlConnectionStringBuilder(connectionString)
+        {
+            InitialCatalog = "master"
+        };
+
+        using SqlConnection masterConnection = new(masterBuilder.ConnectionString);
+
+        try
+        {
+            masterConnection.Open();
+
+            // Check if database exists
+            var checkQuery = $"SELECT database_id FROM sys.databases WHERE name = N'{databaseName}'";
+            using var command = new SqlCommand(checkQuery, masterConnection);
+            object? result = command.ExecuteScalar();
+
+            if (result == null)
+            {
+                // Database doesn't exist, create it
+                _logger.LogInformation($"Database '{databaseName}' does not exist. Creating it.");
+                var createQuery = $"CREATE DATABASE [{databaseName}]";
+                using var createCommand = new SqlCommand(createQuery, masterConnection);
+                createCommand.ExecuteNonQuery();
+                _logger.LogInformation($"Database '{databaseName}' created successfully.");
+            }
+            else
+            {
+                _logger.LogInformation($"Database '{databaseName}' already exists.");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error ensuring database exists: {ex.Message}");
+            throw;
+        }
     }
 
     private void IterateAllScripts(SqlConnection connection, bool execute)
@@ -111,7 +159,7 @@ public class SQLServerMigrationExecutor
         throw new Exception($"SQL File named {fileName} has invalid name (no batch).");
     }
 
-    private static bool IsScriptInDBScriptsTable(SqlConnection connection, int scriptBatch,string scriptName)
+    private static bool IsScriptInDBScriptsTable(SqlConnection connection, int scriptBatch, string scriptName)
     {
         var query = $"SELECT COUNT(*) FROM DBScripts WHERE ScriptBatch = {scriptBatch} AND ScriptName = '{scriptName}'";
         using var command = new SqlCommand(query, connection);
