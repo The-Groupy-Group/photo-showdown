@@ -52,8 +52,6 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-//string connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")!;
-
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 try
 {

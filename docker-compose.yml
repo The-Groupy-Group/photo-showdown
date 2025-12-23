@@ -12,12 +12,13 @@ services:
     build: ./PhotoShowdownBackend
     ports:
       - "5299:5299"
-      - "8080:8080"
+      - "${API_PORT:-8080}:8080"
       - "7222:7222"
     depends_on:
       - db
     environment:
-      CONNECTION_STRING: "Server=db;Database=PhotoShowdownDB;User Id=sa;Password=donfil123!!!;trusted_connection=false;MultipleActiveResultSets=true;TrustServerCertificate=true;"
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=db;Database=PhotoShowdownDB;User Id=sa;Password=donfil123!!!;trusted_connection=false;MultipleActiveResultSets=true;TrustServerCertificate=true;
   frontend:
     build: ./photo-showdown-frontend
     ports:
