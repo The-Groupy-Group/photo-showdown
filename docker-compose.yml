@@ -8,6 +8,10 @@ services:
     environment:
       SA_PASSWORD: "donfil123!!!"
       ACCEPT_EULA: "Y"
+      MSSQL_DATA_DIR: /var/opt/mssql/data
+    volumes:
+      - sql_data:/var/opt/mssql/data
+    user: "root"
   api:
     build: ./PhotoShowdownBackend
     ports:
@@ -17,8 +21,11 @@ services:
     depends_on:
       - db
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=db;Database=PhotoShowdownDB;User Id=sa;Password=donfil123!!!;trusted_connection=false;MultipleActiveResultSets=true;TrustServerCertificate=true;
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=db;Database=PhotoShowdownDB;User Id=sa;Password=donfil123!!!;trusted_connection=false;MultipleActiveResultSets=true;TrustServerCertificate=true;
+    volumes:
+      - logs:/app/Logs
+      - wwwroot:/app/wwwroot
   frontend:
     build: ./photo-showdown-frontend
     ports:
@@ -26,3 +33,9 @@ services:
       - "80:80"
     depends_on:
       - api
+
+volumes:
+  sql_data:
+  logs:
+  wwwroot:
+  
