@@ -34,7 +34,15 @@ public class MappingConfig : Profile
 
         // Matches
         CreateMap<Match, MatchDTO>()
-            .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.MatchConnections.Select(mc => mc.User)))
+            .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.MatchConnections.Select(mc => new UserInMatchDTO 
+            { 
+                Id = mc.User.Id,
+                Username = mc.User.Username,
+                FirstName = mc.User.FirstName ?? "",
+                LastName = mc.User.LastName ?? "",
+                IsLockedIn = mc.IsLockedIn,
+                Score = mc.Score
+            })))
             .ForMember(dest => dest.Owner, opt => opt.MapFrom(src => src.Owner))
             .ForMember(dest => dest.MatchState, opt => opt.MapFrom(src =>
                 DateTime.UtcNow > src.EndDate ? MatchStates.Ended :
