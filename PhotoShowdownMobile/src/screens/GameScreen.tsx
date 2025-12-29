@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { 
   View, Text, StyleSheet, ActivityIndicator, ScrollView, Image, 
-  TouchableOpacity, Alert, Modal, SafeAreaView
+  TouchableOpacity, Alert, Modal, SafeAreaView, Dimensions
 } from 'react-native';
 
 import { socketService } from '../utils/WebSocketService';
@@ -20,7 +20,7 @@ const GameScreen = ({ route, navigation }: any) => {
   
   const [totalRounds, setTotalRounds] = useState<number>(0); 
   
-  // 👇 New: Offset to sync client clock with server clock
+  // Offset to sync client clock with server clock
   const [timeOffset, setTimeOffset] = useState<number>(0);
 
   // --- Selection & Voting State ---
@@ -54,7 +54,7 @@ const GameScreen = ({ route, navigation }: any) => {
       const msgTypeLower = rawType.toString().toLowerCase();
 
       if (msgTypeLower === 'matchended' || msgTypeLower === 6) {
-          console.log("🏁 WebSocket received MatchEnded! Switching UI.");
+          console.log("WebSocket received MatchEnded! Switching UI.");
           
           isMatchOverRef.current = true; 
           setIsMatchOver(true);
@@ -64,13 +64,13 @@ const GameScreen = ({ route, navigation }: any) => {
       }
 
       if (msg.data && msg.data.roundState !== undefined) {
-          console.log("🔄 Round Update via WS:", msg.data.roundState);
+          console.log("Round Update via WS:", msg.data.roundState);
           setRoundData(msg.data);
       }
     });
 
     return () => {
-      console.log("🛑 GameScreen Unmounting");
+      console.log("GameScreen Unmounting");
       unsubscribe(); 
     };
   }, []);
@@ -83,7 +83,7 @@ const GameScreen = ({ route, navigation }: any) => {
 
       // 1. Handle State Transitions (Reset Locks)
       if (prevRoundStateRef.current !== currentRoundState) {
-          console.log(`🔀 State Changed: ${prevRoundStateRef.current} -> ${currentRoundState}`);
+          console.log(`State Changed: ${prevRoundStateRef.current} -> ${currentRoundState}`);
           
           if (currentRoundState === GameState.PictureSelection) {
               setHasSelected(false);
@@ -104,7 +104,7 @@ const GameScreen = ({ route, navigation }: any) => {
           if (roundData.roundIndex > processedRoundIndex) {
               
               if (roundData.roundWinnerId) {
-                  console.log(`🏆 Winner ID: ${roundData.roundWinnerId}. Updating local score.`);
+                  console.log(`Winner ID: ${roundData.roundWinnerId}. Updating local score.`);
                   
                   setMatchPlayers(prevPlayers => {
                       return prevPlayers.map(player => {
@@ -120,9 +120,8 @@ const GameScreen = ({ route, navigation }: any) => {
 
               // Check if this was the last round
               if (totalRounds > 0 && (roundData.roundIndex + 1) >= totalRounds) {
-                  console.log("🏁 Last round ended. Closing connection immediately.");
+                  console.log("Last round ended. Closing connection immediately.");
                   
-                  // 🛑 Critical: Mark as over and kill socket to prevent 400 errors from server deletion
                   isMatchOverRef.current = true;
                   socketService.disconnect(); // Explicit disconnect
                   setIsMatchOver(true);
@@ -159,7 +158,7 @@ const GameScreen = ({ route, navigation }: any) => {
       updateTimer();
       const interval = setInterval(updateTimer, 1000);
       return () => clearInterval(interval);
-  }, [roundData, currentRoundState, isMatchOver, timeOffset]); // Re-run if offset changes
+  }, [roundData, currentRoundState, isMatchOver, timeOffset]);
 
   // --- API Calls ---
 
@@ -169,21 +168,26 @@ const GameScreen = ({ route, navigation }: any) => {
       try {
           const res = await matchesService.getCurrentMatch(token);
           
-          // 👇 Calculate Clock Skew (Server Time vs Client Time)
+          // Calculate Clock Skew
           if (res.headers && res.headers['date']) {
               const serverTime = Date.parse(res.headers['date']);
               const clientTime = Date.now();
               const offset = serverTime - clientTime;
-              console.log(`🕒 Clock Sync: Client is ${offset}ms off from Server`);
+              console.log(`Clock Sync: Client is ${offset}ms off from Server`);
               setTimeOffset(offset);
           }
 
           if (res.data.data) {
               const data = res.data.data;
               
-              if (matchPlayers.length === 0) {
-                  setMatchPlayers(data.users || []);
+              // --- השינוי כאן ---
+              // במקום לבדוק אם הרשימה ריקה, אנחנו תמיד מעדכנים את השחקנים.
+              // זה מבטיח שאם התחברנו מחדש, נקבל את ה-Score המעודכן מהשרת (UserInMatchDTO)
+              if (data.users) {
+                  console.log("👥 Syncing players & scores from server:", data.users);
+                  setMatchPlayers(data.users);
               }
+              // ------------------
 
               const rounds = 
                   data.numOfRounds ?? 
@@ -197,7 +201,7 @@ const GameScreen = ({ route, navigation }: any) => {
               if (data.round) {
                   setRoundData(data.round);
                   if (prevRoundStateRef.current === '') {
-                       prevRoundStateRef.current = parseRoundState(data.round.roundState);
+                        prevRoundStateRef.current = parseRoundState(data.round.roundState);
                   }
                   
                   if (data.round.roundState === 2) { 
@@ -224,8 +228,25 @@ const GameScreen = ({ route, navigation }: any) => {
 
   // --- User Actions ---
 
+  const onLeaveMatch = () => {
+    Alert.alert(
+        "Leave Match",
+        "Are you sure you want to exit the game?",
+        [
+            { text: "Cancel", style: "cancel" },
+            { 
+                text: "Leave", 
+                style: "destructive", 
+                onPress: () => {
+                    try { socketService.disconnect(); } catch(e) { console.error(e); }
+                    navigation.replace('Home', { token, userId, username });
+                }
+            }
+        ]
+    );
+  };
+
   const onPictureClick = (pictureId: number) => {
-      if (hasSelected) return;
       setTempSelectedPictureId(pictureId);
   };
 
@@ -244,7 +265,6 @@ const GameScreen = ({ route, navigation }: any) => {
   };
 
   const onVoteClick = (roundPictureId: number) => {
-      if (hasSelected) return;
       setTempVotedPictureId(roundPictureId);
   };
 
@@ -283,7 +303,6 @@ const GameScreen = ({ route, navigation }: any) => {
   };
 
   const goBackHome = () => {
-      // Socket already disconnected on game end, but safe to call again
       try { socketService.disconnect(); } catch (e) { console.error(e); }
       navigation.replace('Home', { token, userId, username });
   };
@@ -390,15 +409,30 @@ const GameScreen = ({ route, navigation }: any) => {
       </Modal>
 
       {currentRoundState !== GameState.Ended && (
-        <TouchableOpacity style={styles.trophyBtn} onPress={() => setShowLeaderboard(true)}>
-            <Text style={{fontSize: 24}}>🏆</Text>
-        </TouchableOpacity>
+        <>
+            <TouchableOpacity style={styles.leaveBtn} onPress={onLeaveMatch}>
+                <Text style={styles.leaveBtnText}>🚪 Leave</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.trophyBtn} onPress={() => setShowLeaderboard(true)}>
+                <Text style={{fontSize: 24}}>🏆</Text>
+            </TouchableOpacity>
+        </>
       )}
 
       {currentRoundState !== GameState.Ended && (
         <View style={styles.timerContainer}>
             <Text style={styles.timerLabel}>Time Left</Text>
             <Text style={[styles.timerValue, secondsLeft < 10 && styles.timerUrgent]}>{secondsLeft}s</Text>
+        </View>
+      )}
+
+      {/* Round Info Display */}
+      {currentRoundState !== GameState.Ended && (
+        <View style={styles.roundInfoContainer}>
+             <Text style={styles.roundInfoText}>
+                Round {roundData.roundIndex !== undefined ? roundData.roundIndex + 1 : 1}
+             </Text>
         </View>
       )}
 
@@ -416,13 +450,17 @@ const GameScreen = ({ route, navigation }: any) => {
                 <Text style={{color: '#4CAF50', marginBottom: 10, fontWeight:'bold'}}>✅ Choice Locked In</Text>
             )}
             
-            <ScrollView contentContainerStyle={styles.cardsGrid}>
+            <ScrollView 
+                style={styles.cardsScroll} 
+                contentContainerStyle={styles.cardsGrid}
+            >
                 <View style={styles.row}>
                     {myPictures.map((pic) => (
                         <TouchableOpacity 
                             key={pic.id} 
-                            disabled={hasSelected} 
-                            onPress={() => onPictureClick(pic.id)}
+                            onPress={() => {
+                                if (!hasSelected) onPictureClick(pic.id);
+                            }}
                             onLongPress={() => setZoomedImage(getImageUrl(pic.picturePath) || null)}
                             delayLongPress={300}
                             style={[
@@ -453,23 +491,36 @@ const GameScreen = ({ route, navigation }: any) => {
       {currentRoundState === GameState.Voting && (
           <>
             <Text style={styles.sectionTitle}>Vote for the funniest!</Text>
-            <ScrollView contentContainerStyle={styles.cardsGrid}>
+            <ScrollView 
+                style={styles.cardsScroll} 
+                contentContainerStyle={styles.cardsGrid}
+            >
                 <View style={styles.row}>
                     {roundData.picturesSelected?.map((picSelected: any) => {
+                        // Check if this picture belongs to the current user
+                        const isMyPicture = picSelected.selectedByUserId === userId;
+
                         return (
                             <TouchableOpacity 
                                 key={picSelected.id}
-                                disabled={hasSelected} 
-                                onPress={() => onVoteClick(picSelected.id)}
+                                onPress={() => {
+                                    if (!hasSelected && !isMyPicture) onVoteClick(picSelected.id);
+                                }}
                                 onLongPress={() => setZoomedImage(getImageUrl(picSelected.picturePath) || null)}
                                 delayLongPress={300}
                                 style={[
                                     styles.cardWrapper, 
                                     tempVotedPictureId === picSelected.id && styles.selectedCard,
-                                    hasSelected && tempVotedPictureId !== picSelected.id && styles.disabledCard
+                                    (hasSelected && tempVotedPictureId !== picSelected.id) && styles.disabledCard,
+                                    isMyPicture && styles.disabledCard // Grey out own picture
                                 ]}
                             >
                                 <Image source={{ uri: getImageUrl(picSelected.picturePath) }} style={styles.cardImage} resizeMode="cover" />
+                                {isMyPicture && (
+                                    <View style={styles.myCardOverlay}>
+                                        <Text style={styles.myCardText}>Your Card</Text>
+                                    </View>
+                                )}
                             </TouchableOpacity>
                         );
                     })}
@@ -492,6 +543,9 @@ const GameScreen = ({ route, navigation }: any) => {
       {currentRoundState === GameState.Ended && (
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             <Text style={styles.sectionTitle}>🏆 Round Results 🏆</Text>
+            <Text style={styles.roundInfoText}>
+                Round {roundData.roundIndex !== undefined ? roundData.roundIndex + 1 : 1}
+            </Text>
             
             {getWinnerDetails()?.picUrl ? (
                 <View style={styles.winnerContainer}>
@@ -524,11 +578,18 @@ const styles = StyleSheet.create({
   closeBtn: { marginTop: 20, backgroundColor: '#FF5252', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 20 },
   closeBtnText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
 
-  trophyBtn: { position: 'absolute', top: 40, left: 20, padding: 10, backgroundColor: '#333', borderRadius: 25, zIndex: 10, borderWidth: 1, borderColor: '#555' },
+  leaveBtn: { position: 'absolute', top: 40, left: 20, paddingVertical: 8, paddingHorizontal: 12, backgroundColor: '#333', borderRadius: 25, zIndex: 10, borderWidth: 1, borderColor: '#555' },
+  leaveBtnText: { color: '#FF5252', fontWeight: 'bold' },
+
+  trophyBtn: { position: 'absolute', top: 90, left: 20, padding: 10, backgroundColor: '#333', borderRadius: 25, zIndex: 10, borderWidth: 1, borderColor: '#555' },
+  
   timerContainer: { position: 'absolute', top: 40, right: 20, backgroundColor: '#333', padding: 8, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: '#555', zIndex: 10 },
   timerLabel: { color: '#aaa', fontSize: 10, textTransform: 'uppercase' },
   timerValue: { color: 'white', fontSize: 22, fontWeight: 'bold' },
   timerUrgent: { color: '#FF5252' },
+
+  roundInfoContainer: { marginTop: 40, marginBottom: 10, alignItems: 'center' },
+  roundInfoText: { color: '#AAA', fontSize: 16, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 1 },
 
   winnerContainer: { alignItems: 'center', marginVertical: 20, width: '100%' },
   winnerImage: { width: 250, height: 250, borderRadius: 10, marginBottom: 15, borderWidth: 3, borderColor: '#FFD700' },
@@ -543,17 +604,38 @@ const styles = StyleSheet.create({
   winnerName: { color: '#FFD700', fontWeight: 'bold', fontSize: 18 },
   scoreValue: { color: '#03DAC6', fontSize: 16, fontWeight: 'bold' },
 
-  sentenceCard: { backgroundColor: '#1E1E1E', padding: 20, borderRadius: 20, width: '100%', minHeight: 120, justifyContent: 'center', alignItems: 'center', marginTop: 50, marginBottom: 20, borderWidth: 1, borderColor: '#333' },
+  sentenceCard: { backgroundColor: '#1E1E1E', padding: 20, borderRadius: 20, width: '100%', minHeight: 120, justifyContent: 'center', alignItems: 'center', marginTop: 10, marginBottom: 20, borderWidth: 1, borderColor: '#333' },
   sentenceText: { color: '#fff', fontSize: 22, fontWeight: 'bold', textAlign: 'center' },
   sectionTitle: { color: '#03DAC6', fontSize: 20, marginBottom: 15, fontWeight: 'bold', alignSelf: 'flex-start' },
   
+  // Updated Styles for Layout Fix
+  cardsScroll: { width: '100%' },
   cardsGrid: { paddingBottom: 100 }, 
   
-  row: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10 },
-  cardWrapper: { borderRadius: 10, overflow: 'hidden', borderWidth: 2, borderColor: 'transparent', marginBottom: 10 },
+  row: { 
+    width: '100%',
+    flexDirection: 'row', 
+    flexWrap: 'wrap', 
+    justifyContent: 'space-between',
+  },
+  cardWrapper: { 
+    width: '48%', 
+    height: 160,
+    borderRadius: 10, 
+    overflow: 'hidden', 
+    borderWidth: 2, 
+    borderColor: 'transparent', 
+    marginBottom: 15,
+  },
   selectedCard: { borderColor: '#03DAC6', transform: [{ scale: 1.05 }] },
   disabledCard: { opacity: 0.5 },
-  cardImage: { width: 100, height: 100, backgroundColor: '#333' },
+  cardImage: { 
+    width: '100%', 
+    height: '100%',
+    backgroundColor: '#333' 
+  },
+  myCardOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
+  myCardText: { color: 'white', fontWeight: 'bold', fontSize: 12 },
 
   lockInButton: { width: '100%', backgroundColor: '#03DAC6', padding: 15, borderRadius: 30, alignItems: 'center', marginTop: 10, marginBottom: 40 }, 
   disabledButton: { backgroundColor: '#333', opacity: 0.6 },
