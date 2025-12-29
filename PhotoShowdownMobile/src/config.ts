@@ -1,8 +1,7 @@
 // src/config.ts
 
-// שנה את המספרים כאן לכתובת ה-IP העדכנית של המחשב שלך
-export const IP_ADDRESS = '10.0.0.2';
-export const PORT = '5299';
 
-// זו הכתובת שתשמש את כל האפליקציה
+export const IP_ADDRESS = process.env.EXPO_PUBLIC_IP_ADDRESS || '10.0.0.2';
+export const PORT = process.env.EXPO_PUBLIC_PORT || '8080';
+
 export const API_BASE_URL = `http://${IP_ADDRESS}:${PORT}/api`;
