@@ -180,9 +180,6 @@ const GameScreen = ({ route, navigation }: any) => {
           if (res.data.data) {
               const data = res.data.data;
               
-              // --- השינוי כאן ---
-              // במקום לבדוק אם הרשימה ריקה, אנחנו תמיד מעדכנים את השחקנים.
-              // זה מבטיח שאם התחברנו מחדש, נקבל את ה-Score המעודכן מהשרת (UserInMatchDTO)
               if (data.users) {
                   console.log("👥 Syncing players & scores from server:", data.users);
                   setMatchPlayers(data.users);
@@ -387,13 +384,9 @@ const GameScreen = ({ route, navigation }: any) => {
       
       <Modal visible={!!zoomedImage} transparent={true} animationType="fade">
           <View style={styles.modalBackground}>
-              <TouchableOpacity style={styles.modalCloseArea} onPress={() => setZoomedImage(null)} />
-              <View style={styles.modalContent}>
-                  {zoomedImage && <Image source={{ uri: zoomedImage }} style={styles.fullImage} resizeMode="contain" />}
-                  <TouchableOpacity style={styles.closeBtn} onPress={() => setZoomedImage(null)}>
-                      <Text style={styles.closeBtnText}>Close</Text>
-                  </TouchableOpacity>
-              </View>
+              {zoomedImage && (
+                  <Image source={{ uri: zoomedImage }} style={styles.fullImage} resizeMode="contain" />
+              )}
           </View>
       </Modal>
 
@@ -445,7 +438,7 @@ const GameScreen = ({ route, navigation }: any) => {
       {/* State: Selection */}
       {currentRoundState === GameState.PictureSelection && (
           <>
-            <Text style={styles.sectionTitle}>Pick your card (Long press to zoom):</Text>
+            <Text style={styles.sectionTitle}>Pick your card (Hold to zoom):</Text>
             {hasSelected && (
                 <Text style={{color: '#4CAF50', marginBottom: 10, fontWeight:'bold'}}>✅ Choice Locked In</Text>
             )}
@@ -462,7 +455,8 @@ const GameScreen = ({ route, navigation }: any) => {
                                 if (!hasSelected) onPictureClick(pic.id);
                             }}
                             onLongPress={() => setZoomedImage(getImageUrl(pic.picturePath) || null)}
-                            delayLongPress={300}
+                            onPressOut={() => setZoomedImage(null)} // Closes zoom when finger released
+                            delayLongPress={200} // Slightly faster response
                             style={[
                                 styles.cardWrapper, 
                                 tempSelectedPictureId === pic.id && styles.selectedCard,
@@ -507,7 +501,8 @@ const GameScreen = ({ route, navigation }: any) => {
                                     if (!hasSelected && !isMyPicture) onVoteClick(picSelected.id);
                                 }}
                                 onLongPress={() => setZoomedImage(getImageUrl(picSelected.picturePath) || null)}
-                                delayLongPress={300}
+                                onPressOut={() => setZoomedImage(null)} // Closes zoom when finger released
+                                delayLongPress={200}
                                 style={[
                                     styles.cardWrapper, 
                                     tempVotedPictureId === picSelected.id && styles.selectedCard,
@@ -574,7 +569,7 @@ const styles = StyleSheet.create({
   modalBackground: { flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center' },
   modalCloseArea: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
   modalContent: { width: '90%', backgroundColor: '#222', borderRadius: 15, padding: 20, alignItems: 'center' },
-  fullImage: { width: '100%', height: 400, borderRadius: 10 },
+  fullImage: { width: '100%', height: '80%' },
   closeBtn: { marginTop: 20, backgroundColor: '#FF5252', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 20 },
   closeBtnText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
 
