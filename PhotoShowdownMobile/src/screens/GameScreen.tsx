@@ -455,8 +455,8 @@ const GameScreen = ({ route, navigation }: any) => {
                                 if (!hasSelected) onPictureClick(pic.id);
                             }}
                             onLongPress={() => setZoomedImage(getImageUrl(pic.picturePath) || null)}
-                            onPressOut={() => setZoomedImage(null)} // Closes zoom when finger released
-                            delayLongPress={200} // Slightly faster response
+                            onPressOut={() => setZoomedImage(null)} 
+                            delayLongPress={200} 
                             style={[
                                 styles.cardWrapper, 
                                 tempSelectedPictureId === pic.id && styles.selectedCard,
@@ -491,7 +491,6 @@ const GameScreen = ({ route, navigation }: any) => {
             >
                 <View style={styles.row}>
                     {roundData.picturesSelected?.map((picSelected: any) => {
-                        // Check if this picture belongs to the current user
                         const isMyPicture = picSelected.selectedByUserId === userId;
 
                         return (
@@ -501,13 +500,13 @@ const GameScreen = ({ route, navigation }: any) => {
                                     if (!hasSelected && !isMyPicture) onVoteClick(picSelected.id);
                                 }}
                                 onLongPress={() => setZoomedImage(getImageUrl(picSelected.picturePath) || null)}
-                                onPressOut={() => setZoomedImage(null)} // Closes zoom when finger released
+                                onPressOut={() => setZoomedImage(null)} 
                                 delayLongPress={200}
                                 style={[
                                     styles.cardWrapper, 
                                     tempVotedPictureId === picSelected.id && styles.selectedCard,
                                     (hasSelected && tempVotedPictureId !== picSelected.id) && styles.disabledCard,
-                                    isMyPicture && styles.disabledCard // Grey out own picture
+                                    isMyPicture && styles.disabledCard 
                                 ]}
                             >
                                 <Image source={{ uri: getImageUrl(picSelected.picturePath) }} style={styles.cardImage} resizeMode="cover" />
@@ -553,6 +552,30 @@ const GameScreen = ({ route, navigation }: any) => {
                 </View>
             )}
 
+            {/* 👇 Votes Breakdown Section 👇 */}
+            <Text style={styles.subSectionTitle}>Votes Breakdown:</Text>
+            <View style={styles.row}>
+                {roundData.picturesSelected?.map((pic: any) => {
+                     // Check if 'NumOfVotes' or 'numOfVotes'
+                     const votes = pic.numOfVotes !== undefined ? pic.numOfVotes : (pic.NumOfVotes || 0);
+                     
+                     return (
+                        <TouchableOpacity 
+                            key={pic.id}
+                            onLongPress={() => setZoomedImage(getImageUrl(pic.picturePath) || null)}
+                            onPressOut={() => setZoomedImage(null)}
+                            delayLongPress={200}
+                            style={[styles.cardWrapper, { height: 120 }]} // Slightly smaller cards for results
+                        >
+                            <Image source={{ uri: getImageUrl(pic.picturePath) }} style={styles.cardImage} resizeMode="cover" />
+                            <View style={styles.voteOverlay}>
+                                <Text style={styles.voteText}>{votes} Votes</Text>
+                            </View>
+                        </TouchableOpacity>
+                     );
+                })}
+            </View>
+
             <Text style={styles.subText}>Next round in {secondsLeft}s...</Text>
             {renderLeaderboard(false)}
           </ScrollView>
@@ -566,10 +589,10 @@ const styles = StyleSheet.create({
   scrollContainer: { flexGrow: 1, width: '100%', alignItems: 'center' },
   text: { color: 'white', marginTop: 20, fontSize: 18 },
   
-  modalBackground: { flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center' },
+  modalBackground: { flex: 1, backgroundColor: 'rgba(0,0,0,0.95)', justifyContent: 'center', alignItems: 'center' },
   modalCloseArea: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 },
   modalContent: { width: '90%', backgroundColor: '#222', borderRadius: 15, padding: 20, alignItems: 'center' },
-  fullImage: { width: '100%', height: '80%' },
+  fullImage: { width: '100%', height: '80%' }, 
   closeBtn: { marginTop: 20, backgroundColor: '#FF5252', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 20 },
   closeBtnText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
 
@@ -602,8 +625,9 @@ const styles = StyleSheet.create({
   sentenceCard: { backgroundColor: '#1E1E1E', padding: 20, borderRadius: 20, width: '100%', minHeight: 120, justifyContent: 'center', alignItems: 'center', marginTop: 10, marginBottom: 20, borderWidth: 1, borderColor: '#333' },
   sentenceText: { color: '#fff', fontSize: 22, fontWeight: 'bold', textAlign: 'center' },
   sectionTitle: { color: '#03DAC6', fontSize: 20, marginBottom: 15, fontWeight: 'bold', alignSelf: 'flex-start' },
-  
-  // Updated Styles for Layout Fix
+  subSectionTitle: { color: '#AAA', fontSize: 16, marginBottom: 10, fontWeight: 'bold', alignSelf: 'flex-start' },
+
+  // Layout Styles
   cardsScroll: { width: '100%' },
   cardsGrid: { paddingBottom: 100 }, 
   
@@ -631,6 +655,22 @@ const styles = StyleSheet.create({
   },
   myCardOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
   myCardText: { color: 'white', fontWeight: 'bold', fontSize: 12 },
+
+  // New Vote Badge Styles
+  voteOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingVertical: 5,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  voteText: {
+    color: '#03DAC6',
+    fontWeight: 'bold',
+    fontSize: 14
+  },
 
   lockInButton: { width: '100%', backgroundColor: '#03DAC6', padding: 15, borderRadius: 30, alignItems: 'center', marginTop: 10, marginBottom: 40 }, 
   disabledButton: { backgroundColor: '#333', opacity: 0.6 },
