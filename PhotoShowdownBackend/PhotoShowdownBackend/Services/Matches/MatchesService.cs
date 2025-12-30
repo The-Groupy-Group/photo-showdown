@@ -210,6 +210,8 @@ public class MatchesService : IMatchesService
         match.NumOfVotesToWin = startMatchDTO.NumOfVotesToWin;
         match.NumOfRounds = startMatchDTO.NumOfRounds;
 
+        int numOfUsers = match.MatchConnections.Count;
+
         await _matchesRepo.UpdateAsync(match);
 
         // Set the custom sentences
@@ -227,7 +229,7 @@ public class MatchesService : IMatchesService
 
         CancellationTokenSource cancellationTokenSource = new();
         _cancelationTokens[match.Id] = cancellationTokenSource;
-        _ = Task.Run(() => ExecuteMatchLogic(match, _serviceProvider.CreateScope(), cancellationTokenSource.Token));
+        _ = Task.Run(() => ExecuteMatchLogic(match, numOfUsers, _serviceProvider.CreateScope(), cancellationTokenSource.Token));
     }
 
     public async Task EndMatch(int matchId)
@@ -293,7 +295,7 @@ public class MatchesService : IMatchesService
     }
 
     // ------------ Private methods ------------ //
-    private static async Task ExecuteMatchLogic(Match match, IServiceScope scope, CancellationToken cancellationToken)
+    private static async Task ExecuteMatchLogic(Match match, int numOfUsers, IServiceScope scope, CancellationToken cancellationToken)
     {
         // Get the services
         var roundsService = scope.ServiceProvider.GetRequiredService<IRoundsService>();
@@ -302,8 +304,8 @@ public class MatchesService : IMatchesService
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<MatchesService>>();
         try
         {
-            int numOfUsers = match.MatchConnections.Count;
             int roundIndex = 0;
+            logger.LogInformation("Starting ExecuteMatchLogic for match {matchId} with {numOfUsers} users", match.Id, numOfUsers);
             while (!(match.NumOfRounds == roundIndex/* || match.NumOfVotesToWin == userWithMaxVotes*/)) // Check winning condition
             {
                 // ------- Start a new round ------- //
@@ -324,6 +326,7 @@ public class MatchesService : IMatchesService
                 {
                     if (_numOfVotes.TryGetValue(match.Id, out int currentVotes) && currentVotes >= numOfUsers)
                     {
+                        logger.LogInformation("{currentVotes} users selected picture for match {matchId} with {numOfUsers} users", currentVotes, match.Id, numOfUsers);
                         break;
                     }
                     await Task.Delay(1000, cancellationToken);
@@ -338,6 +341,7 @@ public class MatchesService : IMatchesService
                 {
                     if (_numOfVotes.TryGetValue(match.Id, out int currentVotes) && currentVotes >= numOfUsers)
                     {
+                        logger.LogInformation("{currentVotes} users voted picture for match {matchId} with {numOfUsers} users", currentVotes, match.Id, numOfUsers);
                         break;
                     }
                     await Task.Delay(1000, cancellationToken);
