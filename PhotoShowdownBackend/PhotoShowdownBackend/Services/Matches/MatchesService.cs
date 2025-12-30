@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Logging;
 using PhotoShowdownBackend.Consts;
 using PhotoShowdownBackend.Dtos.Matches;
 using PhotoShowdownBackend.Dtos.Messages;
@@ -43,6 +44,7 @@ public class MatchesService : IMatchesService
     private const int ROUND_WINNER_DISPLAY_SECONDS = SystemSettings.ROUND_WINNER_DISPLAY_SECONDS;
     private static readonly ConcurrentDictionary<int, CancellationTokenSource> _cancelationTokens = new();
     private static readonly ConcurrentDictionary<int, int> _numOfVotes = new();
+    private static readonly ConcurrentDictionary<int, int> _numOPlayers = new();
 
     public MatchesService(
         IMatchesRepository matchesRepository,
@@ -153,6 +155,7 @@ public class MatchesService : IMatchesService
     {
         // Delete the connection
         await _matchConnectionsService.DeleteMatchConnection(userToRemove.Id, matchId);
+        _numOPlayers.AddOrUpdate(matchId, 0, (key, oldValue) => oldValue - 1);
 
         // If the match is empty and hasent started, delete it
         Match match = (await _matchesRepo.GetWithUsersAsync(m => m.Id == matchId, tracked: true))!;
@@ -211,6 +214,7 @@ public class MatchesService : IMatchesService
         match.NumOfRounds = startMatchDTO.NumOfRounds;
 
         int numOfUsers = match.MatchConnections.Count;
+        _numOPlayers.TryAdd(match.Id, match.MatchConnections.Count);
 
         await _matchesRepo.UpdateAsync(match);
 
@@ -229,7 +233,7 @@ public class MatchesService : IMatchesService
 
         CancellationTokenSource cancellationTokenSource = new();
         _cancelationTokens[match.Id] = cancellationTokenSource;
-        _ = Task.Run(() => ExecuteMatchLogic(match, numOfUsers, _serviceProvider.CreateScope(), cancellationTokenSource.Token));
+        _ = Task.Run(() => ExecuteMatchLogic(match, _serviceProvider.CreateScope(), cancellationTokenSource.Token));
     }
 
     public async Task EndMatch(int matchId)
@@ -258,6 +262,9 @@ public class MatchesService : IMatchesService
             cancellationTokenSource.Dispose();
             _cancelationTokens.TryRemove(matchId, out _);
         }
+
+        _numOfVotes.TryRemove(match.Id, out _);
+        _numOPlayers.TryRemove(match.Id, out _);
     }
 
     public async Task SelectPictureForRound(int pictureId, int matchId, int roundIndex, int userId)
@@ -295,17 +302,21 @@ public class MatchesService : IMatchesService
     }
 
     // ------------ Private methods ------------ //
-    private static async Task ExecuteMatchLogic(Match match, int numOfUsers, IServiceScope scope, CancellationToken cancellationToken)
+    private static async Task ExecuteMatchLogic(Match match, IServiceScope scope, CancellationToken cancellationToken)
     {
         // Get the services
         var roundsService = scope.ServiceProvider.GetRequiredService<IRoundsService>();
         var matchesService = scope.ServiceProvider.GetRequiredService<IMatchesService>();
         var webSocketRoomManager = scope.ServiceProvider.GetRequiredService<WebSocketRoomManager>();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<MatchesService>>();
+        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
         try
         {
             int roundIndex = 0;
-            logger.LogInformation("Starting ExecuteMatchLogic for match {matchId} with {numOfUsers} users", match.Id, numOfUsers);
+            bool skipWhenAllVotedFF = configuration.GetValue(SystemSettings.ENABLE_SKIP_WHEN_ALL_VOTED_KEY, false);
+
+            logger.LogInformation("Starting ExecuteMatchLogic for match {matchId} with {numOfUsers} users, skipWhenAllVotedFF {skipWhenAllVotedFF}",
+                match.Id, _numOPlayers[match.Id], skipWhenAllVotedFF);
             while (!(match.NumOfRounds == roundIndex/* || match.NumOfVotesToWin == userWithMaxVotes*/)) // Check winning condition
             {
                 // ------- Start a new round ------- //
@@ -324,9 +335,9 @@ public class MatchesService : IMatchesService
                 await webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
                 for (int i = 0; i < match.PictureSelectionTimeSeconds; i++)
                 {
-                    if (_numOfVotes.TryGetValue(match.Id, out int currentVotes) && currentVotes >= numOfUsers)
+                    if (skipWhenAllVotedFF && _numOfVotes.TryGetValue(match.Id, out int currentVotes) && currentVotes >= _numOPlayers[match.Id])
                     {
-                        logger.LogInformation("{currentVotes} users selected picture for match {matchId} with {numOfUsers} users", currentVotes, match.Id, numOfUsers);
+                        logger.LogInformation("{currentVotes} users selected picture for match {matchId} with {numOfUsers} users", currentVotes, match.Id, _numOPlayers[match.Id]);
                         break;
                     }
                     await Task.Delay(1000, cancellationToken);
@@ -339,9 +350,9 @@ public class MatchesService : IMatchesService
                 await webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
                 for (int i = 0; i < match.VoteTimeSeconds; i++)
                 {
-                    if (_numOfVotes.TryGetValue(match.Id, out int currentVotes) && currentVotes >= numOfUsers)
+                    if (skipWhenAllVotedFF && _numOfVotes.TryGetValue(match.Id, out int currentVotes) && currentVotes >= _numOPlayers[match.Id])
                     {
-                        logger.LogInformation("{currentVotes} users voted picture for match {matchId} with {numOfUsers} users", currentVotes, match.Id, numOfUsers);
+                        logger.LogInformation("{currentVotes} users voted picture for match {matchId} with {numOfUsers} users", currentVotes, match.Id, _numOPlayers[match.Id]);
                         break;
                     }
                     await Task.Delay(1000, cancellationToken);
@@ -350,6 +361,7 @@ public class MatchesService : IMatchesService
                 // ------- Ending a round ------- //
                 roundDto = await roundsService.EndRound(match.Id, roundIndex);
                 roundWsMessage.Data = roundDto;
+
                 await webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
 
                 await Task.Delay(ROUND_WINNER_DISPLAY_SECONDS * 1000, cancellationToken);
@@ -357,7 +369,6 @@ public class MatchesService : IMatchesService
 
                 // Check if the match was ended
                 cancellationToken.ThrowIfCancellationRequested();
-                _numOfVotes.TryRemove(match.Id, out _);
             }
             await matchesService.EndMatch(match.Id);
         }

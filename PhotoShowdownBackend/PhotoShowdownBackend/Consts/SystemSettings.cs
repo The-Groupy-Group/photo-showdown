@@ -14,5 +14,8 @@ public static class SystemSettings
     // Matches
     public const int ROUND_WINNER_DISPLAY_SECONDS = 15;
 
+    // Features
+    public const string ENABLE_SKIP_WHEN_ALL_VOTED_KEY = "ENABLE_SKIP_WHEN_ALL_VOTED";
+
     public static JsonSerializerOptions JsonSerializerOptions = null!;
 }

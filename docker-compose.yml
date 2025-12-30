@@ -21,8 +21,9 @@ services:
     depends_on:
       - db
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_ENVIRONMENT: ${BACKEND_ENV:-Production}
       ConnectionStrings__DefaultConnection: Server=db;Database=PhotoShowdownDB;User Id=sa;Password=donfil123!!!;trusted_connection=false;MultipleActiveResultSets=true;TrustServerCertificate=true;
+      ENABLE_SKIP_WHEN_ALL_VOTED: ${ENABLE_SKIP_WHEN_ALL_VOTED:-true}
     volumes:
       - logs:/app/Logs
       - wwwroot:/app/wwwroot
