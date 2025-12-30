@@ -1,6 +1,9 @@
 // src/config.ts
 
 
+//export const IP_ADDRESS =  '10.0.0.2';
+//export const PORT = '8080';
+
 export const IP_ADDRESS = process.env.EXPO_PUBLIC_IP_ADDRESS || '10.0.0.2';
 export const PORT = process.env.EXPO_PUBLIC_PORT || '8080';
 
