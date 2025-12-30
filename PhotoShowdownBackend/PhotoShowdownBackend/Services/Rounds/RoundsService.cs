@@ -83,11 +83,12 @@ public class RoundsService : IRoundsService
 
         round.RoundState = Round.RoundStates.Ended;
         round.EndDate = DateTime.UtcNow;
-        round.WinnerId = CalculateRoundWinner(round);
+        round.WinnerIds = CalculateRoundWinner(round);
 
-        if(round.WinnerId.HasValue)
+        foreach (var winnerId in round.WinnerIds!)
         {
-            await _matcheConnectionsService.IncrementScore(round.WinnerId.Value, matchId);
+            _logger.LogInformation("User {WinnerId} won round {RoundIndex} of match {MatchId}", winnerId, round.RoundIndex, round.MatchId);
+            await _matcheConnectionsService.IncrementScore(winnerId, matchId);
         }
 
         await _roundsRepo.UpdateAsync(round);
@@ -148,20 +149,12 @@ public class RoundsService : IRoundsService
         await _roundVotesRepository.CreateAsync(roundVote);
     }
 
-    private static int? CalculateRoundWinner(Round round)
+    private static int[] CalculateRoundWinner(Round round)
     {
-        RoundPicture? winnerPicture = null;
-        int maxVotes = 0;
+        int maxVotes = round.RoundPictures.Select(rp => rp.RoundVotes.Count).Max();
 
-        foreach (RoundPicture rp in round.RoundPictures)
-        {
-            if (maxVotes < rp.RoundVotes.Count)
-            {
-                maxVotes = rp.RoundVotes.Count;
-                winnerPicture = rp;
-            }
-        }
-
-        return winnerPicture?.UserId;
+        return [.. round.RoundPictures
+            .Where(rp => rp.RoundVotes.Count == maxVotes && rp.UserId.HasValue)
+            .Select(rp => rp.UserId!.Value)];
     }
 }

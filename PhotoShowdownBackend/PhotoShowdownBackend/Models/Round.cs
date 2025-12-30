@@ -16,9 +16,12 @@ public class Round
 
     public RoundStates RoundState { get; set; } = 0;
 
+    public int[]? WinnerIds { get; set; }
+
+    // SHOULD BE OBSOLETE - use WinnerIds instead
     [ForeignKey("Winner")]
     public int? WinnerId { get; set; }
-    
+
     public string Sentence { get; set; } = string.Empty;
 
     public DateTime? StartDate { get; set; }
