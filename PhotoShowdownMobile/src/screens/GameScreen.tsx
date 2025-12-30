@@ -106,12 +106,16 @@ const GameScreen = ({ route, navigation }: any) => {
           
           if (roundData.roundIndex > processedRoundIndex) {
               
-              if (roundData.roundWinnerId) {
-                  console.log(`Winner ID: ${roundData.roundWinnerId}. Updating local score.`);
+              // Handle Multiple Winners
+              const winnerIds = roundData.RoundWinnerIds || [];
+
+              if (winnerIds && winnerIds.length > 0) {
+                  console.log(`🏆 Round Winners IDs: ${winnerIds}. Updating scores.`);
                   
                   setMatchPlayers(prevPlayers => {
                       return prevPlayers.map(player => {
-                          if (player.id === roundData.roundWinnerId) {
+                          // Update score for ALL winners
+                          if (winnerIds.includes(player.id)) {
                               return { ...player, score: player.score + 1 };
                           }
                           return player;
@@ -290,15 +294,23 @@ const GameScreen = ({ route, navigation }: any) => {
       return `http://${IP_ADDRESS}:${PORT}/${cleanPath}`;
   };
 
-  const getWinnerDetails = () => {
-      if (!roundData || !roundData.roundWinnerId) return null;
-      const winner = matchPlayers.find(p => p.id === roundData.roundWinnerId);
-      const winningPic = roundData.picturesSelected?.find((p: any) => p.selectedByUserId === roundData.roundWinnerId);
+  // 👇 Helper updated to return a LIST of winners
+  const getWinnersList = () => {
+      if (!roundData) return [];
+      
+      const winnerIds = roundData.roundWinnerIds || roundData.RoundWinnerIds || [];
+      if (winnerIds.length === 0) return [];
 
-      return {
-          name: winner ? winner.username : "Unknown Player",
-          picUrl: winningPic ? getImageUrl(winningPic.picturePath) : null
-      };
+      return winnerIds.map((id: number) => {
+          const winner = matchPlayers.find(p => p.id === id);
+          const winningPic = roundData.picturesSelected?.find((p: any) => p.selectedByUserId === id);
+          
+          return {
+              id: id,
+              name: winner ? winner.username : "Unknown",
+              picUrl: winningPic ? getImageUrl(winningPic.picturePath) : null
+          };
+      });
   };
 
   const goBackHome = () => {
@@ -381,9 +393,12 @@ const GameScreen = ({ route, navigation }: any) => {
   }
 
   // --- Main Game View ---
+  const winnersList = getWinnersList();
+
   return (
     <View style={styles.container}>
       
+      {/* ZOOM MODAL - Simplified (Press & Hold) */}
       <Modal visible={!!zoomedImage} transparent={true} animationType="fade">
           <View style={styles.modalBackground}>
               {zoomedImage && (
@@ -543,14 +558,26 @@ const GameScreen = ({ route, navigation }: any) => {
                 Round {roundData.roundIndex !== undefined ? roundData.roundIndex + 1 : 1}
             </Text>
             
-            {getWinnerDetails()?.picUrl ? (
-                <View style={styles.winnerContainer}>
-                    <Image source={{ uri: getWinnerDetails()?.picUrl! }} style={styles.winnerImage} resizeMode="contain" />
-                    <Text style={styles.winnerText}>{getWinnerDetails()?.name} Wins!</Text>
+            {winnersList.length > 0 ? (
+                <View style={styles.winnersWrapper}>
+                    {winnersList.length > 1 && (
+                        <Text style={styles.tieText}>It's a Tie!</Text>
+                    )}
+                    
+                    <ScrollView horizontal contentContainerStyle={styles.winnersScrollContent} showsHorizontalScrollIndicator={false}>
+                        {winnersList.map((winner: any) => (
+                            <View key={winner.id} style={styles.singleWinnerContainer}>
+                                {winner.picUrl && (
+                                    <Image source={{ uri: winner.picUrl }} style={styles.winnerImage} resizeMode="contain" />
+                                )}
+                                <Text style={styles.winnerText}>{winner.name}</Text>
+                            </View>
+                        ))}
+                    </ScrollView>
                 </View>
             ) : (
                 <View style={styles.winnerContainer}>
-                    <Text style={{color: 'gray', fontSize: 18}}>Tie / No Votes</Text>
+                    <Text style={{color: 'gray', fontSize: 18}}>No Votes / Tie</Text>
                 </View>
             )}
 
@@ -610,9 +637,15 @@ const styles = StyleSheet.create({
   roundInfoContainer: { marginTop: 40, marginBottom: 10, alignItems: 'center' },
   roundInfoText: { color: '#AAA', fontSize: 16, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 1 },
 
+  // Updated Winner Styles for Multiple Winners
+  winnersWrapper: { width: '100%', alignItems: 'center', marginVertical: 15 },
+  winnersScrollContent: { alignItems: 'center', justifyContent: 'center', minWidth: '100%' },
+  singleWinnerContainer: { alignItems: 'center', marginHorizontal: 15 },
   winnerContainer: { alignItems: 'center', marginVertical: 20, width: '100%' },
-  winnerImage: { width: 250, height: 250, borderRadius: 10, marginBottom: 15, borderWidth: 3, borderColor: '#FFD700' },
-  winnerText: { color: '#FFD700', fontSize: 24, fontWeight: 'bold' },
+  winnerImage: { width: 220, height: 220, borderRadius: 10, marginBottom: 10, borderWidth: 3, borderColor: '#FFD700' },
+  winnerText: { color: '#FFD700', fontSize: 22, fontWeight: 'bold', textAlign: 'center' },
+  tieText: { color: '#FFD700', fontSize: 24, fontWeight: 'bold', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 2 },
+  
   subText: { color: '#aaa', marginBottom: 20 },
 
   leaderboard: { width: '100%', backgroundColor: '#1E1E1E', borderRadius: 15, padding: 15, marginBottom: 20 },
