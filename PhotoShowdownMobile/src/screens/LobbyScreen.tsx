@@ -24,8 +24,8 @@ const LobbyScreen = ({ route, navigation }: any) => {
   const [numRounds, setNumRounds] = useState('5');
   const [votesToWin, setVotesToWin] = useState('3');
   
-  const [selectionTime, setSelectionTime] = useState('60'); 
-  const [voteTime, setVoteTime] = useState('60');       
+  const [selectionTime, setSelectionTime] = useState('30'); 
+  const [voteTime, setVoteTime] = useState('20');       
   
   const [customSentences, setCustomSentences] = useState<string[]>([]);
   const [newSentence, setNewSentence] = useState('');
@@ -143,8 +143,8 @@ const LobbyScreen = ({ route, navigation }: any) => {
       
       const roundsInt = parseInt(numRounds) || 5;
       const votesInt = parseInt(votesToWin) || 3;
-      const selectionTimeInt = parseInt(selectionTime) || 60;
-      const voteTimeInt = parseInt(voteTime) || 60;
+      const selectionTimeInt = parseInt(selectionTime) || 30;
+      const voteTimeInt = parseInt(voteTime) || 20;
       const finalSentences = customSentences; 
 
       const gameConfig = {
