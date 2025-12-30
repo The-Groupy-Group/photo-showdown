@@ -85,6 +85,9 @@ const GameScreen = ({ route, navigation }: any) => {
       if (prevRoundStateRef.current !== currentRoundState) {
           console.log(`State Changed: ${prevRoundStateRef.current} -> ${currentRoundState}`);
           
+          // FORCE CLOSE ZOOM on any state change
+          setZoomedImage(null);
+
           if (currentRoundState === GameState.PictureSelection) {
               setHasSelected(false);
               setTempSelectedPictureId(null);
@@ -181,10 +184,9 @@ const GameScreen = ({ route, navigation }: any) => {
               const data = res.data.data;
               
               if (data.users) {
-                  console.log("👥 Syncing players & scores from server:", data.users);
+                  console.log("Syncing players & scores from server:", data.users);
                   setMatchPlayers(data.users);
               }
-              // ------------------
 
               const rounds = 
                   data.numOfRounds ?? 
@@ -556,7 +558,6 @@ const GameScreen = ({ route, navigation }: any) => {
             <Text style={styles.subSectionTitle}>Votes Breakdown:</Text>
             <View style={styles.row}>
                 {roundData.picturesSelected?.map((pic: any) => {
-                     // Check if 'NumOfVotes' or 'numOfVotes'
                      const votes = pic.numOfVotes !== undefined ? pic.numOfVotes : (pic.NumOfVotes || 0);
                      
                      return (
@@ -565,7 +566,7 @@ const GameScreen = ({ route, navigation }: any) => {
                             onLongPress={() => setZoomedImage(getImageUrl(pic.picturePath) || null)}
                             onPressOut={() => setZoomedImage(null)}
                             delayLongPress={200}
-                            style={[styles.cardWrapper, { height: 120 }]} // Slightly smaller cards for results
+                            style={[styles.cardWrapper, { height: 120 }]} 
                         >
                             <Image source={{ uri: getImageUrl(pic.picturePath) }} style={styles.cardImage} resizeMode="cover" />
                             <View style={styles.voteOverlay}>
