@@ -42,6 +42,7 @@ public class MatchesService : IMatchesService
 
     private const int ROUND_WINNER_DISPLAY_SECONDS = SystemSettings.ROUND_WINNER_DISPLAY_SECONDS;
     private static readonly ConcurrentDictionary<int, CancellationTokenSource> _cancelationTokens = new();
+    private static readonly ConcurrentDictionary<int, int> _numOfVotes = new();
 
     public MatchesService(
         IMatchesRepository matchesRepository,
@@ -267,6 +268,9 @@ public class MatchesService : IMatchesService
 
         await _roundsService.SelectPicture(pictureId, matchId, roundIndex, userId);
 
+        // Increment the number of votes for the match
+        _numOfVotes.AddOrUpdate(match.Id, 1, (key, oldValue) => oldValue + 1);
+
         UserLockedInWebSocketMessage userLockedInWsMessage = new(userId);
         await _webSocketRoomManager.SendMessageToRoom(userId, match.Id, userLockedInWsMessage);
     }
@@ -280,6 +284,9 @@ public class MatchesService : IMatchesService
             throw new MatchDidNotStartYetException();
 
         await _roundsService.VoteForSelectedPicture(roundPictureId, matchId, roundIndex, userId);
+
+        // Increment the number of votes for the match
+        _numOfVotes.AddOrUpdate(match.Id, 1, (key, oldValue) => oldValue + 1);
 
         UserLockedInWebSocketMessage userLockedInWsMessage = new(userId);
         await _webSocketRoomManager.SendMessageToRoom(userId, match.Id, userLockedInWsMessage);
@@ -295,12 +302,13 @@ public class MatchesService : IMatchesService
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<MatchesService>>();
         try
         {
-
+            int numOfUsers = match.MatchConnections.Count;
             int roundIndex = 0;
             while (!(match.NumOfRounds == roundIndex/* || match.NumOfVotesToWin == userWithMaxVotes*/)) // Check winning condition
             {
                 // ------- Start a new round ------- //
                 RoundDTO roundDto;
+                _numOfVotes[match.Id] = 0;
                 try
                 {
                     roundDto = await roundsService.StartRound(match.Id, roundIndex);
@@ -312,13 +320,28 @@ public class MatchesService : IMatchesService
                 }
                 RoundStateChangeWebSocketMessage roundWsMessage = new(roundDto);
                 await webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
-                await Task.Delay(match.PictureSelectionTimeSeconds * 1000, cancellationToken);
+                for (int i = 0; i < match.PictureSelectionTimeSeconds; i++)
+                {
+                    if (_numOfVotes.TryGetValue(match.Id, out int currentVotes) && currentVotes >= numOfUsers)
+                    {
+                        break;
+                    }
+                    await Task.Delay(1000, cancellationToken);
+                }
 
                 // ------- Start voting phase ------- //
+                _numOfVotes[match.Id] = 0;
                 roundDto = await roundsService.StartVotePhase(match.Id, roundIndex);
                 roundWsMessage.Data = roundDto;
                 await webSocketRoomManager.SendMessageToRoom(null, match.Id, roundWsMessage);
-                await Task.Delay(match.VoteTimeSeconds * 1000, cancellationToken);
+                for (int i = 0; i < match.VoteTimeSeconds; i++)
+                {
+                    if (_numOfVotes.TryGetValue(match.Id, out int currentVotes) && currentVotes >= numOfUsers)
+                    {
+                        break;
+                    }
+                    await Task.Delay(1000, cancellationToken);
+                }
 
                 // ------- Ending a round ------- //
                 roundDto = await roundsService.EndRound(match.Id, roundIndex);
@@ -330,6 +353,7 @@ public class MatchesService : IMatchesService
 
                 // Check if the match was ended
                 cancellationToken.ThrowIfCancellationRequested();
+                _numOfVotes.TryRemove(match.Id, out _);
             }
             await matchesService.EndMatch(match.Id);
         }
