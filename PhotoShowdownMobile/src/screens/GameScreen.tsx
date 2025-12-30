@@ -88,6 +88,9 @@ const GameScreen = ({ route, navigation }: any) => {
           // FORCE CLOSE ZOOM on any state change
           setZoomedImage(null);
 
+          // 🔥 CRITICAL FIX FOR TIMERS: Re-sync clock on every state change
+          fetchCurrentState();
+
           if (currentRoundState === GameState.PictureSelection) {
               setHasSelected(false);
               setTempSelectedPictureId(null);
@@ -104,23 +107,30 @@ const GameScreen = ({ route, navigation }: any) => {
       // 2. Handle Round End & Scoring
       if (currentRoundState === GameState.Ended) {
           
+          // DEBUG LOGS
+          console.log("--------------------------------------------------");
+          console.log("🏁 ROUND ENDED DEBUG INFO 🏁");
+          
           if (roundData.roundIndex > processedRoundIndex) {
               
-              // Handle Multiple Winners
-              const winnerIds = roundData.RoundWinnerIds || [];
+              // Handle Multiple Winners (Robust check)
+              const winnerIds = roundData.roundWinnerIds || roundData.RoundWinnerIds || [];
+
+              console.log("🏆 Parsed Winner IDs for scoring:", winnerIds);
 
               if (winnerIds && winnerIds.length > 0) {
-                  console.log(`🏆 Round Winners IDs: ${winnerIds}. Updating scores.`);
-                  
                   setMatchPlayers(prevPlayers => {
                       return prevPlayers.map(player => {
                           // Update score for ALL winners
                           if (winnerIds.includes(player.id)) {
+                              console.log(`✅ Adding point to user: ${player.username} (ID: ${player.id})`);
                               return { ...player, score: player.score + 1 };
                           }
                           return player;
                       });
                   });
+              } else {
+                  console.log("⚠️ No winners found (list is empty/null). No scores updated.");
               }
               
               setProcessedRoundIndex(roundData.roundIndex);
@@ -130,7 +140,7 @@ const GameScreen = ({ route, navigation }: any) => {
                   console.log("Last round ended. Closing connection immediately.");
                   
                   isMatchOverRef.current = true;
-                  socketService.disconnect(); // Explicit disconnect
+                  socketService.disconnect(); 
                   setIsMatchOver(true);
               }
           }
@@ -142,7 +152,6 @@ const GameScreen = ({ route, navigation }: any) => {
       if (!roundData || isMatchOver) return;
 
       const updateTimer = () => {
-          // Calculate current time ADJUSTED by the offset we calculated earlier
           const adjustedNow = Date.now() + timeOffset;
           let targetTime = 0;
           
@@ -162,8 +171,8 @@ const GameScreen = ({ route, navigation }: any) => {
           }
       };
 
-      updateTimer();
-      const interval = setInterval(updateTimer, 1000);
+      updateTimer(); 
+      const interval = setInterval(updateTimer, 500); 
       return () => clearInterval(interval);
   }, [roundData, currentRoundState, isMatchOver, timeOffset]);
 
@@ -180,15 +189,13 @@ const GameScreen = ({ route, navigation }: any) => {
               const serverTime = Date.parse(res.headers['date']);
               const clientTime = Date.now();
               const offset = serverTime - clientTime;
-              console.log(`Clock Sync: Client is ${offset}ms off from Server`);
               setTimeOffset(offset);
           }
 
           if (res.data.data) {
               const data = res.data.data;
               
-              if (data.users) {
-                  console.log("Syncing players & scores from server:", data.users);
+              if (data.users && matchPlayers.length === 0) {
                   setMatchPlayers(data.users);
               }
 
@@ -294,12 +301,12 @@ const GameScreen = ({ route, navigation }: any) => {
       return `http://${IP_ADDRESS}:${PORT}/${cleanPath}`;
   };
 
-  // 👇 Helper updated to return a LIST of winners
+  // 👇 Helper updated to return a LIST of winners safely
   const getWinnersList = () => {
       if (!roundData) return [];
       
       const winnerIds = roundData.roundWinnerIds || roundData.RoundWinnerIds || [];
-      if (winnerIds.length === 0) return [];
+      if (!winnerIds || winnerIds.length === 0) return [];
 
       return winnerIds.map((id: number) => {
           const winner = matchPlayers.find(p => p.id === id);
@@ -398,7 +405,7 @@ const GameScreen = ({ route, navigation }: any) => {
   return (
     <View style={styles.container}>
       
-      {/* ZOOM MODAL - Simplified (Press & Hold) */}
+      {/* ZOOM MODAL */}
       <Modal visible={!!zoomedImage} transparent={true} animationType="fade">
           <View style={styles.modalBackground}>
               {zoomedImage && (
@@ -460,17 +467,12 @@ const GameScreen = ({ route, navigation }: any) => {
                 <Text style={{color: '#4CAF50', marginBottom: 10, fontWeight:'bold'}}>✅ Choice Locked In</Text>
             )}
             
-            <ScrollView 
-                style={styles.cardsScroll} 
-                contentContainerStyle={styles.cardsGrid}
-            >
+            <ScrollView style={styles.cardsScroll} contentContainerStyle={styles.cardsGrid}>
                 <View style={styles.row}>
                     {myPictures.map((pic) => (
                         <TouchableOpacity 
                             key={pic.id} 
-                            onPress={() => {
-                                if (!hasSelected) onPictureClick(pic.id);
-                            }}
+                            onPress={() => { if (!hasSelected) onPictureClick(pic.id); }}
                             onLongPress={() => setZoomedImage(getImageUrl(pic.picturePath) || null)}
                             onPressOut={() => setZoomedImage(null)} 
                             delayLongPress={200} 
@@ -502,10 +504,7 @@ const GameScreen = ({ route, navigation }: any) => {
       {currentRoundState === GameState.Voting && (
           <>
             <Text style={styles.sectionTitle}>Vote for the funniest!</Text>
-            <ScrollView 
-                style={styles.cardsScroll} 
-                contentContainerStyle={styles.cardsGrid}
-            >
+            <ScrollView style={styles.cardsScroll} contentContainerStyle={styles.cardsGrid}>
                 <View style={styles.row}>
                     {roundData.picturesSelected?.map((picSelected: any) => {
                         const isMyPicture = picSelected.selectedByUserId === userId;
@@ -513,9 +512,7 @@ const GameScreen = ({ route, navigation }: any) => {
                         return (
                             <TouchableOpacity 
                                 key={picSelected.id}
-                                onPress={() => {
-                                    if (!hasSelected && !isMyPicture) onVoteClick(picSelected.id);
-                                }}
+                                onPress={() => { if (!hasSelected && !isMyPicture) onVoteClick(picSelected.id); }}
                                 onLongPress={() => setZoomedImage(getImageUrl(picSelected.picturePath) || null)}
                                 onPressOut={() => setZoomedImage(null)} 
                                 delayLongPress={200}
@@ -558,22 +555,26 @@ const GameScreen = ({ route, navigation }: any) => {
                 Round {roundData.roundIndex !== undefined ? roundData.roundIndex + 1 : 1}
             </Text>
             
+            {/* UPDATED: Winners Section (Names Only, No Images) */}
             {winnersList.length > 0 ? (
                 <View style={styles.winnersWrapper}>
-                    {winnersList.length > 1 && (
-                        <Text style={styles.tieText}>It's a Tie!</Text>
-                    )}
-                    
-                    <ScrollView horizontal contentContainerStyle={styles.winnersScrollContent} showsHorizontalScrollIndicator={false}>
-                        {winnersList.map((winner: any) => (
-                            <View key={winner.id} style={styles.singleWinnerContainer}>
-                                {winner.picUrl && (
-                                    <Image source={{ uri: winner.picUrl }} style={styles.winnerImage} resizeMode="contain" />
-                                )}
-                                <Text style={styles.winnerText}>{winner.name}</Text>
+                    {winnersList.length > 1 ? (
+                        <>
+                            <Text style={styles.tieText}>It's a Tie!</Text>
+                            <View style={styles.namesListContainer}>
+                                {winnersList.map((winner: any) => (
+                                    <Text key={winner.id} style={styles.winnerTextSmall}>
+                                        ⭐ {winner.name}
+                                    </Text>
+                                ))}
                             </View>
-                        ))}
-                    </ScrollView>
+                        </>
+                    ) : (
+                        <View style={styles.winnerContainer}>
+                            <Text style={styles.winnerLabel}>THE WINNER IS</Text>
+                            <Text style={styles.winnerText}>{winnersList[0].name}</Text>
+                        </View>
+                    )}
                 </View>
             ) : (
                 <View style={styles.winnerContainer}>
@@ -637,15 +638,21 @@ const styles = StyleSheet.create({
   roundInfoContainer: { marginTop: 40, marginBottom: 10, alignItems: 'center' },
   roundInfoText: { color: '#AAA', fontSize: 16, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 1 },
 
-  // Updated Winner Styles for Multiple Winners
-  winnersWrapper: { width: '100%', alignItems: 'center', marginVertical: 15 },
-  winnersScrollContent: { alignItems: 'center', justifyContent: 'center', minWidth: '100%' },
-  singleWinnerContainer: { alignItems: 'center', marginHorizontal: 15 },
-  winnerContainer: { alignItems: 'center', marginVertical: 20, width: '100%' },
-  winnerImage: { width: 220, height: 220, borderRadius: 10, marginBottom: 10, borderWidth: 3, borderColor: '#FFD700' },
-  winnerText: { color: '#FFD700', fontSize: 22, fontWeight: 'bold', textAlign: 'center' },
+  // --- Winner / Tie Section ---
+  winnersWrapper: { width: '100%', alignItems: 'center', marginVertical: 10, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#222' },
+  
+  // Combined/Updated Winner Styles (No Duplicates)
+  winnerContainer: { alignItems: 'center', marginVertical: 10, width: '100%' }, 
+  winnerImage: { width: 220, height: 220, borderRadius: 10, marginBottom: 10, borderWidth: 3, borderColor: '#FFD700' }, 
+  winnerLabel: { color: '#888', fontSize: 12, letterSpacing: 2, marginBottom: 5 },
+  winnerText: { color: '#FFD700', fontSize: 28, fontWeight: 'bold', textAlign: 'center' },
+  winnerTextSmall: { color: '#FFD700', fontSize: 20, fontWeight: 'bold', marginVertical: 2 },
   tieText: { color: '#FFD700', fontSize: 24, fontWeight: 'bold', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 2 },
   
+  namesListContainer: { alignItems: 'center', width: '100%' },
+  singleWinnerContainer: { alignItems: 'center', marginHorizontal: 15 },
+  winnersScrollContent: { alignItems: 'center', justifyContent: 'center', minWidth: '100%' },
+
   subText: { color: '#aaa', marginBottom: 20 },
 
   leaderboard: { width: '100%', backgroundColor: '#1E1E1E', borderRadius: 15, padding: 15, marginBottom: 20 },
@@ -690,7 +697,7 @@ const styles = StyleSheet.create({
   myCardOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
   myCardText: { color: 'white', fontWeight: 'bold', fontSize: 12 },
 
-  // New Vote Badge Styles
+  // Vote Badge Styles
   voteOverlay: {
     position: 'absolute',
     bottom: 0,
@@ -716,7 +723,6 @@ const styles = StyleSheet.create({
   winnerSection: { alignItems: 'center', marginBottom: 40 },
   winnerAvatarContainer: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#2A2A35', justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: '#FFD700', marginBottom: 15, elevation: 10 },
   winnerAvatarEmoji: { fontSize: 50 },
-  winnerLabel: { color: '#888', fontSize: 14, letterSpacing: 1, marginBottom: 5 },
   winnerNameLarge: { color: '#FFD700', fontSize: 36, fontWeight: 'bold' },
   winnerScoreLarge: { color: '#FFF', fontSize: 22, fontWeight: '300' },
   finalLeaderboardContainer: { width: '100%', backgroundColor: '#1E1E24', borderRadius: 16, padding: 20, marginBottom: 30, borderWidth: 1, borderColor: '#333' },
