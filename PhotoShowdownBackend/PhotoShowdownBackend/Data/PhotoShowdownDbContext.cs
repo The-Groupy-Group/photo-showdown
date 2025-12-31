@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PhotoShowdownBackend.Models;
+using System.Text.Json;
 
 namespace PhotoShowdownBackend.Data;
 
@@ -18,4 +19,19 @@ public class PhotoShowdownDbContext : DbContext
     public DbSet<CustomSentence> CustomSentences { get; set; } = null!;
     public DbSet<RoundPicture> RoundPictures { get; set; } = null!;
     public DbSet<RoundVote> RoundVotes { get; set; } = null!;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // WinnerIds JSON mapping
+        modelBuilder.Entity<Round>(entity =>
+        {
+            entity.Property(e => e.WinnerIds)
+                .HasColumnType("nvarchar(max)")
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null!),
+                    v => JsonSerializer.Deserialize<int[]>(v, (JsonSerializerOptions)null!));
+        });
+    }
 }

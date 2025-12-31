@@ -1,0 +1,6 @@
+﻿USE PhotoShowdownDB;
+GO
+
+ALTER TABLE Rounds
+ADD WinnerIds NVARCHAR(MAX) NULL;
+GO

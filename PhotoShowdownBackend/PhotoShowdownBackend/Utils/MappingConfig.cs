@@ -53,6 +53,7 @@ public class MappingConfig : Profile
         // Rounds
         CreateMap<Round, RoundDTO>()
             .ForMember(dest => dest.PicturesSelected, opt => opt.MapFrom(src => src.RoundPictures))
+            .ForMember(dest => dest.RoundWinnerIds, opt => opt.MapFrom(src => src.WinnerIds))
             .ForMember(dest => dest.RoundWinnerId, opt => opt.MapFrom(src => src.Winner != null ? src.Winner.Id : (int?)null))
             .ForMember(dest => dest.PictureSelectionEndDate,
                 opt => opt.MapFrom(src => src.StartDate!.Value.AddSeconds(
